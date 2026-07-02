@@ -1,0 +1,9 @@
+# Generated override keeps official upstream docker-compose.yml unmodified.
+services:
+  misp-core:
+    healthcheck:
+      test: curl -ks https://localhost/users/heartbeat > /dev/null || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 60s
