@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -13,6 +14,20 @@ class StaticRepoTests(unittest.TestCase):
             text = p.read_text()
             self.assertTrue(text.startswith('#!/usr/bin/env bash'), p)
             self.assertIn('set -euo pipefail', text, p)
+
+    def test_main_scripts_have_help_and_version(self):
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh']:
+            script = ROOT / 'installer' / name
+            help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
+            self.assertIn('Usage:', help_text, name)
+            version_text = subprocess.check_output([str(script), '--version'], text=True, cwd=ROOT).strip()
+            self.assertRegex(version_text, r'^misp-production-installer \d+\.\d+\.\d+')
+
+    def test_version_files_are_consistent(self):
+        version = (ROOT / 'VERSION').read_text().strip()
+        self.assertRegex(version, r'^\d+\.\d+\.\d+$')
+        self.assertIn(f'Current installer version: `{version}`', (ROOT / 'README.md').read_text())
+        self.assertIn(f'## [{version}]', (ROOT / 'CHANGELOG.md').read_text())
 
     def test_redis_password_url_safe_generation(self):
         text = (ROOT / 'installer' / 'generate-env.sh').read_text()

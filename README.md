@@ -2,6 +2,8 @@
 
 A clean installer/overlay repository for production-oriented MISP Docker deployments.
 
+Current installer version: `0.1.0`
+
 This repo **does not fork or vendor MISP** and **does not copy `MISP/misp-docker`**. It clones the official upstream at install/update time and adds value through generated `.env`, Compose overrides, validation, backup, update, and operational documentation.
 
 ## Why this exists
@@ -44,6 +46,15 @@ flowchart TB
 ```
 
 ## Quick install: reverse proxy mode
+
+Inspect the installer first:
+
+```bash
+./installer/install.sh --help
+./installer/install.sh --version
+```
+
+Then install:
 
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-production-installer.git
@@ -96,6 +107,15 @@ Rotate the password after first login.
 ./installer/update.sh --install-dir /opt/misp-docker --upstream-ref <tag-or-commit>
 ```
 
+## Versioning
+
+There are two version streams:
+
+- The **installer** is versioned with `VERSION`, `CHANGELOG.md`, and Git tags.
+- The deployed **MISP/misp-docker upstream** is selected with `--upstream-ref`.
+
+See `docs/versioning.md` for the release workflow and beginner-friendly SemVer guidance.
+
 ## Design rules
 
 1. Keep official upstream clean.
@@ -109,5 +129,8 @@ Rotate the password after first login.
 ## Docs
 
 - `docs/architecture.md`
+- `docs/shell-scripts.md`
 - `docs/upgrade-path.md`
 - `docs/troubleshooting.md`
+- `docs/versioning.md`
+- `CHANGELOG.md`
