@@ -16,7 +16,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -56,6 +56,27 @@ class StaticRepoTests(unittest.TestCase):
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
         self.assertIn("SHOW TABLES LIKE", lib)
+
+    def test_compose_wrapper_suppresses_optional_variable_noise(self):
+        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        self.assertIn('braced_pattern', lib)
+        self.assertIn('plain_pattern', lib)
+        self.assertIn('vars_seen - env_keys', lib)
+        self.assertIn('env_args+=("$var_name=")', lib)
+        self.assertIn('env "${env_args[@]}" docker compose', lib)
+
+    def test_admin_credentials_helper_is_safe_by_default(self):
+        text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()
+        self.assertIn('--show-password', text)
+        self.assertIn('ADMIN_PASSWORD=(hidden', text)
+        self.assertIn('Use --show-password only on a trusted', text)
+
+    def test_login_check_does_not_print_password(self):
+        text = (ROOT / 'installer' / 'login-check.sh').read_text()
+        self.assertIn('HTTPCookieProcessor', text)
+        self.assertIn('csrf_marker', text)
+        self.assertIn('invalid_credentials_marker', text)
+        self.assertIn('It never prints the password', text)
 
     def test_reset_installation_has_safety_guards(self):
         text = (ROOT / 'installer' / 'reset-installation.sh').read_text()

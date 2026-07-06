@@ -31,14 +31,66 @@ print(uuid.uuid4())
 PY
 fi; }
 
+compose_interpolation_defaults() {
+  # Upstream misp-docker references many optional variables in docker-compose.yml.
+  # Docker Compose prints a warning for each unset variable before defaulting it
+  # to an empty string. For operator-facing scripts this is noisy, so we set only
+  # variables that are referenced by Compose but absent from the generated .env.
+  # This keeps .env concise while making status/doctor/update output readable.
+  local install_dir="$1"; shift
+  python3 - "$install_dir" "$@" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+install_dir = Path(sys.argv[1])
+compose_files = [install_dir / p for p in sys.argv[2:]]
+env_file = install_dir / '.env'
+
+env_keys = set()
+if env_file.exists():
+    for line in env_file.read_text(errors='ignore').splitlines():
+        stripped = line.strip()
+        if stripped and not stripped.startswith('#') and '=' in stripped:
+            env_keys.add(stripped.split('=', 1)[0])
+
+vars_seen = set()
+braced_pattern = re.compile(r'\$\{([A-Za-z_][A-Za-z0-9_]*)')
+plain_pattern = re.compile(r'(?<!\$)\$([A-Za-z_][A-Za-z0-9_]*)')
+for compose_file in compose_files:
+    if not compose_file.exists():
+        continue
+    text = compose_file.read_text(errors='ignore')
+    vars_seen.update(braced_pattern.findall(text))
+    vars_seen.update(plain_pattern.findall(text))
+
+for name in sorted(vars_seen - env_keys):
+    print(name)
+PY
+}
+
 compose_cmd() {
   # Always call Docker Compose from the upstream checkout directory and always
   # include the generated .env and optional override file. This prevents subtle
   # differences between manual commands and installer commands.
   local install_dir="$1"; shift
-  local files=(-f docker-compose.yml)
-  [[ -f "$install_dir/docker-compose.override.yml" ]] && files+=(-f docker-compose.override.yml)
-  (cd "$install_dir" && docker compose --env-file .env "${files[@]}" "$@")
+  local compose_files=(docker-compose.yml)
+  [[ -f "$install_dir/docker-compose.override.yml" ]] && compose_files+=(docker-compose.override.yml)
+  local file_args=()
+  for compose_file in "${compose_files[@]}"; do
+    file_args+=(-f "$compose_file")
+  done
+
+  local env_args=()
+  local var_name
+  while IFS= read -r var_name; do
+    [[ -z "$var_name" ]] && continue
+    if [[ -z "${!var_name+x}" ]]; then
+      env_args+=("$var_name=")
+    fi
+  done < <(compose_interpolation_defaults "$install_dir" "${compose_files[@]}")
+
+  (cd "$install_dir" && env "${env_args[@]}" docker compose --env-file .env "${file_args[@]}" "$@")
 }
 
 wait_for_misp_core() {
