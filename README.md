@@ -132,9 +132,12 @@ See `docs/versioning.md` for the release workflow and beginner-friendly SemVer g
 
 ## Docs
 
+- `AGENTS.md`
+- `QA.md`
 - `docs/architecture.md`
 - `docs/shell-scripts.md`
 - `docs/upgrade-path.md`
 - `docs/troubleshooting.md`
 - `docs/versioning.md`
+- `docs/release/release-process.md`
 - `CHANGELOG.md`
