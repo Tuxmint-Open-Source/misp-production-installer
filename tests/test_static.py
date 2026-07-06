@@ -77,6 +77,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('csrf_marker', text)
         self.assertIn('invalid_credentials_marker', text)
         self.assertIn('It never prints the password', text)
+        self.assertIn('users/logout', text)
+        self.assertIn('logout_attempted', text)
 
     def test_reset_installation_has_safety_guards(self):
         text = (ROOT / 'installer' / 'reset-installation.sh').read_text()

@@ -21,7 +21,7 @@ Then run the normal deployment checks:
 ```
 
 You can also test the Web UI login flow from the server without printing the
-password:
+password. On successful login, the script also performs a best-effort logout:
 
 ```bash
 ./installer/login-check.sh --install-dir /opt/misp-docker

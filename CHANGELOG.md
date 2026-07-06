@@ -8,7 +8,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add `installer/reset-installation.sh` for failed or unwanted installs. It performs a dry-run by default, prompts for confirmation in destructive mode, removes MISP Compose containers/networks/named volumes and generated install files, and intentionally leaves Docker Engine installed.
 - Add `installer/admin-credentials.sh` to show the configured initial administrator account and optionally print the generated password on a trusted terminal.
-- Add `installer/login-check.sh` for a CSRF-aware Web UI login check that does not print the password.
+- Add `installer/login-check.sh` for a CSRF-aware Web UI login check that does not print the password and attempts logout after a successful check.
 - Add troubleshooting guidance for Web UI login failures.
 
 ### Changed

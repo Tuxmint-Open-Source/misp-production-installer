@@ -19,7 +19,8 @@ Options:
 
 The script reads ADMIN_EMAIL and ADMIN_PASSWORD from .env, fetches the login
 form, preserves cookies/CSRF hidden fields, posts the credentials, and reports
-whether the login appears successful. It never prints the password.
+whether the login appears successful. On success it also performs a best-effort
+logout request. It never prints the password.
 EOF
 }
 
@@ -134,6 +135,23 @@ server_error = 'internal error' in lower or 'missingtableexception' in lower or 
 still_login = path.endswith('/users/login') and ('password' in lower and 'login' in lower)
 success = post_status < 500 and not invalid and not csrf and not server_error and not still_login
 
+logout_attempted = False
+logout_status = 'not-run'
+logout_path = 'not-run'
+if success:
+    logout_attempted = True
+    logout_url = urljoin(base_url + '/', 'users/logout')
+    logout_req = Request(logout_url, headers={'User-Agent': 'misp-production-installer-login-check'})
+    try:
+        with opener.open(logout_req, timeout=30) as response:
+            logout_status = str(response.status)
+            logout_path = urlparse(response.geturl()).path.rstrip('/') or '/'
+    except Exception as exc:
+        # Logout should be visible for diagnostics, but a failed logout request
+        # should not hide the original login result.
+        logout_status = f'failed:{exc.__class__.__name__}'
+        logout_path = 'unknown'
+
 print(f'login_form_status={get_status}')
 print(f'login_post_status={post_status}')
 print(f'final_path={path}')
@@ -141,6 +159,9 @@ print(f'invalid_credentials_marker={str(invalid).lower()}')
 print(f'csrf_marker={str(csrf).lower()}')
 print(f'server_error_marker={str(server_error).lower()}')
 print(f'login_success={str(success).lower()}')
+print(f'logout_attempted={str(logout_attempted).lower()}')
+print(f'logout_status={logout_status}')
+print(f'logout_final_path={logout_path}')
 if not success:
     raise SystemExit(1)
 PY
