@@ -2,6 +2,12 @@
 
 This project follows [Semantic Versioning](https://semver.org/) for the installer code.
 
+## [Unreleased]
+
+### Added
+
+- Add `installer/reset-installation.sh` for failed or unwanted installs. It performs a dry-run by default, prompts for confirmation in destructive mode, removes MISP Compose containers/networks/named volumes and generated install files, and intentionally leaves Docker Engine installed.
+
 ## [0.1.0] - 2026-07-03
 
 ### Added

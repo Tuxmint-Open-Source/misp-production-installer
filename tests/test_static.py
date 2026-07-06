@@ -16,7 +16,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -38,7 +38,8 @@ class StaticRepoTests(unittest.TestCase):
         markers = [
             '192' + '.168.',
             '.loc' + '.internal',
-            'PROXMOX_' + 'TOKEN_SECRET',
+            'TOKEN_' + 'SECRET',
+            'PRIVATE_' + 'KEY',
             'BEGIN ' + 'OPENSSH ' + 'PRIVATE KEY',
         ]
         for p in ROOT.rglob('*'):
@@ -55,6 +56,15 @@ class StaticRepoTests(unittest.TestCase):
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
         self.assertIn("SHOW TABLES LIKE", lib)
+
+    def test_reset_installation_has_safety_guards(self):
+        text = (ROOT / 'installer' / 'reset-installation.sh').read_text()
+        self.assertIn('Dry-run only', text)
+        self.assertIn('Are you sure you want to delete everything', text)
+        self.assertIn('Type DELETE to continue', text)
+        self.assertIn('down --volumes --remove-orphans', text)
+        self.assertIn('Refusing unsafe --install-dir', text)
+        self.assertIn('Docker Engine itself is not removed', text)
 
 if __name__ == '__main__':
     unittest.main()

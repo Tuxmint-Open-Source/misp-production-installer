@@ -105,6 +105,8 @@ Rotate the password after first login.
 ./installer/doctor.sh --install-dir /opt/misp-docker
 ./installer/backup.sh --install-dir /opt/misp-docker
 ./installer/update.sh --install-dir /opt/misp-docker --upstream-ref <tag-or-commit>
+# Failed install cleanup; dry-run first, then rerun with --yes if correct:
+./installer/reset-installation.sh --install-dir /opt/misp-docker
 ```
 
 ## Versioning
