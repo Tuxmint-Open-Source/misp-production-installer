@@ -45,9 +45,28 @@ Use `--prepare-host` if you also want the script to install Docker on Rocky Linu
 | `doctor.sh` | Run health/readiness checks after install or update. |
 | `status.sh` | Show Compose service status and heartbeat. |
 | `backup.sh` | Create DB dump, host-data archive, and checksums. |
+| `reset-installation.sh` | Remove a failed install: containers, networks, named volumes, and generated files; Docker itself stays installed. |
 | `update.sh` | Backup first, update official upstream, restart, run DB updates, then doctor. |
 | `logs.sh` | Follow or print Docker Compose logs. |
 | `up.sh` / `down.sh` / `pull.sh` | Thin wrappers around Docker Compose for routine operations. |
+
+## Reset a failed install
+
+If a first install fails halfway, for example because the partition ran full, use the reset script before trying again.
+
+First inspect the dry-run:
+
+```bash
+./installer/reset-installation.sh --install-dir /opt/misp-docker
+```
+
+Then run the destructive reset. The script asks for interactive confirmation and requires typing `DELETE`:
+
+```bash
+./installer/reset-installation.sh --install-dir /opt/misp-docker --yes
+```
+
+Docker Engine is not removed. The reset targets only the selected MISP install directory and Docker Compose resources for that deployment.
 
 ## Exposure modes
 
