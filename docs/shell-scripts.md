@@ -46,6 +46,7 @@ Use `--prepare-host` if you also want the script to install Docker on Rocky Linu
 | `status.sh` | Show Compose service status and heartbeat. |
 | `admin-credentials.sh` | Show the configured admin email and optionally print the initial password on a trusted terminal. |
 | `login-check.sh` | Run a CSRF-aware Web UI login check using the configured admin account without printing the password. |
+| `get-current-misp-versions.sh` | Show official upstream MISP component versions and optionally compare them with a local install. |
 | `backup.sh` | Create DB dump, host-data archive, and checksums. |
 | `reset-installation.sh` | Remove a failed install: containers, networks, named volumes, and generated files; Docker itself stays installed. |
 | `update.sh` | Backup first, update official upstream, restart, run DB updates, then doctor. |

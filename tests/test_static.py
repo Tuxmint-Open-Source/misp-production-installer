@@ -16,7 +16,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -64,6 +64,20 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('vars_seen - env_keys', lib)
         self.assertIn('env_args+=("$var_name=")', lib)
         self.assertIn('env "${env_args[@]}" docker compose', lib)
+
+    def test_misp_image_tags_are_deterministic_by_default(self):
+        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        update = (ROOT / 'installer' / 'update.sh').read_text()
+        generate = (ROOT / 'installer' / 'generate-env.sh').read_text()
+        versions = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()
+        self.assertIn('sync_misp_image_tags()', lib)
+        self.assertIn('CORE_RUNNING_TAG', lib)
+        self.assertIn('MODULES_RUNNING_TAG', lib)
+        self.assertIn('GUARD_RUNNING_TAG', lib)
+        self.assertIn('IMAGE_TRACK="version-tags"', update)
+        self.assertIn('sync_misp_image_tags "$INSTALL_DIR" "$IMAGE_TRACK"', update)
+        self.assertIn('sync_misp_image_tags "$INSTALL_DIR" version-tags', generate)
+        self.assertIn('component upstream_tag local_component_tag local_running_tag', versions)
 
     def test_admin_credentials_helper_is_safe_by_default(self):
         text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()

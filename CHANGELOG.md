@@ -9,6 +9,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add `AGENTS.md` with public-safe coding-agent guidance for repository workflow, validation, and release conventions.
 - Add `QA.md` with repository quality gates, acceptance criteria, and definition of done.
 - Add scheduled upstream drift monitoring for public `MISP/misp-docker` inputs that affect installer assumptions.
+- Add `installer/get-current-misp-versions.sh` to show official upstream MISP component versions and compare them with a local install.
+
+### Changed
+
+- Document and implement deterministic MISP component image tracking for updates. The default update path now pins runtime image tags to the official component tags from upstream `template.env` instead of relying on implicit `latest`.
 
 ## [0.2.0] - 2026-07-06
 

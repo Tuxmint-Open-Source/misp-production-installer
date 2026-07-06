@@ -47,4 +47,5 @@ for k,v in updates.items():
     if k not in seen: out.append(f'{k}={v}')
 p.write_text('\n'.join(out)+'\n')
 PY
+sync_misp_image_tags "$INSTALL_DIR" version-tags >/dev/null
 log "Generated $INSTALL_DIR/.env for $BASE_URL ($EXPOSURE)."; log "Initial admin email: $ADMIN_EMAIL"; warn "Initial admin password is in $INSTALL_DIR/.env. Store securely and rotate after first login."
