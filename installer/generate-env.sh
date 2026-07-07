@@ -10,13 +10,17 @@ while [[ $# -gt 0 ]]; do
 done
 [[ -f "$INSTALL_DIR/template.env" ]] || fatal "Official upstream template.env missing in $INSTALL_DIR"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
+validate_public_base_url "$BASE_URL" "$EXPOSURE"
 [[ -e "$INSTALL_DIR/.env" && "$FORCE" != true ]] && fatal "$INSTALL_DIR/.env already exists. Use --force only if intentionally rotating generated secrets."
 cp "$INSTALL_DIR/template.env" "$INSTALL_DIR/.env"; chmod 600 "$INSTALL_DIR/.env"
 export BASE_URL ADMIN_EMAIL ADMIN_ORG TIMEZONE EXPOSURE
 export ADMIN_PASSWORD_VALUE="$(random_b64 36)"
 export ADMIN_KEY_VALUE="$(random_hex 20)"
-export MYSQL_PASSWORD_VALUE="$(random_b64 32)"
-export MYSQL_ROOT_PASSWORD_VALUE="$(random_b64 32)"
+# Upstream MISP Docker injects MYSQL_PASSWORD into database.php with sed and
+# documents it as alphanumeric-only. Use hex, not base64, so '/', '+', and '='
+# cannot corrupt the generated CakePHP database config.
+export MYSQL_PASSWORD_VALUE="$(random_hex 32)"
+export MYSQL_ROOT_PASSWORD_VALUE="$(random_hex 32)"
 # Redis is used by PHP sessions via session.save_path. Use URL-safe hex, not base64.
 export REDIS_PASSWORD_VALUE="$(random_hex 32)"
 export GPG_PASSPHRASE_VALUE="$(random_b64 32)"

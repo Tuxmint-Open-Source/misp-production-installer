@@ -31,6 +31,31 @@ print(uuid.uuid4())
 PY
 fi; }
 
+validate_public_base_url() {
+  local base_url="$1" exposure="$2"
+  python3 - "$base_url" "$exposure" <<'PY'
+import ipaddress
+import sys
+from urllib.parse import urlparse
+
+base_url, exposure = sys.argv[1:]
+parsed = urlparse(base_url)
+if parsed.scheme not in {'http', 'https'} or not parsed.hostname:
+    raise SystemExit('BASE_URL must be an http(s) URL with a hostname')
+
+host = parsed.hostname.lower().rstrip('.')
+if exposure == 'direct-qa':
+    if host in {'localhost', 'localhost.localdomain'}:
+        raise SystemExit('direct-qa BASE_URL must be reachable by users; localhost would redirect browsers back to their own machine')
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        ip = None
+    if ip and ip.is_loopback:
+        raise SystemExit('direct-qa BASE_URL must not use a loopback IP address')
+PY
+}
+
 compose_interpolation_defaults() {
   # Upstream misp-docker references many optional variables in docker-compose.yml.
   # Docker Compose prints a warning for each unset variable before defaulting it
@@ -109,11 +134,29 @@ wait_for_misp_core() {
 }
 
 run_misp_db_updates() {
-  # The heartbeat may become healthy before all MISP DB migrations are applied.
-  # Run the official Cake command as the web user before declaring success.
-  local install_dir="$1"
+  # The heartbeat can become healthy before the upstream entrypoint has finished
+  # first-start database/user setup. In that window CakePHP may report missing DB
+  # connections even though the stack later becomes usable. Keep waiting long
+  # enough for slow first starts, but avoid printing the same stack trace on every
+  # retry.
+  local install_dir="$1" attempts="${2:-90}" delay="${3:-10}" attempt output
   log "Running MISP database updates"
-  compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates'
+  for ((attempt=1; attempt<=attempts; attempt++)); do
+    if output="$(compose_cmd "$install_dir" exec -T -u www-data misp-core sh -lc 'cd /var/www/MISP/app && ./Console/cake Admin runUpdates' 2>&1)"; then
+      [[ -n "$output" ]] && printf '%s\n' "$output"
+      return 0
+    fi
+    if (( attempt == attempts )); then
+      [[ -n "$output" ]] && printf '%s\n' "$output" >&2
+      fatal "MISP database updates failed after ${attempts} attempts"
+    fi
+    if [[ "$output" == *'MysqlObserverExtended'* || "$output" == *'could not be created'* ]]; then
+      warn "MISP database connection is not ready yet; first-start initialization may still be running (attempt ${attempt}/${attempts}); retrying in ${delay}s"
+    else
+      warn "MISP database update attempt ${attempt}/${attempts} failed; retrying in ${delay}s"
+    fi
+    sleep "$delay"
+  done
 }
 
 check_misp_schema_ready() {

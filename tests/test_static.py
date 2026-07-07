@@ -31,8 +31,21 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_redis_password_url_safe_generation(self):
         text = (ROOT / 'installer' / 'generate-env.sh').read_text()
+        self.assertIn('MYSQL_PASSWORD_VALUE="$(random_hex 32)"', text)
+        self.assertIn('MYSQL_ROOT_PASSWORD_VALUE="$(random_hex 32)"', text)
+        self.assertIn('alphanumeric-only', text)
         self.assertIn('REDIS_PASSWORD_VALUE="$(random_hex 32)"', text)
         self.assertIn('session.save_path', text)
+
+    def test_direct_qa_rejects_loopback_base_url(self):
+        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        install = (ROOT / 'installer' / 'install.sh').read_text()
+        generate = (ROOT / 'installer' / 'generate-env.sh').read_text()
+        self.assertIn('validate_public_base_url()', lib)
+        self.assertIn('localhost would redirect browsers back to their own machine', lib)
+        self.assertIn('ip.is_loopback', lib)
+        self.assertIn('validate_public_base_url "$BASE_URL" "$EXPOSURE"', install)
+        self.assertIn('validate_public_base_url "$BASE_URL" "$EXPOSURE"', generate)
 
     def test_no_private_lab_markers(self):
         markers = [
@@ -55,6 +68,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertLess(text.index('run_misp_db_updates'), text.index('doctor.sh'))
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
+        self.assertIn('MISP database update attempt', lib)
+        self.assertIn('attempts="${2:-90}"', lib)
+        self.assertIn('first-start initialization may still be running', lib)
         self.assertIn("SHOW TABLES LIKE", lib)
 
     def test_compose_wrapper_suppresses_optional_variable_noise(self):
