@@ -99,17 +99,22 @@ sync_misp_image_tags() {
   # MODULES_TAG, GUARD_TAG), and the published container images are tagged with
   # those values. For production we make the running image tags explicit instead
   # of relying on docker-compose.yml's default `latest` fallback.
-  local install_dir="$1" image_track="${2:-version-tags}"
+  local install_dir="$1" image_track="${2:-version-tags}" core_tag="${3:-}" modules_tag="${4:-}" guard_tag="${5:-}"
   [[ -f "$install_dir/template.env" ]] || fatal "Official upstream template.env missing in $install_dir"
   [[ -f "$install_dir/.env" ]] || fatal "$install_dir/.env missing"
   [[ "$image_track" =~ ^(version-tags|latest|keep)$ ]] || fatal "image track must be version-tags, latest, or keep"
-  python3 - "$install_dir/template.env" "$install_dir/.env" "$image_track" <<'PY'
+  python3 - "$install_dir/template.env" "$install_dir/.env" "$image_track" "$core_tag" "$modules_tag" "$guard_tag" <<'PY'
 from pathlib import Path
 import sys
 
 template_path = Path(sys.argv[1])
 env_path = Path(sys.argv[2])
 image_track = sys.argv[3]
+overrides = {
+    'CORE_TAG': sys.argv[4],
+    'MODULES_TAG': sys.argv[5],
+    'GUARD_TAG': sys.argv[6],
+}
 
 def parse_active(path):
     values = {}
@@ -122,6 +127,9 @@ def parse_active(path):
     return values
 
 template = parse_active(template_path)
+for key, value in overrides.items():
+    if value:
+        template[key] = value
 required = ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG']
 missing = [key for key in required if not template.get(key)]
 if missing:

@@ -83,6 +83,9 @@ To see the latest official component versions declared by upstream:
 ./installer/get-current-misp-versions.sh
 ```
 
+This prints upstream versions only. It does not inspect a local install unless
+you provide `--install-dir`.
+
 To inspect another upstream ref:
 
 ```bash
@@ -95,11 +98,72 @@ To compare upstream values with a local install:
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
-Output columns:
+## Common workflows
 
-```text
-component upstream_tag local_component_tag local_running_tag
+### 1. Fresh install with latest official component versions
+
+Use the default `master` upstream ref and default `version-tags` behavior:
+
+```bash
+sudo ./installer/install.sh \
+  --install-dir /opt/misp-docker \
+  --base-url https://misp.example.com \
+  --admin-email admin@example.com \
+  --exposure reverse-proxy
 ```
+
+The installer reads the current upstream `CORE_TAG`, `MODULES_TAG`, and
+`GUARD_TAG`, then writes matching `CORE_RUNNING_TAG`, `MODULES_RUNNING_TAG`, and
+`GUARD_RUNNING_TAG` values to `.env`.
+
+### 2. Fresh install with specific component versions
+
+Use explicit component tag overrides:
+
+```bash
+sudo ./installer/install.sh \
+  --install-dir /opt/misp-docker \
+  --base-url https://misp.example.com \
+  --admin-email admin@example.com \
+  --exposure reverse-proxy \
+  --core-tag v2.5.40 \
+  --modules-tag v3.0.7 \
+  --guard-tag v1.2
+```
+
+This keeps the upstream checkout clean but pins the runtime images to the exact
+component tags you requested.
+
+Only use component combinations that upstream has published to the container
+registry. The installer does not build custom images.
+
+### 3. Update to latest official component versions
+
+```bash
+sudo ./installer/update.sh --install-dir /opt/misp-docker
+```
+
+This is equivalent to:
+
+```bash
+sudo ./installer/update.sh \
+  --install-dir /opt/misp-docker \
+  --upstream-ref master \
+  --image-track version-tags
+```
+
+### 4. Update to specific component versions
+
+```bash
+sudo ./installer/update.sh \
+  --install-dir /opt/misp-docker \
+  --core-tag v2.5.40 \
+  --modules-tag v3.0.7 \
+  --guard-tag v1.2
+```
+
+The update still backs up first, validates Compose, pulls images, restarts
+containers, runs MISP DB updates, and runs `doctor.sh`.
 
 ## Update workflow
 
@@ -115,15 +179,16 @@ What happens:
 2. fetch official upstream `MISP/misp-docker`
 3. fast-forward the current upstream branch, or checkout `--upstream-ref`
 4. read `CORE_TAG`, `MODULES_TAG`, and `GUARD_TAG` from upstream `template.env`
-5. set `CORE_RUNNING_TAG`, `MODULES_RUNNING_TAG`, and `GUARD_RUNNING_TAG` to those component tags
-6. render the Compose override
-7. validate `.env` and Docker Compose config
-8. pull the selected images
-9. start/recreate containers
-10. wait for MISP core readiness
-11. run MISP database updates
-12. verify schema readiness
-13. run `doctor.sh`
+5. apply explicit `--core-tag`, `--modules-tag`, or `--guard-tag` overrides when provided
+6. set `CORE_RUNNING_TAG`, `MODULES_RUNNING_TAG`, and `GUARD_RUNNING_TAG` to the selected component tags
+7. render the Compose override
+8. validate `.env` and Docker Compose config
+9. pull the selected images
+10. start/recreate containers
+11. wait for MISP core readiness
+12. run MISP database updates
+13. verify schema readiness
+14. run `doctor.sh`
 
 ## Image tracking modes
 
@@ -133,8 +198,9 @@ What happens:
 ./installer/update.sh --install-dir /opt/misp-docker --image-track version-tags
 ```
 
-Best production default. Pins runtime image tags to the official component tags
-from the checked-out upstream `template.env`.
+Best production default. Pins runtime image tags to the selected component tags.
+By default these are read from the checked-out upstream `template.env`; explicit
+component tag flags override them.
 
 ### `latest`
 

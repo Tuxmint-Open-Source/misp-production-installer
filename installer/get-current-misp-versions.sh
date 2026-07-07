@@ -17,9 +17,9 @@ Options:
   -h, --help            Show this help
   --version             Show installer version
 
-This command does not change the installation. It only reports the component
-versions declared by official upstream template.env and, when --install-dir is
-provided, the currently configured local image tags.
+This command does not change the installation. Without --install-dir it shows
+upstream component versions only. With --install-dir it also compares local .env
+component metadata and runtime image pins.
 EOF
 }
 
@@ -46,10 +46,12 @@ git clone --depth 1 --filter=blob:none --no-checkout "$UPSTREAM_REPO" "$TMPDIR/u
 git -C "$TMPDIR/upstream" fetch --depth 1 origin "$UPSTREAM_REF" >/dev/null 2>&1 || true
 git -C "$TMPDIR/upstream" checkout --quiet "$UPSTREAM_REF" 2>/dev/null || git -C "$TMPDIR/upstream" checkout --quiet FETCH_HEAD
 [[ -f "$TMPDIR/upstream/template.env" ]] || fatal "template.env not found at upstream ref $UPSTREAM_REF"
+UPSTREAM_COMMIT="$(git -C "$TMPDIR/upstream" rev-parse --short HEAD)"
 
-python3 - "$TMPDIR/upstream/template.env" "${INSTALL_DIR:-}" <<'PY'
+python3 - "$TMPDIR/upstream/template.env" "${INSTALL_DIR:-}" "$UPSTREAM_REF" "$UPSTREAM_COMMIT" <<'PY'
 from pathlib import Path
 import sys
+
 
 def parse_active(path):
     values = {}
@@ -65,20 +67,43 @@ def parse_active(path):
 
 upstream_template = Path(sys.argv[1])
 install_dir = sys.argv[2]
+upstream_ref = sys.argv[3]
+upstream_commit = sys.argv[4]
 upstream = parse_active(upstream_template)
-local = parse_active(Path(install_dir) / '.env') if install_dir else {}
+local_env = Path(install_dir) / '.env' if install_dir else None
+local = parse_active(local_env) if local_env else {}
+local_checked = bool(install_dir)
+local_exists = bool(local_env and local_env.exists())
 
 rows = [
-    ('core', 'CORE_TAG', 'CORE_RUNNING_TAG'),
-    ('modules', 'MODULES_TAG', 'MODULES_RUNNING_TAG'),
-    ('guard', 'GUARD_TAG', 'GUARD_RUNNING_TAG'),
+    ('Core', 'CORE_TAG', 'CORE_RUNNING_TAG'),
+    ('Modules', 'MODULES_TAG', 'MODULES_RUNNING_TAG'),
+    ('Guard', 'GUARD_TAG', 'GUARD_RUNNING_TAG'),
 ]
-print('component upstream_tag local_component_tag local_running_tag')
-for component, component_key, running_key in rows:
-    print(
-        component,
-        upstream.get(component_key, '(missing)'),
-        local.get(component_key, '(not checked)' if not local else '(missing)'),
-        local.get(running_key, '(not checked)' if not local else '(unset -> latest)'),
-    )
+
+print('MISP Docker component versions')
+print('==============================')
+print(f'Upstream ref:    {upstream_ref}')
+print(f'Upstream commit: {upstream_commit}')
+if local_checked:
+    print(f'Install dir:     {install_dir}')
+    if not local_exists:
+        print('Local .env:      missing')
+else:
+    print('Install dir:     not provided; local columns are omitted')
+print()
+
+if local_checked:
+    print(f'{"Component":<10} {"Upstream":<14} {"Local metadata":<16} {"Runtime image":<16}')
+    print(f'{"-"*10} {"-"*14} {"-"*16} {"-"*16}')
+    for component, component_key, running_key in rows:
+        upstream_value = upstream.get(component_key, 'missing')
+        local_component = local.get(component_key, 'missing') if local_exists else 'missing'
+        local_running = local.get(running_key, 'unset -> latest') if local_exists else 'missing'
+        print(f'{component:<10} {upstream_value:<14} {local_component:<16} {local_running:<16}')
+else:
+    print(f'{"Component":<10} {"Upstream tag":<14}')
+    print(f'{"-"*10} {"-"*14}')
+    for component, component_key, _running_key in rows:
+        print(f'{component:<10} {upstream.get(component_key, "missing"):<14}')
 PY

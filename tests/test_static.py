@@ -76,8 +76,13 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('GUARD_RUNNING_TAG', lib)
         self.assertIn('IMAGE_TRACK="version-tags"', update)
         self.assertIn('sync_misp_image_tags "$INSTALL_DIR" "$IMAGE_TRACK"', update)
+        self.assertIn('--core-tag', update)
+        self.assertIn('--modules-tag', update)
+        self.assertIn('--guard-tag', update)
+        self.assertIn('--core-tag', (ROOT / 'installer' / 'install.sh').read_text())
         self.assertIn('sync_misp_image_tags "$INSTALL_DIR" version-tags', generate)
-        self.assertIn('component upstream_tag local_component_tag local_running_tag', versions)
+        self.assertIn('MISP Docker component versions', versions)
+        self.assertIn('Install dir:     not provided; local columns are omitted', versions)
 
     def test_admin_credentials_helper_is_safe_by_default(self):
         text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()

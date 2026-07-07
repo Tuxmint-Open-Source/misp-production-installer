@@ -24,6 +24,9 @@ Options:
                           (default: /opt/misp-docker)
   --upstream-repo URL     Upstream git repository (default: official MISP/misp-docker)
   --upstream-ref REF      Upstream branch, tag, or commit (default: master)
+  --core-tag TAG          Explicit misp-core image/component tag override
+  --modules-tag TAG       Explicit misp-modules image/component tag override
+  --guard-tag TAG         Explicit misp-guard image/component tag override
   --base-url URL          Public MISP URL, e.g. https://misp.example.com
   --admin-email EMAIL     Initial MISP admin email
   --admin-org NAME        Initial MISP organization name
@@ -43,6 +46,9 @@ EOF
 
 UPSTREAM_REPO="https://github.com/MISP/misp-docker.git"
 UPSTREAM_REF="master"
+CORE_TAG_OVERRIDE=""
+MODULES_TAG_OVERRIDE=""
+GUARD_TAG_OVERRIDE=""
 INSTALL_DIR="/opt/misp-docker"
 BASE_URL="https://misp.example.com"
 ADMIN_EMAIL="admin@example.com"
@@ -57,6 +63,9 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --upstream-repo) UPSTREAM_REPO="$2"; shift 2;;
     --upstream-ref) UPSTREAM_REF="$2"; shift 2;;
+    --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;;
+    --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;;
+    --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;;
     --install-dir) INSTALL_DIR="$2"; shift 2;;
     --base-url) BASE_URL="$2"; shift 2;;
     --admin-email) ADMIN_EMAIL="$2"; shift 2;;
@@ -79,7 +88,7 @@ done
 
 # Keep upstream clean: fetch official files, then add generated config beside them.
 "$SCRIPT_DIR/fetch-upstream.sh" --upstream-repo "$UPSTREAM_REPO" --upstream-ref "$UPSTREAM_REF" --install-dir "$INSTALL_DIR"
-"$SCRIPT_DIR/generate-env.sh" --install-dir "$INSTALL_DIR" --base-url "$BASE_URL" --admin-email "$ADMIN_EMAIL" --admin-org "$ADMIN_ORG" --timezone "$TIMEZONE" --exposure "$EXPOSURE"
+"$SCRIPT_DIR/generate-env.sh" --install-dir "$INSTALL_DIR" --base-url "$BASE_URL" --admin-email "$ADMIN_EMAIL" --admin-org "$ADMIN_ORG" --timezone "$TIMEZONE" --exposure "$EXPOSURE" --core-tag "$CORE_TAG_OVERRIDE" --modules-tag "$MODULES_TAG_OVERRIDE" --guard-tag "$GUARD_TAG_OVERRIDE"
 "$SCRIPT_DIR/render-compose.sh" --install-dir "$INSTALL_DIR" --exposure "$EXPOSURE"
 
 if [[ "$BOOTSTRAP_TLS" == true ]]; then

@@ -2,10 +2,10 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
-INSTALL_DIR="/opt/misp-docker"; BASE_URL="https://misp.example.com"; ADMIN_EMAIL="admin@example.com"; ADMIN_ORG="ExampleOrg"; TIMEZONE="Europe/Zurich"; EXPOSURE="reverse-proxy"; FORCE="false"
+INSTALL_DIR="/opt/misp-docker"; BASE_URL="https://misp.example.com"; ADMIN_EMAIL="admin@example.com"; ADMIN_ORG="ExampleOrg"; TIMEZONE="Europe/Zurich"; EXPOSURE="reverse-proxy"; FORCE="false"; CORE_TAG_OVERRIDE=""; MODULES_TAG_OVERRIDE=""; GUARD_TAG_OVERRIDE=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --install-dir) INSTALL_DIR="$2"; shift 2;; --base-url) BASE_URL="$2"; shift 2;; --admin-email) ADMIN_EMAIL="$2"; shift 2;; --admin-org) ADMIN_ORG="$2"; shift 2;; --timezone) TIMEZONE="$2"; shift 2;; --exposure) EXPOSURE="$2"; shift 2;; --force) FORCE="true"; shift;; *) fatal "Unknown argument: $1";;
+    --install-dir) INSTALL_DIR="$2"; shift 2;; --base-url) BASE_URL="$2"; shift 2;; --admin-email) ADMIN_EMAIL="$2"; shift 2;; --admin-org) ADMIN_ORG="$2"; shift 2;; --timezone) TIMEZONE="$2"; shift 2;; --exposure) EXPOSURE="$2"; shift 2;; --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;; --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;; --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;; --force) FORCE="true"; shift;; *) fatal "Unknown argument: $1";;
   esac
 done
 [[ -f "$INSTALL_DIR/template.env" ]] || fatal "Official upstream template.env missing in $INSTALL_DIR"
@@ -47,5 +47,5 @@ for k,v in updates.items():
     if k not in seen: out.append(f'{k}={v}')
 p.write_text('\n'.join(out)+'\n')
 PY
-sync_misp_image_tags "$INSTALL_DIR" version-tags >/dev/null
+sync_misp_image_tags "$INSTALL_DIR" version-tags "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE" >/dev/null
 log "Generated $INSTALL_DIR/.env for $BASE_URL ($EXPOSURE)."; log "Initial admin email: $ADMIN_EMAIL"; warn "Initial admin password is in $INSTALL_DIR/.env. Store securely and rotate after first login."

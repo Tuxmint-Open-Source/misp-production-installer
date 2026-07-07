@@ -21,6 +21,9 @@ What this script does:
 Options:
   --install-dir PATH   Existing deployment directory (default: /opt/misp-docker)
   --upstream-ref REF   Optional upstream MISP/misp-docker branch or commit
+  --core-tag TAG       Explicit misp-core image/component tag override
+  --modules-tag TAG    Explicit misp-modules image/component tag override
+  --guard-tag TAG      Explicit misp-guard image/component tag override
   --image-track MODE   Image tracking mode: version-tags, latest, or keep
                        default: version-tags
   -h, --help           Show this help
@@ -36,12 +39,18 @@ EOF
 
 INSTALL_DIR="/opt/misp-docker"
 UPSTREAM_REF=""
+CORE_TAG_OVERRIDE=""
+MODULES_TAG_OVERRIDE=""
+GUARD_TAG_OVERRIDE=""
 IMAGE_TRACK="version-tags"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --install-dir) INSTALL_DIR="$2"; shift 2;;
     --upstream-ref) UPSTREAM_REF="$2"; shift 2;;
+    --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;;
+    --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;;
+    --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;;
     --image-track) IMAGE_TRACK="$2"; shift 2;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
@@ -64,7 +73,7 @@ else
 fi
 
 log "Synchronizing MISP image tags (track: $IMAGE_TRACK)"
-sync_misp_image_tags "$INSTALL_DIR" "$IMAGE_TRACK"
+sync_misp_image_tags "$INSTALL_DIR" "$IMAGE_TRACK" "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE"
 "$SCRIPT_DIR/render-compose.sh" --install-dir "$INSTALL_DIR"
 "$SCRIPT_DIR/validate.sh" --install-dir "$INSTALL_DIR"
 compose_cmd "$INSTALL_DIR" pull
