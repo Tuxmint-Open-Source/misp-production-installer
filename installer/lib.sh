@@ -46,6 +46,32 @@ print(uuid.uuid4())
 PY
 fi; }
 
+validate_public_base_url() {
+  local base_url="$1" exposure="$2"
+  python3 - "$base_url" "$exposure" <<'PY'
+import ipaddress
+import sys
+from urllib.parse import urlparse
+
+base_url, exposure = sys.argv[1:]
+parsed = urlparse(base_url)
+if parsed.scheme not in {'http', 'https'} or not parsed.hostname:
+    raise SystemExit('BASE_URL must be an http(s) URL with a hostname')
+
+host = parsed.hostname.lower().rstrip('.')
+if exposure == 'direct-qa':
+    loopback_names = {'localhost', 'localhost.localdomain'}
+    if host in loopback_names:
+        raise SystemExit('direct-qa BASE_URL must be reachable by users; localhost would redirect browsers back to their own machine')
+    try:
+        ip = ipaddress.ip_address(host)
+    except ValueError:
+        ip = None
+    if ip and ip.is_loopback:
+        raise SystemExit('direct-qa BASE_URL must not use a loopback IP address')
+PY
+}
+
 compose_interpolation_defaults() {
   # Upstream misp-docker references many optional variables in docker-compose.yml.
   # Docker Compose prints a warning for each unset variable before defaulting it

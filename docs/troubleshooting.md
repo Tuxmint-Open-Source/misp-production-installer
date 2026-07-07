@@ -112,6 +112,24 @@ Verify Redis-backed PHP sessions. `REDIS_PASSWORD` must be URL-safe because PHP 
 
 Healthchecks use container-local `https://localhost/users/heartbeat`, not public DNS or reverse proxy paths.
 
+## Browser redirects to localhost
+
+`BASE_URL` is MISP's public application URL. Do not use `https://localhost` for
+direct-QA installs unless the browser is running on the same host. A remote
+browser will follow redirects to its own `localhost`, not the MISP server.
+
+For direct-QA mode, use a DNS name or non-loopback address that users can reach.
+The installer rejects loopback `BASE_URL` values in direct-QA mode to prevent
+misleading validation.
+
+## Database connection errors after first start
+
+Official MISP Docker expects `MYSQL_PASSWORD` to be alphanumeric. Special
+characters can break the generated CakePHP database configuration during first
+start. This installer generates MySQL passwords with hex characters only; if you
+manually edit `.env`, keep `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD`
+alphanumeric.
+
 ## Backup permission errors
 
 The backup script uses `sudo tar` because MISP containers can create root-owned files in bind mounts.

@@ -19,6 +19,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
 - Document and implement deterministic MISP component image tracking for updates. The default update path now pins runtime image tags to the official component tags from upstream `template.env` instead of relying on implicit `latest`.
 - Wait longer for MISP database updates during install/update and report first-start database initialization clearly instead of flooding logs with repeated CakePHP stack traces.
+- Reject loopback `BASE_URL` values for direct-QA installs so browser redirects do not point users to their own localhost.
+- Generate MySQL passwords with hex characters only to match upstream MISP Docker's alphanumeric password requirement and avoid corrupting generated database configuration.
 
 ## [0.2.0] - 2026-07-06
 

@@ -82,6 +82,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
+validate_public_base_url "$BASE_URL" "$EXPOSURE"
 
 # Host preparation is optional so operators can manage Docker themselves.
 [[ "$PREPARE_HOST" == true ]] && "$SCRIPT_DIR/prepare-host-rocky.sh"
