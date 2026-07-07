@@ -6,12 +6,21 @@ Guidance for AI coding agents and automated contributors working on this reposit
 
 This repository is a production-oriented installer/overlay for official MISP Docker deployments.
 
-It should add operational value around upstream MISP Docker packaging without vendoring or forking upstream source trees.
+Its main focus is to be a non-invasive lifecycle wrapper around official
+`MISP/misp-docker` for a single-server Docker deployment. It should add safe and
+convenient lifecycle management around upstream MISP Docker packaging without
+vendoring, forking, or rewriting upstream source trees.
+
+The generated deployment must remain usable as a normal official
+`MISP/misp-docker` checkout. If this installer repository is deleted after
+install, operators should still be able to manage the deployment manually with
+Docker Compose as upstream `misp-docker` intends.
 
 ## Hard rules
 
 - Do **not** vendor, fork, or rewrite `MISP/misp-docker` in this repository.
 - Keep official upstream clean. Prefer generated `.env`, `docker-compose.override.yml`, scripts, and documentation.
+- Preserve the no-lock-in property: this repository must remain an optional lifecycle add-on, not a runtime dependency for the deployed MISP stack.
 - Do **not** commit runtime `.env`, `.installer-state.json`, generated secrets, logs, backups, archives, local test output, or Docker volumes.
 - Do **not** include real infrastructure details in public content. Use generic examples such as `misp.example.com` and `/opt/misp-docker`.
 - Public GitHub text includes code, docs, PR bodies, PR comments, release notes, issues, commit messages, and validation summaries.

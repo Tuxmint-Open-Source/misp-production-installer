@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Changed
+
+- Reorganize `README.md` so new users see the supported install/update workflows, version model, post-install checks, non-invasive/no-lock-in project focus, and key `v0.3.0` validation findings before the architecture details.
+
 ## [0.3.0] - 2026-07-07
 
 ### Added
