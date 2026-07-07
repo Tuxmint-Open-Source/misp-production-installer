@@ -15,6 +15,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Improve `installer/get-current-misp-versions.sh` output with a readable table and clearer local-install status.
+- Reduce noisy bootstrap TLS and DNS-check output so installer/doctor logs focus on actionable status.
+- Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
 - Document and implement deterministic MISP component image tracking for updates. The default update path now pins runtime image tags to the official component tags from upstream `template.env` instead of relying on implicit `latest`.
 - Retry MISP database updates during install/update because older images can briefly report heartbeat readiness before CakePHP can open every database connection.
 

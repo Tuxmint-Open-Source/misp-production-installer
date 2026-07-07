@@ -50,7 +50,11 @@ print(urlparse('$BASE_URL').hostname or '')
 PY
 )"
 log "BASE_URL=$BASE_URL"
-[[ -n "$HOST" ]] && getent hosts "$HOST" || warn "DNS lookup failed for $HOST"
+if [[ -n "$HOST" ]] && getent hosts "$HOST" >/dev/null; then
+  log "DNS lookup OK for $HOST"
+else
+  warn "DNS lookup failed for $HOST"
+fi
 
 wait_for_misp_core "$INSTALL_DIR" 600
 check_misp_schema_ready "$INSTALL_DIR"

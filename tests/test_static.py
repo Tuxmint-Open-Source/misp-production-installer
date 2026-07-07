@@ -82,8 +82,15 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('--guard-tag', update)
         self.assertIn('--core-tag', (ROOT / 'installer' / 'install.sh').read_text())
         self.assertIn('sync_misp_image_tags "$INSTALL_DIR" version-tags', generate)
+        self.assertIn('print_misp_image_tag_summary', lib)
         self.assertIn('MISP Docker component versions', versions)
         self.assertIn('Install dir:     not provided; local columns are omitted', versions)
+
+    def test_prepare_host_retries_package_manager_operations(self):
+        text = (ROOT / 'installer' / 'prepare-host-rocky.sh').read_text()
+        self.assertIn('retry_cmd 3 15', text)
+        self.assertIn('download.docker.com', text)
+        self.assertIn('docker-ce', text)
 
     def test_admin_credentials_helper_is_safe_by_default(self):
         text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()

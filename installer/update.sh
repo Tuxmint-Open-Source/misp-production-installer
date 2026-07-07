@@ -84,4 +84,5 @@ check_misp_schema_ready "$INSTALL_DIR"
 "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
 
 new_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
+print_misp_image_tag_summary "$INSTALL_DIR"
 log "Updated upstream $old_ref -> $new_ref"

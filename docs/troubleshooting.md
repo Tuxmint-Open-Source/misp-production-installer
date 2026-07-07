@@ -38,6 +38,42 @@ If the credentials are correct but login still fails:
 Do not paste real passwords into public issues or Pull Requests. If you need to
 share troubleshooting output, redact the password and use generic hostnames.
 
+## Shell says `--core-tag: command not found`
+
+This means the multiline install command was split incorrectly by the shell. Every
+continued line except the final line must end with `\`.
+
+Wrong:
+
+```bash
+sudo ./installer/install.sh \
+  --bootstrap-tls
+  --core-tag v2.5.40
+```
+
+Correct:
+
+```bash
+sudo ./installer/install.sh \
+  --bootstrap-tls \
+  --core-tag v2.5.40
+```
+
+If this happens, the installer did not receive the component tag arguments. Check
+`/opt/misp-docker/.env` or run:
+
+```bash
+./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+```
+
+## Docker GPG key or repository download timeout
+
+If host preparation fails while downloading from `download.docker.com`, the Docker
+repository or network path is temporarily unreachable from the host. The installer
+retries package-manager operations, but persistent failures must be fixed at the
+network, DNS, proxy, firewall, or upstream mirror level before Docker packages can
+be installed.
+
 ## Docker Compose output is noisy
 
 The official upstream Compose file references many optional variables for SMTP,

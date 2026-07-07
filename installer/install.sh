@@ -112,6 +112,7 @@ if [[ "$START" == true ]]; then
 fi
 
 write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$UPSTREAM_REF" "$INSTALL_DIR" "$EXPOSURE" "$BASE_URL"
+print_misp_image_tag_summary "$INSTALL_DIR"
 cat <<EOF
 
 Installation complete.

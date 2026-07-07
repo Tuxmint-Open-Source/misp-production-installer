@@ -11,6 +11,21 @@ warn() { printf '\033[1;33m[WARN]\033[0m %s\n' "$*" >&2; }
 fatal() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 require_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "Required command not found: $1"; }
 
+retry_cmd() {
+  local attempts="$1" delay="$2"; shift 2
+  local attempt
+  for ((attempt=1; attempt<=attempts; attempt++)); do
+    if "$@"; then
+      return 0
+    fi
+    if (( attempt == attempts )); then
+      fatal "Command failed after ${attempts} attempts: $*"
+    fi
+    warn "Command failed (attempt ${attempt}/${attempts}); retrying in ${delay}s: $*"
+    sleep "$delay"
+  done
+}
+
 installer_version() {
   if [[ -f "$VERSION_FILE" ]]; then
     tr -d '\n' < "$VERSION_FILE"
@@ -172,6 +187,31 @@ env_path.write_text('\n'.join(out) + '\n')
 for key in ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG', 'CORE_RUNNING_TAG', 'MODULES_RUNNING_TAG', 'GUARD_RUNNING_TAG']:
     if key in updates:
         print(f'{key}={updates[key]}')
+PY
+}
+
+print_misp_image_tag_summary() {
+  local install_dir="$1"
+  [[ -f "$install_dir/.env" ]] || return 0
+  python3 - "$install_dir/.env" <<'PY'
+from pathlib import Path
+import sys
+values = {}
+for line in Path(sys.argv[1]).read_text(errors='ignore').splitlines():
+    stripped = line.strip()
+    if stripped and not stripped.startswith('#') and '=' in stripped:
+        key, value = stripped.split('=', 1)
+        values[key.strip()] = value.strip()
+rows = [
+    ('Core', 'CORE_TAG', 'CORE_RUNNING_TAG'),
+    ('Modules', 'MODULES_TAG', 'MODULES_RUNNING_TAG'),
+    ('Guard', 'GUARD_TAG', 'GUARD_RUNNING_TAG'),
+]
+print('Selected MISP component images:')
+print(f'{"Component":<10} {"Metadata":<14} {"Runtime image":<14}')
+print(f'{"-"*10} {"-"*14} {"-"*14}')
+for label, meta_key, running_key in rows:
+    print(f'{label:<10} {values.get(meta_key, "missing"):<14} {values.get(running_key, "unset -> latest"):<14}')
 PY
 }
 
