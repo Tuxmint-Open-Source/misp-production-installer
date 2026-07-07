@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-07
+
 ### Added
 
 - Add `AGENTS.md` with public-safe coding-agent guidance for repository workflow, validation, and release conventions.
@@ -14,19 +16,16 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
-- Improve `installer/get-current-misp-versions.sh` output with a readable table and clearer local-install status.
 - Document and implement deterministic MISP component image tracking for updates. The default update path now pins runtime image tags to the official component tags from upstream `template.env` instead of relying on implicit `latest`.
+- Improve `installer/get-current-misp-versions.sh` output with a readable table and clearer local-install status.
+- Reduce noisy bootstrap TLS and DNS-check output so installer and doctor logs focus on actionable status.
+- Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
 
-### Changed
+### Fixed
 
 - Wait longer for MISP database updates during install/update and report first-start database initialization clearly instead of flooding logs with repeated CakePHP stack traces.
 - Reject loopback `BASE_URL` values for direct-QA installs so browser redirects do not point users to their own localhost.
 - Generate MySQL passwords with hex characters only to match upstream MISP Docker's alphanumeric password requirement and avoid corrupting generated database configuration.
-
-### Changed
-
-- Reduce noisy bootstrap TLS and DNS-check output so installer/doctor logs focus on actionable status.
-- Retry Rocky/Docker package-manager operations during host preparation to tolerate transient repository or GPG-key download failures.
 
 ## [0.2.0] - 2026-07-06
 
@@ -55,6 +54,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Tuxmint-Open-Source/misp-production-installer/releases/tag/v0.1.0
