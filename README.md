@@ -67,6 +67,25 @@ Compare a local install against upstream:
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
+## Real-world validation
+
+The `v0.3.1` release was validated on a freshly recreated Rocky Linux VM using the published GitHub release artifact.
+
+The validation covered:
+
+- Docker host preparation from a fresh VM
+- fresh install with older/specific MISP component tags
+- update to latest upstream-declared component tags
+- MISP database migrations
+- external redirect checks
+- `doctor.sh` and `login-check.sh`
+- real browser login with Playwright-controlled Chromium
+
+See:
+
+- [`docs/validation/real-world-v0.3.1.md`](docs/validation/real-world-v0.3.1.md)
+- [`docs/validation/matrix.md`](docs/validation/matrix.md)
+
 ## Core workflows
 
 ### 1. Fresh install with latest official MISP component versions

@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add public-safe real-world `v0.3.1` validation documentation and a validation matrix covering fresh VM host preparation, older/specific component install, update-to-latest, database migrations, external redirect checks, CLI login checks, and Playwright browser login.
+
 ## [0.3.1] - 2026-07-07
 
 ### Changed
