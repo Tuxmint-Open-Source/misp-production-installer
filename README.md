@@ -11,7 +11,7 @@
 
 A clean installer/overlay repository for production-oriented MISP Docker deployments.
 
-Current installer version: `0.3.1`
+Current installer version: `0.3.2`
 
 This repo **does not fork or vendor MISP** and **does not copy `MISP/misp-docker`**. It clones the official upstream at install/update time and adds value through generated `.env`, Compose overrides, validation, backup, update, and operational documentation.
 
