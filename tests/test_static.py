@@ -71,13 +71,19 @@ class StaticRepoTests(unittest.TestCase):
     def test_install_runs_db_updates_before_doctor(self):
         text = (ROOT / 'installer' / 'install.sh').read_text()
         self.assertLess(text.index('wait_for_misp_core'), text.index('run_misp_db_updates'))
-        self.assertLess(text.index('run_misp_db_updates'), text.index('doctor.sh'))
+        self.assertLess(text.index('run_misp_db_updates'), text.index('wait_for_misp_live_marker'))
+        self.assertLess(text.index('wait_for_misp_live_marker'), text.index('doctor.sh'))
+        update = (ROOT / 'installer' / 'update.sh').read_text()
+        self.assertLess(update.index('run_misp_db_updates'), update.index('wait_for_misp_live_marker'))
+        self.assertLess(update.index('wait_for_misp_live_marker'), update.index('doctor.sh'))
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
         self.assertIn('MISP database update attempt', lib)
         self.assertIn('attempts="${2:-90}"', lib)
         self.assertIn('first-start initialization may still be running', lib)
         self.assertIn("SHOW TABLES LIKE", lib)
+        self.assertIn('wait_for_misp_live_marker()', lib)
+        self.assertIn('MISP is now live. Users can now log in.', lib)
 
     def test_compose_wrapper_suppresses_optional_variable_noise(self):
         lib = (ROOT / 'installer' / 'lib.sh').read_text()
@@ -134,6 +140,11 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('It never prints the password', text)
         self.assertIn('users/logout', text)
         self.assertIn('logout_attempted', text)
+        self.assertIn('--machine-readable', text)
+        self.assertIn('--ai-output', text)
+        self.assertIn('MISP Web UI login check failed.', text)
+        self.assertIn('invalid-credentials-or-not-ready', text)
+        self.assertIn('print_machine(result)', text)
 
     def test_reset_installation_has_safety_guards(self):
         text = (ROOT / 'installer' / 'reset-installation.sh').read_text()

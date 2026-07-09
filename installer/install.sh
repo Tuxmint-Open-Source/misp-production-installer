@@ -105,6 +105,7 @@ if [[ "$START" == true ]]; then
   wait_for_misp_core "$INSTALL_DIR" 600
   run_misp_db_updates "$INSTALL_DIR"
   check_misp_schema_ready "$INSTALL_DIR"
+  wait_for_misp_live_marker "$INSTALL_DIR" 900
   "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR" || warn "Doctor reported a problem; inspect logs with installer/logs.sh"
 fi
 
@@ -117,5 +118,6 @@ Admin email: $ADMIN_EMAIL
 Admin password: stored in $INSTALL_DIR/.env
 Install dir: $INSTALL_DIR
 Exposure mode: $EXPOSURE
+Interactive login: ready (MISP live marker observed)
 Installer version: $(installer_version)
 EOF

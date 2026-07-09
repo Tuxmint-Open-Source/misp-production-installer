@@ -21,17 +21,24 @@ Then run the normal deployment checks:
 ```
 
 You can also test the Web UI login flow from the server without printing the
-password. On successful login, the script also performs a best-effort logout:
+password. On successful login, the script also performs a best-effort logout.
+The default output is written for human operators:
 
 ```bash
 ./installer/login-check.sh --install-dir /opt/misp-docker
 ```
 
+For automation, monitoring, or AI-agent diagnostics, use stable key/value output:
+
+```bash
+./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+```
+
 If the credentials are correct but login still fails:
 
 1. Confirm the browser uses the same URL as `BASE_URL` in `.env`.
-2. Wait for `doctor.sh` to complete successfully; MISP may need database updates
-   after the first container start.
+2. Wait until install/update prints `MISP reports interactive login is ready.`;
+   MISP may show the login form before the generated admin account can be used.
 3. Check that the login page is not cached from a previous failed deployment.
 4. Rotate the admin password inside MISP after the first successful login.
 
@@ -57,6 +64,10 @@ scripts, or run:
 If the stack becomes usable after several minutes, the first start was simply
 slow. If it never becomes usable, inspect the MISP and database logs with generic
 redaction before sharing them publicly.
+
+Newer installer versions wait for the upstream log line `MISP is now live. Users
+can now log in.` before reporting that interactive login is ready. This is a
+better readiness signal than the login form being visible.
 
 ## Docker Compose output is noisy
 

@@ -289,6 +289,26 @@ check_misp_schema_ready() {
   '
 }
 
+wait_for_misp_live_marker() {
+  # The heartbeat and database schema can become ready before the upstream MISP
+  # entrypoint has completed all first-start application/admin initialization.
+  # Upstream emits this line when it considers interactive user login available.
+  local install_dir="$1" timeout="${2:-900}" elapsed=0 interval=10
+  local marker="MISP is now live. Users can now log in."
+  log "Waiting for MISP interactive login readiness marker (timeout ${timeout}s)"
+  until compose_cmd "$install_dir" logs --no-color --tail=2000 misp-core 2>/dev/null | grep -Fq "$marker"; do
+    if (( elapsed >= timeout )); then
+      fatal "MISP did not report interactive login readiness within ${timeout}s. Inspect logs with installer/logs.sh."
+    fi
+    sleep "$interval"
+    elapsed=$((elapsed + interval))
+    if (( elapsed % 60 == 0 )); then
+      warn "Still waiting for MISP to finish first-start initialization (${elapsed}/${timeout}s)"
+    fi
+  done
+  log "MISP reports interactive login is ready."
+}
+
 write_state() {
   # Store non-secret deployment metadata for operators and future update runs.
   local state_file="$1" upstream_repo="$2" upstream_ref="$3" install_dir="$4" exposure="$5" base_url="$6"

@@ -81,7 +81,9 @@ compose_cmd "$INSTALL_DIR" up -d
 wait_for_misp_core "$INSTALL_DIR" 600
 run_misp_db_updates "$INSTALL_DIR"
 check_misp_schema_ready "$INSTALL_DIR"
+wait_for_misp_live_marker "$INSTALL_DIR" 900
 "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
 
 new_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
 log "Updated upstream $old_ref -> $new_ref"
+log "Interactive login: ready (MISP live marker observed)."

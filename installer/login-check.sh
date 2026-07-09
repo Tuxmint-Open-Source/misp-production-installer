@@ -14,8 +14,13 @@ Options:
   --install-dir PATH   Deployment directory (default: /opt/misp-docker)
   --url URL            Override BASE_URL from .env
   --strict-tls         Verify TLS certificates instead of accepting self-signed certs
+  --machine-readable   Print stable key=value diagnostics for automation/tools
+  --ai-output          Alias for --machine-readable
   -h, --help           Show this help
   --version            Show installer version
+
+By default the output is written for human operators. Use --machine-readable
+when a script, monitoring job, or AI agent needs stable key=value fields.
 
 The script reads ADMIN_EMAIL and ADMIN_PASSWORD from .env, fetches the login
 form, preserves cookies/CSRF hidden fields, posts the credentials, and reports
@@ -27,12 +32,14 @@ EOF
 INSTALL_DIR="/opt/misp-docker"
 URL_OVERRIDE=""
 STRICT_TLS="false"
+MACHINE_READABLE="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --install-dir) INSTALL_DIR="$2"; shift 2;;
     --url) URL_OVERRIDE="$2"; shift 2;;
     --strict-tls) STRICT_TLS="true"; shift;;
+    --machine-readable|--ai-output) MACHINE_READABLE="true"; shift;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
     *) fatal "Unknown argument: $1";;
@@ -42,7 +49,7 @@ done
 ENV_FILE="$INSTALL_DIR/.env"
 [[ -f "$ENV_FILE" ]] || fatal "$ENV_FILE missing"
 
-python3 - "$ENV_FILE" "$URL_OVERRIDE" "$STRICT_TLS" <<'PY'
+python3 - "$ENV_FILE" "$URL_OVERRIDE" "$STRICT_TLS" "$MACHINE_READABLE" <<'PY'
 from html.parser import HTMLParser
 from http.cookiejar import CookieJar
 from pathlib import Path
@@ -84,7 +91,55 @@ def load_env(path):
             values[key] = value
     return values
 
-env_file, url_override, strict_tls = sys.argv[1], sys.argv[2], sys.argv[3] == 'true'
+def print_machine(result):
+    for key in [
+        'status', 'reason', 'login_form_status', 'login_post_status', 'final_path',
+        'invalid_credentials_marker', 'csrf_marker', 'server_error_marker',
+        'login_success', 'logout_attempted', 'logout_status', 'logout_final_path'
+    ]:
+        print(f'{key}={result[key]}')
+
+def print_human(result, base_url, email):
+    if result['login_success'] == 'true':
+        print('✅ MISP Web UI login check passed.')
+        print(f'URL: {base_url}')
+        print(f'Admin account: {email}')
+        print('Password: not printed')
+        print(f'Logout: {result["logout_status"]} ({result["logout_final_path"]})')
+        return
+
+    print('❌ MISP Web UI login check failed.')
+    print(f'URL: {base_url}')
+    print(f'Admin account: {email}')
+    print('Password: not printed')
+    print('')
+    print('What happened:')
+    if result['reason'] == 'invalid-credentials-or-not-ready':
+        print('- MISP returned to the login page with an invalid-credentials marker.')
+        print('- Right after a fresh install this can mean MISP is still finishing first-start initialization, even though the login screen is already visible.')
+    elif result['reason'] == 'csrf':
+        print('- MISP reported a CSRF/session problem.')
+    elif result['reason'] == 'server-error':
+        print('- MISP returned a server-side error marker during login.')
+    elif result['reason'] == 'still-login':
+        print('- MISP kept the session on the login page after submitting credentials.')
+    else:
+        print('- The login request did not reach an authenticated page.')
+
+    print('')
+    print('Next steps:')
+    print('- If installation is still running, wait until it says: MISP reports interactive login is ready.')
+    print('- If installation already completed, re-run: ./installer/doctor.sh --install-dir /opt/misp-docker')
+    print('- Verify the generated account with: ./installer/admin-credentials.sh --install-dir /opt/misp-docker')
+    print('- To print detailed key=value diagnostics for automation, rerun with --machine-readable.')
+    print('')
+    print('Diagnostics summary:')
+    print(f'- login form HTTP status: {result["login_form_status"]}')
+    print(f'- login POST HTTP status: {result["login_post_status"]}')
+    print(f'- final path: {result["final_path"]}')
+    print(f'- reason: {result["reason"]}')
+
+env_file, url_override, strict_tls, machine_readable = sys.argv[1], sys.argv[2], sys.argv[3] == 'true', sys.argv[4] == 'true'
 values = load_env(env_file)
 base_url = (url_override or values.get('BASE_URL') or '').rstrip('/')
 email = values.get('ADMIN_EMAIL') or ''
@@ -135,6 +190,19 @@ server_error = 'internal error' in lower or 'missingtableexception' in lower or 
 still_login = path.endswith('/users/login') and ('password' in lower and 'login' in lower)
 success = post_status < 500 and not invalid and not csrf and not server_error and not still_login
 
+reason = 'ok'
+if not success:
+    if invalid:
+        reason = 'invalid-credentials-or-not-ready'
+    elif csrf:
+        reason = 'csrf'
+    elif server_error:
+        reason = 'server-error'
+    elif still_login:
+        reason = 'still-login'
+    else:
+        reason = 'unknown'
+
 logout_attempted = False
 logout_status = 'not-run'
 logout_path = 'not-run'
@@ -152,16 +220,26 @@ if success:
         logout_status = f'failed:{exc.__class__.__name__}'
         logout_path = 'unknown'
 
-print(f'login_form_status={get_status}')
-print(f'login_post_status={post_status}')
-print(f'final_path={path}')
-print(f'invalid_credentials_marker={str(invalid).lower()}')
-print(f'csrf_marker={str(csrf).lower()}')
-print(f'server_error_marker={str(server_error).lower()}')
-print(f'login_success={str(success).lower()}')
-print(f'logout_attempted={str(logout_attempted).lower()}')
-print(f'logout_status={logout_status}')
-print(f'logout_final_path={logout_path}')
+result = {
+    'status': 'passed' if success else 'failed',
+    'reason': reason,
+    'login_form_status': str(get_status),
+    'login_post_status': str(post_status),
+    'final_path': path,
+    'invalid_credentials_marker': str(invalid).lower(),
+    'csrf_marker': str(csrf).lower(),
+    'server_error_marker': str(server_error).lower(),
+    'login_success': str(success).lower(),
+    'logout_attempted': str(logout_attempted).lower(),
+    'logout_status': logout_status,
+    'logout_final_path': logout_path,
+}
+
+if machine_readable:
+    print_machine(result)
+else:
+    print_human(result, base_url, email)
+
 if not success:
     raise SystemExit(1)
 PY

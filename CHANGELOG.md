@@ -4,6 +4,14 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Changed
+
+- Make `login-check.sh` human-readable by default and add `--machine-readable` for stable key/value diagnostics.
+
+### Fixed
+
+- Wait for MISP's upstream interactive-login readiness marker before declaring install/update readiness.
+
 ## [0.3.2] - 2026-07-08
 
 ### Added

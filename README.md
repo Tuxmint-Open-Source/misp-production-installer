@@ -204,6 +204,12 @@ sudo ./installer/doctor.sh --install-dir /opt/misp-docker
 sudo ./installer/login-check.sh --install-dir /opt/misp-docker
 ```
 
+`login-check.sh` prints human-readable guidance by default. For automation, monitoring, or AI-agent diagnostics, use stable key/value output:
+
+```bash
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+```
+
 Show the generated admin email without printing the password:
 
 ```bash
@@ -218,7 +224,13 @@ sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-pass
 
 Rotate the password after first login.
 
-On the first start, MISP can need a short settling period after container heartbeat while the upstream entrypoint finishes database/admin initialization. If `doctor.sh` passes but login fails immediately, retry `login-check.sh` briefly and inspect logs before assuming credentials are wrong.
+On the first start, the MISP login page can appear before the application is actually ready to accept the generated admin credentials. The installer now waits for the upstream readiness log line:
+
+```text
+MISP is now live. Users can now log in.
+```
+
+Do not treat the visible login form alone as the readiness signal. Wait until the installer prints `MISP reports interactive login is ready.` before using the Web UI. If a manual `login-check.sh` run fails with an invalid-credentials marker immediately after startup, MISP may still be finishing first-start initialization; wait for the readiness message or inspect `installer/logs.sh` before assuming the generated password is wrong.
 
 ## Day-2 operations
 
@@ -259,7 +271,7 @@ The `v0.3.0` release was validated on a disposable lab VM with these public-safe
 4. Generate URL-safe Redis passwords because Redis backs PHP sessions and CSRF validation.
 5. Generate alphanumeric MySQL passwords because official MISP Docker injects them into generated database config.
 6. Keep healthchecks independent from public DNS/reverse proxy.
-7. After first container start, wait for the MISP heartbeat, run `Admin runUpdates`, and verify schema readiness before declaring the install healthy.
+7. After first container start, wait for the MISP heartbeat, run `Admin runUpdates`, verify schema readiness, and wait for the upstream `MISP is now live. Users can now log in.` marker before declaring the install healthy.
 8. Backup before every update.
 
 ## Why this exists
