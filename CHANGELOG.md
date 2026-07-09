@@ -7,6 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Make `login-check.sh` human-readable by default and add `--machine-readable` for stable key/value diagnostics.
+- Mention `admin-credentials.sh` in the install success output and troubleshooting docs so operators can safely retrieve generated login details.
 
 ### Fixed
 

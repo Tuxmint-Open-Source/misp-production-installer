@@ -116,6 +116,7 @@ Installation complete.
 MISP URL: $BASE_URL
 Admin email: $ADMIN_EMAIL
 Admin password: stored in $INSTALL_DIR/.env
+Credentials helper: sudo ./installer/admin-credentials.sh --install-dir $INSTALL_DIR
 Install dir: $INSTALL_DIR
 Exposure mode: $EXPOSURE
 Interactive login: ready (MISP live marker observed)

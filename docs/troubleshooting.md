@@ -39,8 +39,10 @@ If the credentials are correct but login still fails:
 1. Confirm the browser uses the same URL as `BASE_URL` in `.env`.
 2. Wait until install/update prints `MISP reports interactive login is ready.`;
    MISP may show the login form before the generated admin account can be used.
-3. Check that the login page is not cached from a previous failed deployment.
-4. Rotate the admin password inside MISP after the first successful login.
+3. Confirm the generated login details without printing the password:
+   `./installer/admin-credentials.sh --install-dir /opt/misp-docker`.
+4. Check that the login page is not cached from a previous failed deployment.
+5. Rotate the admin password inside MISP after the first successful login.
 
 Do not paste real passwords into public issues or Pull Requests. If you need to
 share troubleshooting output, redact the password and use generic hostnames.
