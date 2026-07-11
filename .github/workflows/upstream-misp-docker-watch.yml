@@ -26,6 +26,8 @@ jobs:
           python3 scripts/check-upstream-misp-docker.py --write
 
       - name: Create upstream review PR
+        id: create-pr
+        continue-on-error: true
         if: steps.upstream.outputs.drift == 'true'
         # peter-evans/create-pull-request@v8
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
@@ -38,3 +40,22 @@ jobs:
           add-paths: |
             .upstream/misp-docker.lock.json
             .upstream/reports/misp-docker-upstream-review.md
+
+      - name: Report manual PR fallback
+        if: steps.upstream.outputs.drift == 'true' && steps.create-pr.outcome == 'failure'
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Upstream drift review branch created
+
+          Upstream MISP Docker drift was detected, but this repository or
+          organization currently does not allow GitHub Actions to create pull
+          requests automatically.
+
+          The workflow still pushed the review branch if `create-pull-request`
+          reached its branch push step. Open the review PR manually from:
+
+          https://github.com/${{ github.repository }}/pull/new/automation/upstream-misp-docker-review
+
+          If automatic PR creation is desired, enable the organization/repository
+          Actions setting that allows GitHub Actions to create pull requests.
+          EOF
