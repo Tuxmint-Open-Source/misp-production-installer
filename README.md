@@ -216,6 +216,10 @@ Show the generated admin email without printing the password:
 sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
+The install summary also points to this helper. It is the safest way to confirm
+the generated `BASE_URL` and admin account without exposing the password in
+terminal scrollback.
+
 Print the initial password only on a trusted terminal:
 
 ```bash

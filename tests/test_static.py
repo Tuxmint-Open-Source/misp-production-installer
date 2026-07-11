@@ -73,6 +73,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertLess(text.index('wait_for_misp_core'), text.index('run_misp_db_updates'))
         self.assertLess(text.index('run_misp_db_updates'), text.index('wait_for_misp_live_marker'))
         self.assertLess(text.index('wait_for_misp_live_marker'), text.index('doctor.sh'))
+        self.assertIn('Credentials helper: sudo ./installer/admin-credentials.sh --install-dir $INSTALL_DIR', text)
+        self.assertLess(text.index('Admin password: stored'), text.index('Credentials helper:'))
         update = (ROOT / 'installer' / 'update.sh').read_text()
         self.assertLess(update.index('run_misp_db_updates'), update.index('wait_for_misp_live_marker'))
         self.assertLess(update.index('wait_for_misp_live_marker'), update.index('doctor.sh'))
