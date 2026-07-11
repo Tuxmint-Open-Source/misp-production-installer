@@ -1,7 +1,7 @@
 {
-  "checked_at_utc": "2026-07-06T20:45:23Z",
+  "checked_at_utc": "2026-07-11T14:08:43Z",
   "component_tags": {
-    "CORE_TAG": "v2.5.42",
+    "CORE_TAG": "v2.5.43",
     "GUARD_TAG": "v1.2",
     "MODULES_TAG": "v3.0.8"
   },
@@ -29,7 +29,7 @@
     "MODULES_RUNNING_TAG": "(commented or unset)"
   },
   "schema": 1,
-  "upstream_commit": "6d915d5921183cded7758dad19c8584edbcde642",
+  "upstream_commit": "8d226f7e89d3f8efa7ef44ee473c410bc3cdb17f",
   "watched_files": {
     "README.md": {
       "exists": true,
@@ -41,7 +41,7 @@
     },
     "template.env": {
       "exists": true,
-      "sha256": "9f040883f96ee5fd7c5c7c3abc1531f166d4b35f9c831e362c000c5229638c9a"
+      "sha256": "bb631da7c18dd4599a22036661e44eecd44e4968e46d81e0f98876da4bf1da33"
     }
   }
 }
