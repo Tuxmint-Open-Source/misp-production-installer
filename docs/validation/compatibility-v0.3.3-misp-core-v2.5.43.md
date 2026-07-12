@@ -9,15 +9,15 @@ The purpose is to show which installer release/ref was tested with which officia
 | Item | Value |
 | --- | --- |
 | Official MISP Docker component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
-| `v0.3.3` release candidate | 🟡 release/tag validation pending |
+| `v0.3.3` release tag | ✅ Validated compatible |
 | current `main` at PR #22 validation time | ✅ Validated compatible |
 | `v0.3.2` release tag | ❌ Validation failed |
 | Upstream-review PR | [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22) |
 
 > [!IMPORTANT]
-> The `v0.3.3` release candidate is prepared from the `main` line that passed compatibility validation with MISP core `v2.5.43`. It should be marked **validated compatible** only after the final `v0.3.3` release tag is created and the same compatibility validation passes against that immutable tag.
+> The `v0.3.3` release tag is validated compatible with MISP core `v2.5.43`, modules `v3.0.8`, and guard `v1.2` across the documented compatibility scenarios.
 >
-> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the first-login readiness race that was fixed later on `main`.
+> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the first-login readiness race that was fixed later on `main` and released in `v0.3.3`.
 
 ## Target official MISP Docker component set
 
@@ -56,12 +56,13 @@ The test machines were reset to a clean Docker-ready state before each scenario.
 
 | Installer release/ref | Direct fresh install | Caddy reverse proxy | Install/update path | Lifecycle smoke | Failure guardrail | Overall |
 | --- | --- | --- | --- | --- | --- | --- |
+| `v0.3.3` release tag | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ validated compatible |
 | current `main` at PR #22 validation time | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ passed | ✅ validated compatible |
 | `v0.3.2` release tag | ❌ failed | ❌ failed | ❌ failed | ❌ failed | ✅ passed | ❌ validation failed |
 
-## Current `main` validation details
+## `v0.3.3` release-tag validation details
 
-These scenarios passed for the current public `main` ref at the time PR #22 was reviewed.
+These scenarios passed for the immutable `v0.3.3` release tag.
 
 ### 1. Direct-QA fresh install
 

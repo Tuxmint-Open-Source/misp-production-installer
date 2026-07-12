@@ -73,7 +73,7 @@ This installer is useful only when it works with the official MISP Docker compon
 
 | Installer release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v0.3.3` release candidate | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Release/tag validation pending |
+| `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed |
 
