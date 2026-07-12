@@ -17,7 +17,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -215,7 +215,28 @@ class StaticRepoTests(unittest.TestCase):
         text = (ROOT / 'installer' / 'backup.sh').read_text()
         self.assertIn('umask 077', text)
         self.assertIn('chmod 700 "$out"', text)
-        self.assertIn('chmod 600 "$out/misp.sql"', text)
+        self.assertIn('misp-config.tar.gz', text)
+        self.assertIn('chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/misp-config.tar.gz"', text)
+
+    def test_restore_has_destructive_safety_and_imports_backup(self):
+        text = (ROOT / 'installer' / 'restore.sh').read_text()
+        self.assertIn('--backup-dir', text)
+        self.assertIn('Dry-run only', text)
+        self.assertIn('Type RESTORE to continue', text)
+        self.assertIn('sha256sum -c SHA256SUMS', text)
+        self.assertIn('misp-config.tar.gz', text)
+        self.assertIn('misp-host-data.tar.gz', text)
+        self.assertIn('misp.sql', text)
+        self.assertIn('down --volumes --remove-orphans', text)
+        self.assertIn('mariadb --defaults-extra-file="$cfg" "$MYSQL_DATABASE"', text)
+        self.assertIn('wait_for_misp_live_marker', text)
+
+    def test_update_allows_external_backup_root_for_restore_based_rollback(self):
+        text = (ROOT / 'installer' / 'update.sh').read_text()
+        self.assertIn('--backup-root', text)
+        self.assertIn('backup_args=(--install-dir "$INSTALL_DIR")', text)
+        self.assertIn('backup_args+=(--backup-root "$BACKUP_ROOT")', text)
+        self.assertIn('"$SCRIPT_DIR/backup.sh" "${backup_args[@]}"', text)
 
     def test_temp_checkout_cleanup_trap_expands_tmpdir(self):
         text = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()

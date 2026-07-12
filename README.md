@@ -36,7 +36,7 @@ multi-node orchestration layer.
 ## What this gives you
 
 - Fresh install of official `MISP/misp-docker` with generated secrets and production-oriented defaults.
-- Single-server Docker lifecycle scripts for install, backup, update, validation, login checks, and reset.
+- Single-server Docker lifecycle scripts for install, backup, restore, update, validation, login checks, and reset.
 - Deterministic MISP component image tags instead of implicit Docker `latest`.
 - Optional explicit component tag selection for older/specific MISP component versions.
 - Backup-first update workflow for moving to latest or specific MISP component versions.
@@ -167,6 +167,14 @@ sudo ./installer/update.sh \
 
 The update script creates a backup first, fetches upstream, synchronizes component image tags, pulls images, restarts containers, runs MISP DB updates, verifies schema readiness, and runs `doctor.sh`.
 
+For restore-based rollback drills, store the pre-update backup outside the deployment directory:
+
+```bash
+sudo ./installer/update.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp
+```
+
 ### 4. Update MISP components to specific versions
 
 ```bash
@@ -258,6 +266,7 @@ Do not treat the visible login form alone as the readiness signal. Wait until th
 ./installer/admin-credentials.sh --install-dir /opt/misp-docker
 ./installer/login-check.sh --install-dir /opt/misp-docker
 ./installer/backup.sh --install-dir /opt/misp-docker
+./installer/restore.sh --backup-dir /opt/misp-docker/backups/misp-backup-YYYYMMDDTHHMMSSZ --install-dir /opt/misp-docker
 ./installer/update.sh --install-dir /opt/misp-docker
 ```
 
