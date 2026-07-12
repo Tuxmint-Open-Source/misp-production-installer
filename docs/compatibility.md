@@ -16,12 +16,15 @@ A pair is called **validated compatible** only after the documented validation s
 
 | Installer release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- |
-| current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-11 | [`compatibility-v0.3.2-misp-core-v2.5.43.md`](validation/compatibility-v0.3.2-misp-core-v2.5.43.md) |
-| `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | 2026-07-12 | [`compatibility-v0.3.2-misp-core-v2.5.43.md`](validation/compatibility-v0.3.2-misp-core-v2.5.43.md) |
+| `v0.3.3` release candidate | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Release/tag validation pending | pending | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
+| current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-11 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
+| `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
 > [!IMPORTANT]
-> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the known first-login readiness race that was fixed later on `main`. A patch release from the validated `main` line is needed before customers can see a validated-compatible release entry for this component set.
+> The `v0.3.3` release candidate is prepared from the `main` line that passed compatibility validation with MISP core `v2.5.43`. It should be marked **validated compatible** only after the final `v0.3.3` release tag is created and the same compatibility validation passes against that immutable tag.
+>
+> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the known first-login readiness race that was fixed later on `main`.
 
 ## Status definitions
 
