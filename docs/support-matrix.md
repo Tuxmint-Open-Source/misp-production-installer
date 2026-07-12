@@ -15,7 +15,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
 | Direct-QA mode | validation and controlled QA only | Direct-QA is not the recommended long-term public exposure mode. |
 | MISP component selection | official component tags from upstream or explicit official tags | Custom images/forks are not covered. |
-| Lifecycle helpers | install, doctor, login check, backup, update, reset dry-run, no-lock-in Compose usage | Restore/rollback must be documented and validated before `v1.0.0`. |
+| Lifecycle helpers | install, doctor, login check, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | Final `v1.0.0` still requires exact release-tag validation before production claims. |
 
 ## Explicit non-goals for `v1.0.0`
 
@@ -55,4 +55,4 @@ Examples:
 
 - Nginx reverse-proxy support should be added only after an Nginx fixture is validated.
 - Another Linux distribution should be listed only after fresh install/update validation passes on that distribution.
-- Restore support should be listed only after a restore drill passes for an exact release tag.
+- Restore support for a final release should be listed as release-tag validated only after a restore drill passes for that exact release tag.

@@ -100,7 +100,7 @@ sudo ./installer/backup.sh --install-dir /opt/misp-docker
 
 Backups are sensitive. Treat database dumps and host-data archives as confidential because they can contain operational data, MISP event data, user data, and generated secrets.
 
-See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for restore and rollback expectations.
+See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the validated restore workflow and restore-based rollback procedure.
 
 ## No-lock-in operation
 
@@ -108,12 +108,13 @@ The generated deployment remains a normal official `MISP/misp-docker` checkout. 
 
 Before `v1.0.0`, no-lock-in behavior should remain part of release validation.
 
-## Operational limitations before `v1.0.0`
+## Remaining gates before `v1.0.0`
 
-Before the first production-ready major release, the following remain planned gates:
+Before the first production-ready major release, these gates remain:
 
-- documented and validated restore drill
-- browser-facing login validation for the current release line
-- rollback/failure recovery validation or explicit limitation
 - final support matrix and security model review
-- exact `v1.0.0` tag validation
+- public production-readiness validation report
+- exact `v1.0.0-rc.1` tag validation
+- exact final `v1.0.0` tag validation
+
+The current `main` line has already passed restore, browser-login, and restore-based rollback validation; those scenarios must still be repeated for the release candidate and final release tags.

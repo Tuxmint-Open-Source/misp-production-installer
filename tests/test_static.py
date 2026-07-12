@@ -300,8 +300,10 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('No-lock-in operation', deployment)
         self.assertIn('Secret handling', security)
         self.assertIn('Docker privilege model', security)
-        self.assertIn('Restore expectation for `v1.0.0`', backup_restore)
-        self.assertIn('Rollback after failed update', backup_restore)
+        self.assertIn('Restore procedure', backup_restore)
+        self.assertIn('Restore-based rollback after failed update', backup_restore)
+        self.assertIn('misp-config.tar.gz', backup_restore)
+        self.assertIn('restore.sh', backup_restore)
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
 

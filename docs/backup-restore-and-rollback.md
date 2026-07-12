@@ -1,8 +1,8 @@
 # Backup, restore, and rollback
 
-This document describes the intended backup, restore, and rollback contract for `misp-production-installer`.
+This document describes the backup, restore, and rollback contract for `misp-production-installer`.
 
-The current installer has backup and reset helpers. Before `v1.0.0`, the project must also document and validate a real restore drill.
+The restore workflow is intentionally restore-based rather than automatic rollback magic: operators keep a verified backup, recover from that backup with `restore.sh`, then verify the restored deployment.
 
 ## Backup creation
 
@@ -12,73 +12,108 @@ Create a backup with:
 sudo ./installer/backup.sh --install-dir /opt/misp-docker
 ```
 
-A backup should include:
+A backup includes:
 
-- database dump
-- relevant host-data archive
-- checksums
+- `misp.sql` — MariaDB database dump
+- `misp-host-data.tar.gz` — MISP host-mounted data directories
+- `misp-config.tar.gz` — generated deployment configuration such as `.env`, Compose override, and installer state
+- `SHA256SUMS` — checksum manifest
 
-Backups are sensitive and should be protected accordingly.
+Backups are sensitive. `misp-config.tar.gz` contains generated deployment secrets, and `misp.sql` can contain sensitive MISP data.
 
 ## Backup verification
 
-After backup creation, operators should verify:
+Verify checksums from inside the backup directory:
 
-- the command completed successfully
-- expected backup files exist
-- checksum files exist
-- backup files have restrictive permissions
-- backup files are copied to the intended retention location
+```bash
+cd /path/to/misp-backup-YYYYMMDDTHHMMSSZ
+sha256sum -c SHA256SUMS
+```
 
-The exact checksum verification command depends on where the backup output is stored. Keep verification local and do not paste backup contents into public issues.
+Also verify that backup files are stored with restrictive permissions and copied to the intended retention location.
 
-## Restore expectation for `v1.0.0`
+Do not paste backup contents, `.env`, database dumps, or full raw logs into public issues.
 
-For the first production-ready release, restore must be more than a documented idea. It should be validated as a scenario:
+## Restore procedure
 
-1. create a fresh deployment
-2. verify login works
-3. create or verify meaningful MISP state
-4. run `backup.sh`
-5. reset or recreate the deployment scope
-6. restore the backup
-7. start the stack
-8. run `doctor.sh`
-9. run `login-check.sh`
-10. verify the expected state exists after restore
+Restore from a backup created by `backup.sh`:
 
-Until that scenario passes for an exact release tag, the project should not claim complete disaster-recovery readiness.
+```bash
+sudo ./installer/restore.sh \
+  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --install-dir /opt/misp-docker
+```
 
-## Restore procedure placeholder
+By default, restore is conservative:
 
-The final `v1.0.0` restore procedure should document the exact tested steps.
+- `--backup-dir` is required
+- `SHA256SUMS` is verified before restore
+- the install directory is safety-checked
+- destructive mode requires `--yes`
+- interactive confirmation requires typing `RESTORE`
+- use `--force` only for tested automation on disposable or clearly scoped hosts
 
-At minimum, it must state:
+Example non-interactive automation form after reviewing the target:
 
-- how to stop the stack safely
-- which files/directories are restored
-- how database restore is performed
-- how ownership and permissions are restored
-- how checksums are verified
-- how to start the stack after restore
-- which validation commands prove success
+```bash
+sudo ./installer/restore.sh \
+  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --install-dir /opt/misp-docker \
+  --yes \
+  --force
+```
 
-This placeholder should be replaced by the validated restore procedure before `v1.0.0`.
+`restore.sh` restores:
 
-## Rollback after failed update
+1. generated deployment configuration from `misp-config.tar.gz`
+2. host-mounted data from `misp-host-data.tar.gz`
+3. database contents from `misp.sql`
 
-`update.sh` creates a backup before applying changes. A production-ready rollback story should explain what to do if an update fails after that backup.
+Then it starts the stack, waits for readiness, runs database updates/schema checks, and runs `doctor.sh`.
 
-The documented rollback path should cover:
+After restore, run:
 
-- when to stop and avoid repeated retries
-- how to preserve logs privately for diagnosis
-- how to identify the pre-update backup
-- how to restore from that backup
-- how to verify the restored deployment
-- when to report an issue upstream or in this installer project
+```bash
+sudo ./installer/doctor.sh --install-dir /opt/misp-docker
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker
+```
 
-Until rollback is validated, docs should describe rollback as restore-based and not automatic.
+## Restore validation evidence
+
+A private validation drill passed for the current `main` line after `restore.sh` was added. The drill exercised:
+
+1. fresh install
+2. creation of meaningful host-mounted state
+3. `backup.sh` with generated config, host data, database dump, and checksums
+4. destructive reset of the deployment scope
+5. `restore.sh` from the backup
+6. restored state verification
+7. `doctor.sh`
+8. `login-check.sh`
+
+Public production-readiness claims for final releases still require exact release-tag validation.
+
+## Restore-based rollback after failed update
+
+`update.sh` creates a backup before applying changes. For rollback drills and production recovery planning, store the pre-update backup outside the deployment directory:
+
+```bash
+sudo ./installer/update.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp
+```
+
+If an update fails after the pre-update backup is created:
+
+1. stop repeated retries
+2. preserve logs privately for diagnosis
+3. identify the pre-update backup under the external backup root
+4. verify `SHA256SUMS`
+5. restore with `restore.sh`
+6. run `doctor.sh`
+7. run `login-check.sh`
+
+A restore-based rollback drill passed for the current `main` line by intentionally triggering an update failure after backup creation, then recovering with `restore.sh` from the pre-update backup.
 
 ## Reset behavior
 
@@ -109,4 +144,4 @@ If backup, restore, update, or rollback fails:
 
 ## v1.0.0 gate
 
-Before `v1.0.0`, this document should be updated from expectations/placeholders into a validated runbook. The validation matrix should include a restore scenario result for the exact release tag.
+Before `v1.0.0`, the final release candidate and final release tags should repeat restore and rollback validation. The public validation matrix should include those exact-tag results before the production warning is removed.

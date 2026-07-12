@@ -34,10 +34,10 @@ Before removing the public production warning, the project should have:
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
 | Security model and hardening statement | drafted | Documents installer security posture, non-goals, and evidence policy. |
-| Backup restore documentation | drafted | Restore procedure still needs exact validated commands before `v1.0.0`. |
-| Real restore validation | planned | Must prove a backup can be restored into a clean deployment and become usable. |
-| Rollback/failure recovery docs | drafted | Rollback remains restore-based until validation proves more. |
-| Current-release browser login validation | planned | `v0.3.3` compatibility used CLI login checks; v1 readiness should include browser-facing validation. |
+| Backup restore documentation | ✅ documented | `restore.sh` restores generated config, host data, and database dumps from `backup.sh` output. |
+| Real restore validation | ✅ validated for current `main` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
+| Rollback/failure recovery docs | ✅ restore-based | A failed-update recovery drill passed using an external pre-update backup and `restore.sh`. |
+| Current-release browser login validation | ✅ validated for current `main` | Playwright Chromium login validation passed against the configured HTTPS URL. |
 | Public production-readiness validation report | planned | Must summarize exact release-tag evidence without private infrastructure details. |
 
 ## Required validation before `v1.0.0`
@@ -75,7 +75,7 @@ Until `v1.0.0` is published and validated, this project does not claim:
 - high-availability or multi-node deployment support
 - Kubernetes support
 - support for custom MISP images or forks
-- complete disaster-recovery assurance without restore validation
+- complete disaster-recovery assurance for a final `v1.0.0` release tag before that exact tag is validated
 - compatibility with future upstream MISP component sets before validation completes
 
 ## Evidence policy

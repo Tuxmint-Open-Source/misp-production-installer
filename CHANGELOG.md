@@ -16,6 +16,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Document the post-tag compatibility validation flow for releases and clarify that release/component pairs are marked **validated compatible** only after exact-tag validation passes.
 - Clean up the `v0.3.3` compatibility report wording now that the release tag has passed validation.
 - Include generated deployment configuration in backups so restore can reproduce the original runtime settings and secrets.
+- Update production-readiness docs now that restore, browser login, and restore-based rollback validation have passed for current `main`.
 
 ## [0.3.3] - 2026-07-12
 
