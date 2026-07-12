@@ -1,6 +1,6 @@
-# Compatibility validation: installer v0.3.2 line with MISP core v2.5.43
+# Compatibility validation: installer v0.3.3 line with MISP core v2.5.43
 
-This document records public-safe compatibility validation for `misp-production-installer` with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22).
+This document records public-safe compatibility validation for the `misp-production-installer` line being prepared as `v0.3.3`, with the official MISP Docker component set reviewed in PR [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22).
 
 The purpose is to show which installer release/ref was tested with which official MISP component versions, what passed, what failed, and what is not claimed.
 
@@ -9,12 +9,15 @@ The purpose is to show which installer release/ref was tested with which officia
 | Item | Value |
 | --- | --- |
 | Official MISP Docker component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
+| `v0.3.3` release candidate | 🟡 release/tag validation pending |
 | current `main` at PR #22 validation time | ✅ Validated compatible |
 | `v0.3.2` release tag | ❌ Validation failed |
 | Upstream-review PR | [#22](https://github.com/Tuxmint-Open-Source/misp-production-installer/pull/22) |
 
 > [!IMPORTANT]
-> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the first-login readiness race that was fixed later on `main`. A patch release from the validated `main` line is needed before customers can see a validated-compatible release entry for this component set.
+> The `v0.3.3` release candidate is prepared from the `main` line that passed compatibility validation with MISP core `v2.5.43`. It should be marked **validated compatible** only after the final `v0.3.3` release tag is created and the same compatibility validation passes against that immutable tag.
+>
+> The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the first-login readiness race that was fixed later on `main`.
 
 ## Target official MISP Docker component set
 
