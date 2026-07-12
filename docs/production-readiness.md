@@ -2,15 +2,15 @@
 
 This project is on a deliberate path toward a first production-ready major release.
 
-The current release, `v0.3.3`, is validated compatible with the latest reviewed official MISP Docker component set, but the repository still carries a **not production ready** warning because production readiness requires more than successful install/update compatibility.
+The current release candidate, `v1.0.0-rc.1`, is being prepared for exact-tag validation. The latest validated compatible release remains `v0.3.3`; the repository keeps the **not production ready** warning until the release-candidate and final tags pass validation.
 
 ## Current status
 
 | Area | Status |
 | --- | --- |
-| Latest installer release | `v0.3.3` |
+| Latest installer release candidate | `v1.0.0-rc.1` |
 | Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
-| Compatibility status | ✅ `v0.3.3` is validated compatible with that component set |
+| Compatibility status | 🟡 `v1.0.0-rc.1` pending exact-tag validation; ✅ `v0.3.3` remains validated compatible |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Production-ready status | not yet |
 
@@ -29,7 +29,7 @@ Before removing the public production warning, the project should have:
 
 | Requirement | Status | Notes |
 | --- | --- | --- |
-| Exact release-tag compatibility validation | ✅ for `v0.3.3` | Must be repeated for every release and final `v1.0.0`. |
+| Exact release-tag compatibility validation | 🟡 pending for `v1.0.0-rc.1` | Must pass before the release candidate is marked validated compatible. |
 | Public compatibility matrix | ✅ | Tracks installer release/ref × official MISP Docker component set. |
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |

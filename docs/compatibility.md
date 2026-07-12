@@ -16,13 +16,14 @@ A pair is called **validated compatible** only after the documented validation s
 
 | Installer release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- |
+| `v1.0.0-rc.1` release candidate | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Pending exact-tag validation | 2026-07-12 | pending release-candidate validation |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-11 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
 > [!IMPORTANT]
-> The `v0.3.3` release tag is validated compatible with MISP core `v2.5.43`, modules `v3.0.8`, and guard `v1.2` across the documented compatibility scenarios.
+> The `v1.0.0-rc.1` release candidate is pending exact-tag validation. The latest validated compatible release remains `v0.3.3` for MISP core `v2.5.43`, modules `v3.0.8`, and guard `v1.2`.
 >
 > The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the known first-login readiness race that was fixed later on `main` and released in `v0.3.3`.
 

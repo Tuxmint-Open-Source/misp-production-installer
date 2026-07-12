@@ -22,11 +22,11 @@ class StaticRepoTests(unittest.TestCase):
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
             version_text = subprocess.check_output([str(script), '--version'], text=True, cwd=ROOT).strip()
-            self.assertRegex(version_text, r'^misp-production-installer \d+\.\d+\.\d+')
+            self.assertRegex(version_text, r'^misp-production-installer \d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?')
 
     def test_version_files_are_consistent(self):
         version = (ROOT / 'VERSION').read_text().strip()
-        self.assertRegex(version, r'^\d+\.\d+\.\d+$')
+        self.assertRegex(version, r'^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')
         self.assertIn(f'Current installer version: `{version}`', (ROOT / 'README.md').read_text())
         self.assertIn(f'## [{version}]', (ROOT / 'CHANGELOG.md').read_text())
 
@@ -306,6 +306,22 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('restore.sh', backup_restore)
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
+
+    def test_release_candidate_is_pending_until_exact_tag_validation(self):
+        version = (ROOT / 'VERSION').read_text().strip()
+        readme = (ROOT / 'README.md').read_text()
+        compatibility = (ROOT / 'docs' / 'compatibility.md').read_text()
+        matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
+        readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
+        self.assertEqual(version, '1.0.0-rc.1')
+        self.assertIn('`v1.0.0-rc.1` release candidate', readme)
+        self.assertIn('🟡 Pending exact-tag validation', compatibility)
+        self.assertIn('🟡 Pending exact-tag validation', matrix)
+        self.assertIn('pending exact-tag validation', readiness)
+        rc_lines = [line for line in (compatibility + '\n' + matrix).splitlines() if 'v1.0.0-rc.1' in line]
+        self.assertTrue(rc_lines)
+        for line in rc_lines:
+            self.assertNotIn('✅ Validated compatible', line)
 
 if __name__ == '__main__':
     unittest.main()

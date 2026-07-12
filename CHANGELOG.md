@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [1.0.0-rc.1] - 2026-07-12
+
 ### Added
 
 - Add a public production-readiness roadmap describing the remaining documentation and validation gates before `v1.0.0`.
@@ -104,7 +106,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v1.0.0-rc.1...HEAD
+[1.0.0-rc.1]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.3...v1.0.0-rc.1
 [0.3.3]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Tuxmint-Open-Source/misp-production-installer/compare/v0.3.0...v0.3.1
