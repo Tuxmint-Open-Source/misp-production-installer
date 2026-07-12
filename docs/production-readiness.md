@@ -2,7 +2,7 @@
 
 This project is on a deliberate path toward a first production-ready major release.
 
-The current release candidate, `v1.0.0-rc.1`, is being prepared for exact-tag validation. The latest validated compatible release remains `v0.3.3`; the repository keeps the **not production ready** warning until the release-candidate and final tags pass validation.
+The current release candidate, `v1.0.0-rc.1`, has passed exact-tag validation. The repository keeps the **not production ready** warning until the final `v1.0.0` tag is prepared, published, and validated separately.
 
 ## Current status
 
@@ -10,7 +10,7 @@ The current release candidate, `v1.0.0-rc.1`, is being prepared for exact-tag va
 | --- | --- |
 | Latest installer release candidate | `v1.0.0-rc.1` |
 | Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
-| Compatibility status | 🟡 `v1.0.0-rc.1` pending exact-tag validation; ✅ `v0.3.3` remains validated compatible |
+| Compatibility status | ✅ `v1.0.0-rc.1` validated compatible; final `v1.0.0` still pending |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Production-ready status | not yet |
 
@@ -29,7 +29,7 @@ Before removing the public production warning, the project should have:
 
 | Requirement | Status | Notes |
 | --- | --- | --- |
-| Exact release-tag compatibility validation | 🟡 pending for `v1.0.0-rc.1` | Must pass before the release candidate is marked validated compatible. |
+| Exact release-tag compatibility validation | ✅ passed for `v1.0.0-rc.1` | Must be repeated for final `v1.0.0`. |
 | Public compatibility matrix | ✅ | Tracks installer release/ref × official MISP Docker component set. |
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
@@ -38,7 +38,7 @@ Before removing the public production warning, the project should have:
 | Real restore validation | ✅ validated for current `main` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
 | Rollback/failure recovery docs | ✅ restore-based | A failed-update recovery drill passed using an external pre-update backup and `restore.sh`. |
 | Current-release browser login validation | ✅ validated for current `main` | Playwright Chromium login validation passed against the configured HTTPS URL. |
-| Public production-readiness validation report | planned | Must summarize exact release-tag evidence without private infrastructure details. |
+| Public production-readiness validation report | ✅ for `v1.0.0-rc.1` | Public-safe exact-tag validation report is available under `docs/validation/`. |
 
 ## Required validation before `v1.0.0`
 
