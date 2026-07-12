@@ -8,11 +8,14 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add a public production-readiness roadmap describing the remaining documentation and validation gates before `v1.0.0`.
 - Add public `v1.0.0` operator-readiness docs for support scope, production deployment, security model, and backup/restore/rollback expectations.
+- Add `restore.sh` for restoring generated deployment config, host data, and database dumps from `backup.sh` output.
+- Allow `update.sh --backup-root PATH` so pre-update backups can be stored outside the deployment directory for restore-based rollback drills.
 
 ### Changed
 
 - Document the post-tag compatibility validation flow for releases and clarify that release/component pairs are marked **validated compatible** only after exact-tag validation passes.
 - Clean up the `v0.3.3` compatibility report wording now that the release tag has passed validation.
+- Include generated deployment configuration in backups so restore can reproduce the original runtime settings and secrets.
 
 ## [0.3.3] - 2026-07-12
 

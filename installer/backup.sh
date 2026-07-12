@@ -13,6 +13,7 @@ Usage:
 What this script backs up:
   - MariaDB dump written to misp.sql
   - MISP host-mounted data directories archived as misp-host-data.tar.gz
+  - generated deployment configuration archived as misp-config.tar.gz
   - SHA256SUMS for integrity verification
 
 Options:
@@ -62,6 +63,11 @@ compose_cmd "$INSTALL_DIR" exec -T db sh -lc '
 # logs, TLS material, GnuPG state, and optional customizations.
 (cd "$INSTALL_DIR" && { sudo tar --xattrs --selinux -czf "$out/misp-host-data.tar.gz" configs logs files ssl gnupg custom guard 2>/dev/null || sudo tar -czf "$out/misp-host-data.tar.gz" configs logs files ssl gnupg custom guard; })
 sudo chown "$(id -u):$(id -g)" "$out/misp-host-data.tar.gz"
+
+# Generated deployment configuration: keep this separate from host data so a
+# restore can reproduce the exact runtime settings and secrets used by the DB.
+# This archive is sensitive because it contains .env.
+(cd "$INSTALL_DIR" && tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml .installer-state.json 2>/dev/null || tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml)
 sha256sum "$out"/* > "$out/SHA256SUMS"
-chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/SHA256SUMS"
+chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/misp-config.tar.gz" "$out/SHA256SUMS"
 log "Backup written to $out"

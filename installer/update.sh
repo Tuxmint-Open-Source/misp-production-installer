@@ -26,6 +26,7 @@ Options:
   --guard-tag TAG      Explicit misp-guard image/component tag override
   --image-track MODE   Image tracking mode: version-tags, latest, or keep
                        default: version-tags
+  --backup-root PATH   Backup output directory passed to backup.sh
   -h, --help           Show this help
   --version            Show installer version
 
@@ -43,6 +44,7 @@ CORE_TAG_OVERRIDE=""
 MODULES_TAG_OVERRIDE=""
 GUARD_TAG_OVERRIDE=""
 IMAGE_TRACK="version-tags"
+BACKUP_ROOT=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -52,6 +54,7 @@ while [[ $# -gt 0 ]]; do
     --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;;
     --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;;
     --image-track) IMAGE_TRACK="$2"; shift 2;;
+    --backup-root) BACKUP_ROOT="$2"; shift 2;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
     *) fatal "Unknown argument: $1";;
@@ -63,7 +66,9 @@ done
 old_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
 
 # Always back up first. MISP updates may include database migrations.
-"$SCRIPT_DIR/backup.sh" --install-dir "$INSTALL_DIR"
+backup_args=(--install-dir "$INSTALL_DIR")
+[[ -n "$BACKUP_ROOT" ]] && backup_args+=(--backup-root "$BACKUP_ROOT")
+"$SCRIPT_DIR/backup.sh" "${backup_args[@]}"
 git -C "$INSTALL_DIR" fetch --tags origin
 
 if [[ -n "$UPSTREAM_REF" ]]; then
