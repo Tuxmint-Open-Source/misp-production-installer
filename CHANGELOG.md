@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Changed
+
+- Mark `v1.0.0-rc.2` as validated compatible after exact-tag validation passes.
+
 ## [1.0.0-rc.2] - 2026-07-13
 
 ### Changed

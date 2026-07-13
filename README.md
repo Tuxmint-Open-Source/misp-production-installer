@@ -80,7 +80,7 @@ This lifecycle manager is useful only when it works with the official MISP Docke
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v1.0.0-rc.2` release candidate | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Pending exact-tag validation |
+| `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
