@@ -307,20 +307,22 @@ class StaticRepoTests(unittest.TestCase):
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
 
-    def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
+    def test_release_candidate_is_pending_until_rc2_exact_tag_validation(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()
         compatibility = (ROOT / 'docs' / 'compatibility.md').read_text()
         matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
         readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
-        rc_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md').read_text()
-        self.assertEqual(version, '1.0.0-rc.1')
-        self.assertIn('`v1.0.0-rc.1` release candidate tag', readme)
-        self.assertIn('✅ Validated compatible', compatibility)
-        self.assertIn('✅ Validated compatible', matrix)
-        self.assertIn('`v1.0.0-rc.1` validated compatible', readiness)
-        self.assertIn('Overall result | ✅ Validated compatible', rc_report)
-        self.assertIn('final `v1.0.0` release must still be tagged and validated separately', rc_report)
+        self.assertEqual(version, '1.0.0-rc.2')
+        self.assertIn('Current manager version: `1.0.0-rc.2`', readme)
+        self.assertIn('`v1.0.0-rc.2` release candidate', readme)
+        self.assertIn('🟡 Pending exact-tag validation', compatibility)
+        self.assertIn('🟡 Pending exact-tag validation', matrix)
+        self.assertIn('`v1.0.0-rc.2` pending exact-tag validation', readiness)
+        rc2_lines = [line for line in (readme + '\n' + compatibility + '\n' + matrix).splitlines() if 'v1.0.0-rc.2' in line]
+        self.assertTrue(rc2_lines)
+        for line in rc2_lines:
+            self.assertNotIn('✅ Validated compatible', line)
 
 if __name__ == '__main__':
     unittest.main()

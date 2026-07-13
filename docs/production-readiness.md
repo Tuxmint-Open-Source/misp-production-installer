@@ -2,15 +2,15 @@
 
 This project is on a deliberate path toward a first production-ready major release.
 
-The current release candidate, `v1.0.0-rc.1`, has passed exact-tag validation. The repository keeps the **not production ready** warning until the final `v1.0.0` tag is prepared, published, and validated separately.
+The current release candidate, `v1.0.0-rc.2`, is being prepared after the project rename/rebrand and is pending exact-tag validation. The repository keeps the **not production ready** warning until the final `v1.0.0` tag is prepared, published, and validated separately.
 
 ## Current status
 
 | Area | Status |
 | --- | --- |
-| Latest manager release candidate | `v1.0.0-rc.1` |
+| Latest manager release candidate | `v1.0.0-rc.2` |
 | Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
-| Compatibility status | ✅ `v1.0.0-rc.1` validated compatible; final `v1.0.0` still pending |
+| Compatibility status | 🟡 `v1.0.0-rc.2` pending exact-tag validation; ✅ `v1.0.0-rc.1` remains validated compatible |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Production-ready status | not yet |
 
@@ -29,7 +29,7 @@ Before removing the public production warning, the project should have:
 
 | Requirement | Status | Notes |
 | --- | --- | --- |
-| Exact release-tag compatibility validation | ✅ passed for `v1.0.0-rc.1` | Must be repeated for final `v1.0.0`. |
+| Exact release-tag compatibility validation | 🟡 pending for `v1.0.0-rc.2` | Must pass before RC2 is marked validated compatible; final `v1.0.0` must be validated separately. |
 | Public compatibility matrix | ✅ | Tracks manager release/ref × official MISP Docker component set. |
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
