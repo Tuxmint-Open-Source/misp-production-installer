@@ -114,11 +114,13 @@ Public artifacts must not include:
 
 ## Vulnerability reporting
 
-Before `v1.0.0`, vulnerability reporting should be finalized in the public repository.
+Vulnerability reporting is documented in the repository-level [`SECURITY.md`](../SECURITY.md).
 
-Recommended next step:
+At minimum:
 
-- add a `SECURITY.md` file or dedicated section that explains how to privately report security issues for this project.
+- report suspected vulnerabilities through GitHub private vulnerability reporting or the security advisory workflow;
+- do not include private infrastructure details, secrets, logs, database dumps, or backup contents in public issues;
+- distinguish project security issues from upstream MISP security issues.
 
 ## v1.0.0 security gate
 

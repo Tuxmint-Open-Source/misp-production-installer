@@ -45,7 +45,7 @@ For bugs, include:
 - relevant sanitized output;
 - whether this is a fresh install, update, backup, restore, rollback, or reset workflow.
 
-If you are unsure whether something is security-sensitive, do not open a public issue with details. Use the security reporting path instead.
+If you are unsure whether something is security-sensitive, do not open a public issue with details. Use [`SECURITY.md`](SECURITY.md) instead.
 
 ## Pull request workflow
 

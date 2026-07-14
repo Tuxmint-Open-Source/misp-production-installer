@@ -10,6 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add cross-links and "What to read next" sections to major docs so readers can continue through the operator journey without returning to search manually.
 - Refresh the shell-script reference against actual command help output, including main commands, helper scripts, destructive workflows, backup artifacts, credential handling, and safety notes.
 - Add community health files and GitHub templates for code of conduct, contributing, pull requests, bugs, feature requests, and documentation improvements.
+- Add a repository-level security policy for private vulnerability reporting, supported versions, disclosure expectations, and public redaction rules.
 
 ### Changed
 

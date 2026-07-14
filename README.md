@@ -47,6 +47,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |
+| report a security vulnerability | [`SECURITY.md`](SECURITY.md) |
 
 ## Quick test path
 
@@ -135,10 +136,13 @@ See [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ## Contributing
 
-Contributions are welcome. Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
+Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for the public-safety rules, PR workflow, validation commands, and compatibility-claim expectations.
+
+Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
 
 Useful project docs:
 
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`AGENTS.md`](AGENTS.md)
 - [`QA.md`](QA.md)
 - [`CHANGELOG.md`](CHANGELOG.md)

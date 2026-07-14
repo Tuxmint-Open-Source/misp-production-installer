@@ -458,6 +458,25 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('blank_issues_enabled: false', config)
         self.assertIn('/security/policy', config)
 
+    def test_security_policy_exists_and_guides_private_reporting(self):
+        security = (ROOT / 'SECURITY.md').read_text()
+        readme = (ROOT / 'README.md').read_text()
+        contributing = (ROOT / 'CONTRIBUTING.md').read_text()
+        docs_security = (ROOT / 'docs' / 'security.md').read_text()
+
+        self.assertIn('Supported versions', security)
+        self.assertIn('v1.0.0-rc.2', security)
+        self.assertIn('/security/advisories/new', security)
+        self.assertIn('Do **not** open a public issue for security vulnerabilities', security)
+        self.assertIn('command injection', security)
+        self.assertIn('secret', security.lower())
+        self.assertIn('reset, restore, update, or rollback behavior', security)
+        self.assertIn('Coordinated disclosure', security)
+        self.assertIn('[REDACTED]', security)
+        self.assertIn('SECURITY.md', readme)
+        self.assertIn('SECURITY.md', contributing)
+        self.assertIn('../SECURITY.md', docs_security)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()
