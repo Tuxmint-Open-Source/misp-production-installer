@@ -136,10 +136,13 @@ See [`docs/production-readiness.md`](docs/production-readiness.md).
 
 ## Contributing
 
-Contributions are welcome. Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
+Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for the public-safety rules, PR workflow, validation commands, and compatibility-claim expectations.
+
+Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
 
 Useful project docs:
 
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - [`AGENTS.md`](AGENTS.md)
 - [`QA.md`](QA.md)
 - [`CHANGELOG.md`](CHANGELOG.md)
