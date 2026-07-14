@@ -307,6 +307,44 @@ class StaticRepoTests(unittest.TestCase):
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
 
+    def test_documentation_red_line_entry_points_exist(self):
+        docs_readme = (ROOT / 'docs' / 'README.md').read_text()
+        getting_started = (ROOT / 'docs' / 'getting-started.md').read_text()
+        operator = (ROOT / 'docs' / 'operator-guide.md').read_text()
+        readme = (ROOT / 'README.md').read_text()
+
+        for path in [
+            'docs/README.md',
+            'docs/getting-started.md',
+            'docs/operator-guide.md',
+            'docs/support-matrix.md',
+            'docs/production-deployment.md',
+            'docs/backup-restore-and-rollback.md',
+            'docs/compatibility.md',
+            'docs/troubleshooting.md',
+        ]:
+            self.assertIn(path, readme)
+
+        self.assertIn('Recommended reading path', docs_readme)
+        self.assertIn('Common tasks', docs_readme)
+        self.assertIn('getting-started.md', docs_readme)
+        self.assertIn('operator-guide.md', docs_readme)
+        self.assertIn('support-matrix.md', docs_readme)
+        self.assertIn('compatibility.md', docs_readme)
+
+        self.assertIn('first successful path', getting_started)
+        self.assertIn('git checkout v1.0.0-rc.2', getting_started)
+        self.assertIn('doctor.sh', getting_started)
+        self.assertIn('login-check.sh', getting_started)
+        self.assertIn('backup.sh', getting_started)
+
+        self.assertIn('red line through the repository', operator)
+        self.assertIn('Understand the model', operator)
+        self.assertIn('Decide whether this fits your use case', operator)
+        self.assertIn('Update safely', operator)
+        self.assertIn('Restore and recover', operator)
+        self.assertIn('manager release/ref × official MISP Docker component set = status', operator)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()

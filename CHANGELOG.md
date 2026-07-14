@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add a documentation landing page, getting-started guide, and operator guide to give human readers a clear path through the repository.
+
 ### Changed
 
 - Mark `v1.0.0-rc.2` as validated compatible after exact-tag validation passes.
