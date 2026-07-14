@@ -1,0 +1,44 @@
+name: CodeQL
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/codeql.yml"
+      - "scripts/**/*.py"
+      - "tests/**/*.py"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/codeql.yml"
+      - "scripts/**/*.py"
+      - "tests/**/*.py"
+  schedule:
+    # Weekly, intentionally offset from other scheduled workflows.
+    - cron: "41 4 * * 2"
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  contents: read
+  actions: read
+
+jobs:
+  analyze:
+    name: Analyze Python
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        # actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d
+        with:
+          languages: python
+          queries: security-extended
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d
