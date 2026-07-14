@@ -502,6 +502,22 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38', shellcheck)
         self.assertNotIn('@2.0.0', shellcheck)
 
+    def test_maintainer_workflow_documents_repo_operations(self):
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        maintainer = (ROOT / 'docs' / 'maintainer-workflow.md').read_text()
+        changelog = (ROOT / 'CHANGELOG.md').read_text()
+
+        self.assertIn('maintainer-workflow.md', docs_index)
+        self.assertIn('GitHub is configured to delete merged branches automatically', maintainer)
+        self.assertIn('The GitHub Wiki is not used for canonical docs', maintainer)
+        self.assertIn('type: security', maintainer)
+        self.assertIn('area: github-actions', maintainer)
+        self.assertIn('Dependabot for GitHub Actions updates', maintainer)
+        self.assertIn('Private vulnerability reporting is enabled', maintainer)
+        self.assertIn('Branch protection should be added once', maintainer)
+        self.assertIn('manager release/ref × official MISP Docker component set = validation status', maintainer)
+        self.assertIn('maintainer workflow guide', changelog)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()
