@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import unittest
@@ -492,15 +493,31 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('queries: security-extended', codeql)
         self.assertIn('security-events: write', codeql)
         self.assertIn('actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', codeql)
-        self.assertIn('github/codeql-action/init@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d', codeql)
-        self.assertIn('github/codeql-action/analyze@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d', codeql)
+        self.assertRegex(codeql, r'github/codeql-action/init@[0-9a-f]{40}')
+        self.assertRegex(codeql, r'github/codeql-action/analyze@[0-9a-f]{40}')
         self.assertNotIn('@v3', codeql)
 
         self.assertIn('name: ShellCheck', shellcheck)
         self.assertIn('scandir: ./installer', shellcheck)
         self.assertIn('severity: error', shellcheck)
-        self.assertIn('ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38', shellcheck)
+        self.assertRegex(shellcheck, r'ludeeus/action-shellcheck@[0-9a-f]{40}')
         self.assertNotIn('@2.0.0', shellcheck)
+
+    def test_maintainer_workflow_documents_repo_operations(self):
+        docs_index = (ROOT / 'docs' / 'README.md').read_text()
+        maintainer = (ROOT / 'docs' / 'maintainer-workflow.md').read_text()
+        changelog = (ROOT / 'CHANGELOG.md').read_text()
+
+        self.assertIn('maintainer-workflow.md', docs_index)
+        self.assertIn('GitHub is configured to delete merged branches automatically', maintainer)
+        self.assertIn('The GitHub Wiki is not used for canonical docs', maintainer)
+        self.assertIn('type: security', maintainer)
+        self.assertIn('area: github-actions', maintainer)
+        self.assertIn('Dependabot for GitHub Actions updates', maintainer)
+        self.assertIn('Private vulnerability reporting is enabled', maintainer)
+        self.assertIn('Branch protection should be added once', maintainer)
+        self.assertIn('manager release/ref × official MISP Docker component set = validation status', maintainer)
+        self.assertIn('maintainer workflow guide', changelog)
 
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
