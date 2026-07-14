@@ -477,6 +477,30 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('SECURITY.md', contributing)
         self.assertIn('../SECURITY.md', docs_security)
 
+    def test_dependency_and_code_scanning_automation_is_configured(self):
+        dependabot = (ROOT / '.github' / 'dependabot.yml').read_text()
+        codeql = (ROOT / '.github' / 'workflows' / 'codeql.yml').read_text()
+        shellcheck = (ROOT / '.github' / 'workflows' / 'shellcheck.yml').read_text()
+
+        self.assertIn('package-ecosystem: "github-actions"', dependabot)
+        self.assertIn('interval: "weekly"', dependabot)
+        self.assertIn('open-pull-requests-limit: 3', dependabot)
+        self.assertIn('area: github-actions', dependabot)
+
+        self.assertIn('name: CodeQL', codeql)
+        self.assertIn('languages: python', codeql)
+        self.assertIn('queries: security-extended', codeql)
+        self.assertIn('security-events: write', codeql)
+        self.assertIn('actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', codeql)
+        self.assertIn('github/codeql-action/init@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d', codeql)
+        self.assertIn('github/codeql-action/analyze@641a925cfafe92d0fdf8b239ba4053e3f8d99d6d', codeql)
+        self.assertNotIn('@v3', codeql)
+
+        self.assertIn('name: ShellCheck', shellcheck)
+        self.assertIn('scandir: ./installer', shellcheck)
+        self.assertIn('ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38', shellcheck)
+        self.assertNotIn('@2.0.0', shellcheck)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()
