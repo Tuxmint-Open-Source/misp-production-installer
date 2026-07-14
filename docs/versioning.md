@@ -85,9 +85,11 @@ Do not push release commits directly to `main`; use a release PR so the version 
 
 While the project is below `1.0.0`:
 
-- Bump `PATCH` for bug fixes and documentation clarifications.
+- Bump `PATCH` for bug fixes and documentation clarifications on the active pre-1.0 line.
 - Bump `MINOR` for new commands, options, or deployment features.
-- Bump to `1.0.0` once the CLI and operator workflow feel stable.
+- Use a new release-candidate number, such as `1.0.0-rc.3`, when changes happen after a published `1.0.0-rc.N` and those changes materially affect what users should test before final `1.0.0`.
+- Keep small documentation polishing under `[Unreleased]` and include it in final `1.0.0` if it does not need a new candidate test cycle.
+- Bump to `1.0.0` once the CLI, operator workflow, documentation, and validation evidence are stable enough to define the public contract.
 
 After `1.0.0`:
 

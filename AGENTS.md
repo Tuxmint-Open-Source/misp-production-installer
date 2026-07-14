@@ -4,15 +4,15 @@ Guidance for AI coding agents and automated contributors working on this reposit
 
 ## Project purpose
 
-This repository is a production-oriented installer/overlay for official MISP Docker deployments.
+This repository is a production-oriented lifecycle manager for official MISP Docker deployments.
 
 Its main focus is to be a non-invasive lifecycle wrapper around official
-`MISP/misp-docker` for a single-server Docker deployment. It should add safe and
+`MISP/misp-docker` for a single-server Docker deployment. It adds safe and
 convenient lifecycle management around upstream MISP Docker packaging without
 vendoring, forking, or rewriting upstream source trees.
 
 The generated deployment must remain usable as a normal official
-`MISP/misp-docker` checkout. If this installer repository is deleted after
+`MISP/misp-docker` checkout. If this manager repository is deleted after
 install, operators should still be able to manage the deployment manually with
 Docker Compose as upstream `misp-docker` intends.
 
@@ -42,6 +42,7 @@ Run these before opening or updating a PR:
 ```bash
 python3 -m unittest discover -s tests
 for f in installer/*.sh; do bash -n "$f"; done
+python3 -m py_compile scripts/*.py tests/*.py
 git diff --check
 ```
 

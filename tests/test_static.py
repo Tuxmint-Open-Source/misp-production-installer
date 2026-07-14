@@ -371,6 +371,51 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('## What to read next', release)
         self.assertIn('../README.md', release)
 
+    def test_shell_scripts_reference_matches_current_command_surface(self):
+        shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
+        agents = (ROOT / 'AGENTS.md').read_text()
+
+        main_scripts = [
+            'prepare-host-rocky.sh',
+            'install.sh',
+            'update.sh',
+            'backup.sh',
+            'restore.sh',
+            'doctor.sh',
+            'status.sh',
+            'admin-credentials.sh',
+            'login-check.sh',
+            'get-current-misp-versions.sh',
+            'reset-installation.sh',
+        ]
+        for script in main_scripts:
+            self.assertIn(f'`{script}`', shell_docs)
+
+        for helper in [
+            'lib.sh',
+            'fetch-upstream.sh',
+            'generate-env.sh',
+            'render-compose.sh',
+            'bootstrap-tls.sh',
+            'validate.sh',
+            'up.sh',
+            'down.sh',
+            'pull.sh',
+            'logs.sh',
+        ]:
+            self.assertIn(f'`{helper}`', shell_docs)
+
+        for artifact in ['misp.sql', 'misp-host-data.tar.gz', 'misp-config.tar.gz', 'SHA256SUMS']:
+            self.assertIn(artifact, shell_docs)
+
+        self.assertIn('Destructive commands', shell_docs)
+        self.assertIn('DELETE', shell_docs)
+        self.assertIn('RESTORE', shell_docs)
+        self.assertIn('--machine-readable', shell_docs)
+        self.assertIn('--show-password', shell_docs)
+        self.assertIn('production-oriented lifecycle manager', agents)
+        self.assertNotIn('production-oriented installer/overlay', agents)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()
@@ -378,6 +423,12 @@ class StaticRepoTests(unittest.TestCase):
         matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
         readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
         rc_report = (ROOT / 'docs' / 'validation' / 'compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md').read_text()
+        versioning = (ROOT / 'docs' / 'versioning.md').read_text()
+        release_process = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
+        self.assertIn('Use a new release-candidate number, such as `1.0.0-rc.3`', versioning)
+        self.assertIn('Keep small documentation polishing under `[Unreleased]`', versioning)
+        self.assertIn('Release-candidate documentation follow-ups may also update compatibility, validation, and operator docs', release_process)
+
         self.assertEqual(version, '1.0.0-rc.2')
         self.assertIn('Current manager version: `1.0.0-rc.2`', readme)
         self.assertIn('`v1.0.0-rc.2` release candidate tag', readme)

@@ -41,6 +41,8 @@ README.md
 CHANGELOG.md
 ```
 
+for routine patch/minor/stable releases. Release-candidate documentation follow-ups may also update compatibility, validation, and operator docs when the point of the candidate is to review the public contract before final `v1.0.0`.
+
 The PR should:
 
 - bump `VERSION`

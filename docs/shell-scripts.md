@@ -1,107 +1,203 @@
-# Shell scripts
+# Shell scripts reference
 
-The `installer/` directory contains small operator scripts. They are intentionally plain Bash so they can run on a minimal Rocky Linux host.
+The `installer/` directory contains Bash helpers for operating an official `MISP/misp-docker` deployment.
 
-All main scripts support:
+This page is the command reference. For the recommended human path, start with [Getting started](getting-started.md) or the [Operator guide](operator-guide.md).
+
+## Main commands
+
+These operator-facing scripts support both `--help` and `--version`:
+
+| Script | Purpose | Common use |
+| --- | --- | --- |
+| `prepare-host-rocky.sh` | Prepare a Rocky Linux host with Docker Engine and the Docker Compose plugin. | Fresh host setup. |
+| `install.sh` | Install an official MISP Docker checkout with generated config and lifecycle defaults. | First install. |
+| `update.sh` | Back up, update upstream/component tags, restart, run DB updates, and verify. | Safe component/update path. |
+| `backup.sh` | Create database, host-data, generated-config, and checksum backup artifacts. | Pre-maintenance and scheduled backups. |
+| `restore.sh` | Restore generated config, host data, and database from a `backup.sh` backup. | Disaster recovery and rollback drills. |
+| `doctor.sh` | Check required config, Compose config, heartbeat, schema readiness, and service status. | Post-install/update verification. |
+| `status.sh` | Show Docker Compose service status and MISP heartbeat. | Day-2 status checks. |
+| `admin-credentials.sh` | Show the configured initial admin account; hide password unless explicitly requested. | Safe credential lookup. |
+| `login-check.sh` | Perform a CSRF-aware Web UI login check without printing the password. | Readiness and login validation. |
+| `get-current-misp-versions.sh` | Show upstream MISP Docker component versions and optionally compare local `.env`. | Version/compatibility review. |
+| `reset-installation.sh` | Dry-run or remove a managed deployment scope. | Failed install cleanup or deliberate removal. |
+
+## Internal/helper scripts
+
+These scripts are used by the main commands or are thin Docker Compose wrappers. They may not have standalone `--help` output and should normally be called only when the operator guide or troubleshooting docs tell you to do so.
+
+| Script | Role |
+| --- | --- |
+| `lib.sh` | Shared Bash functions. Source only; do not run directly. |
+| `fetch-upstream.sh` | Helper for fetching official `MISP/misp-docker`. |
+| `generate-env.sh` | Helper for generating deployment `.env`. |
+| `render-compose.sh` | Helper for rendering `docker-compose.override.yml`. |
+| `bootstrap-tls.sh` | Helper for bootstrap self-signed TLS material. |
+| `validate.sh` | Helper for validating generated config/Compose state. |
+| `up.sh`, `down.sh`, `pull.sh`, `logs.sh` | Thin Docker Compose wrappers for a prepared install directory. |
+
+## Shared conventions
+
+Most main commands accept:
 
 ```bash
+--install-dir /opt/misp-docker
 --help
 --version
 ```
 
+`--install-dir` points to the official `MISP/misp-docker` checkout managed by this project. Examples use `/opt/misp-docker`; adjust only if you intentionally manage a different deployment scope.
+
 ## First install
 
 ```bash
-./installer/install.sh \
+sudo ./installer/install.sh \
   --install-dir /opt/misp-docker \
+  --upstream-ref master \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
   --admin-org ExampleOrg \
-  --exposure reverse-proxy \
-  --bootstrap-tls
+  --timezone Europe/Zurich \
+  --exposure reverse-proxy
 ```
 
 `install.sh` performs the full deployment workflow:
 
-1. Fetch official `MISP/misp-docker`.
-2. Generate `.env` with secrets and production defaults.
-3. Render `docker-compose.override.yml`.
-4. Optionally create bootstrap TLS material.
-5. Validate Compose config.
-6. Pull and start containers.
-7. Wait for MISP core readiness.
-8. Run MISP DB updates.
-9. Verify schema readiness.
-10. Run `doctor.sh`.
+1. optionally prepares a Rocky Linux host for Docker;
+2. clones or updates the official `MISP/misp-docker` upstream checkout;
+3. generates a secret-bearing `.env` from upstream `template.env`;
+4. renders `docker-compose.override.yml` for the selected exposure mode;
+5. optionally creates bootstrap self-signed TLS material;
+6. validates Compose config;
+7. starts containers;
+8. runs MISP DB updates;
+9. checks schema readiness;
+10. waits for the upstream interactive-login readiness marker;
+11. runs `doctor.sh`.
 
-Use `--prepare-host` if you also want the script to install Docker on Rocky Linux.
-
-## Day-2 scripts
-
-| Script | Purpose |
-| --- | --- |
-| `prepare-host-rocky.sh` | Install Docker Engine and Compose plugin on Rocky Linux. Does not add users to the Docker group unless `--add-current-user-to-docker-group` is passed. |
-| `validate.sh` | Validate `.env` and Docker Compose config. |
-| `doctor.sh` | Run health/readiness checks after install or update. |
-| `status.sh` | Show Compose service status and heartbeat. |
-| `admin-credentials.sh` | Show the configured admin email and optionally print the initial password on a trusted terminal. |
-| `login-check.sh` | Run a CSRF-aware Web UI login check using the configured admin account without printing the password. |
-| `get-current-misp-versions.sh` | Show official upstream MISP component versions and optionally compare them with a local install. |
-| `backup.sh` | Create DB dump, host-data archive, generated config archive, and checksums. |
-| `restore.sh` | Restore generated config, host data, and database from a backup created by `backup.sh`. |
-| `reset-installation.sh` | Remove a failed install: containers, networks, named volumes, and generated files; Docker itself stays installed. |
-| `update.sh` | Backup first, update official upstream, restart, run DB updates, then doctor. |
-| `logs.sh` | Follow or print Docker Compose logs. |
-| `up.sh` / `down.sh` / `pull.sh` | Thin wrappers around Docker Compose for routine operations. |
-
-## Reset a failed install
-
-If a first install fails halfway, for example because the partition ran full, use the reset script before trying again.
-
-First inspect the dry-run:
-
-```bash
-./installer/reset-installation.sh --install-dir /opt/misp-docker
-```
-
-Then run the destructive reset. The script asks for interactive confirmation and requires typing `DELETE`:
-
-```bash
-./installer/reset-installation.sh --install-dir /opt/misp-docker --yes
-```
-
-Docker Engine is not removed. The reset targets only the selected MISP install directory and Docker Compose resources for that deployment.
+Use `--prepare-host` if you also want `install.sh` to run host preparation on Rocky Linux.
 
 ## Exposure modes
 
-### `reverse-proxy`
+| Mode | Bind behavior | Intended use |
+| --- | --- | --- |
+| `reverse-proxy` | Local ports such as `127.0.0.1:8080` and `127.0.0.1:8443`. | Default production-oriented shape behind an external reverse proxy. |
+| `direct-qa` | Host ports `0.0.0.0:80` and `0.0.0.0:443`. | Disposable validation and controlled QA only. |
 
-Default mode. MISP binds to localhost:
+Do not use `direct-qa` as the long-term public exposure model.
 
-```text
-127.0.0.1:8080
-127.0.0.1:8443
+## Backup artifacts
+
+`backup.sh` creates a timestamped backup directory containing:
+
+| Artifact | Meaning | Sensitivity |
+| --- | --- | --- |
+| `misp.sql` | MariaDB database dump. | Sensitive MISP data. |
+| `misp-host-data.tar.gz` | Host-mounted MISP data directories. | Sensitive operational data. |
+| `misp-config.tar.gz` | Generated deployment configuration such as `.env`, Compose override, and manager state. | Sensitive secrets/configuration. |
+| `SHA256SUMS` | Checksum manifest for integrity verification. | Public by itself, but keep with backup set. |
+
+Treat backups as confidential. Do not paste backup contents, `.env`, database dumps, or full raw logs into public issues.
+
+## Restore and rollback
+
+Restore requires an explicit backup directory:
+
+```bash
+sudo ./installer/restore.sh \
+  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --install-dir /opt/misp-docker
 ```
 
-Put Caddy, Nginx, Traefik, HAProxy, or another reverse proxy in front of it.
+By default, restore is conservative:
 
-### `direct-qa`
+- `--backup-dir` is required;
+- `SHA256SUMS` is verified;
+- the install directory is safety-checked;
+- destructive mode requires `--yes`;
+- interactive confirmation requires typing `RESTORE`;
+- `--force` should be used only for tested automation on disposable or clearly scoped hosts.
 
-Lab-only mode. MISP binds directly to:
+For restore-based rollback drills, keep the pre-update backup outside the deployment directory:
 
-```text
-0.0.0.0:80
-0.0.0.0:443
+```bash
+sudo ./installer/update.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp
 ```
 
-Use this for disposable QA environments, not internet-facing production.
+See [Backup, restore, and rollback](backup-restore-and-rollback.md) for the full recovery procedure.
+
+## Destructive commands
+
+### `reset-installation.sh`
+
+Dry-run first:
+
+```bash
+sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker
+```
+
+Destructive reset:
+
+```bash
+sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker --yes
+```
+
+The script asks for confirmation and requires typing `DELETE` unless `--force` is used. It removes only the selected deployment scope and Docker Compose resources. Docker Engine itself is not removed.
+
+### `restore.sh`
+
+Restore is destructive for the selected install directory and Compose project because it replaces deployment state from backup. Use `--force` only after testing the exact command shape and target scope.
+
+## Login and credentials
+
+Check login readiness without printing the password:
+
+```bash
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker
+```
+
+Machine-readable diagnostics for automation:
+
+```bash
+sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+```
+
+Show configured admin account without printing the password:
+
+```bash
+sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+```
+
+Print the initial password only on a trusted terminal:
+
+```bash
+sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-password
+```
+
+## Version checks
+
+Show upstream-declared component versions:
+
+```bash
+./installer/get-current-misp-versions.sh
+```
+
+Compare local `.env` metadata and runtime image pins:
+
+```bash
+./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+```
 
 ## Safety notes
 
 - `.env` contains secrets and must not be committed.
+- `.installer-state.json` is deployment metadata and should not be committed.
 - `backup.sh` may require `sudo` because some upstream bind mounts are root-owned.
 - `update.sh` always calls `backup.sh` before changing upstream code.
 - MISP DB updates are run with the official Cake command as `www-data`.
+- Public issues and validation summaries must omit private hostnames, IPs, credentials, raw logs, and topology.
 
 ## What to read next
 
