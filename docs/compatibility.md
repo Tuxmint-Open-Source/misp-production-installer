@@ -80,3 +80,10 @@ Public compatibility reports intentionally omit:
 - private repository URLs or local filesystem paths
 
 The public report should show what was validated and what passed, while private raw evidence stays out of the GitHub repository.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Review detailed scenario coverage in [Validation matrix](validation/matrix.md).
+- Check release readiness in [Production readiness](production-readiness.md).
+- Review supported deployment scope in [Support matrix](support-matrix.md).

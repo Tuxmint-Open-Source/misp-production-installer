@@ -110,3 +110,10 @@ alphanumeric.
 ## Backup permission errors
 
 The backup script uses `sudo tar` because MISP containers can create root-owned files in bind mounts.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Re-check the normal lifecycle in [Operator guide](operator-guide.md).
+- Review command details in [Shell scripts reference](shell-scripts.md).
+- Review validation status in [Compatibility](compatibility.md).

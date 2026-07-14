@@ -345,6 +345,32 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Restore and recover', operator)
         self.assertIn('manager release/ref × official MISP Docker component set = status', operator)
 
+    def test_documentation_cross_links_existing_major_pages(self):
+        major_docs = [
+            'architecture.md',
+            'backup-restore-and-rollback.md',
+            'compatibility.md',
+            'production-deployment.md',
+            'production-readiness.md',
+            'security.md',
+            'shell-scripts.md',
+            'support-matrix.md',
+            'troubleshooting.md',
+            'upgrade-path.md',
+            'versioning.md',
+        ]
+        for name in major_docs:
+            text = (ROOT / 'docs' / name).read_text()
+            self.assertIn('## What to read next', text, name)
+            self.assertIn('README.md', text, name)
+
+        matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
+        self.assertIn('## What to read next', matrix)
+        self.assertIn('../README.md', matrix)
+        release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
+        self.assertIn('## What to read next', release)
+        self.assertIn('../README.md', release)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()

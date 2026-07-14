@@ -2,7 +2,7 @@
 
 This document describes the security posture intended for the first production-ready major release of `misp-docker-lifecycle-manager`.
 
-It focuses on the installer and lifecycle wrapper. MISP application security and official Docker image contents remain upstream responsibilities of the official MISP projects.
+It focuses on the lifecycle manager and its helper scripts. MISP application security and official Docker image contents remain upstream responsibilities of the official MISP projects.
 
 ## Scope
 
@@ -88,7 +88,7 @@ Operators should:
 
 This manager depends on official `MISP/misp-docker` for the application stack and images.
 
-Security fixes in upstream MISP components are tracked through official component tags and upstream drift monitoring. A new upstream component set is not automatically considered compatible with this installer until the documented validation scenarios pass.
+Security fixes in upstream MISP components are tracked through official component tags and upstream drift monitoring. A new upstream component set is not automatically considered compatible with this manager until the documented validation scenarios pass.
 
 ## Public validation safety
 
@@ -128,5 +128,12 @@ Before removing the production warning, the project should have:
 - documented restore and rollback expectations
 - public support matrix
 - exact release-tag validation
-- no known high-severity installer security findings
+- no known high-severity manager security findings
 - public validation artifacts sanitized according to this policy
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Review supported scope in [Support matrix](support-matrix.md).
+- Review backup sensitivity in [Backup, restore, and rollback](backup-restore-and-rollback.md).
+- Review operator commands in [Shell scripts reference](shell-scripts.md).

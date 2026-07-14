@@ -102,3 +102,10 @@ Use this for disposable QA environments, not internet-facing production.
 - `backup.sh` may require `sudo` because some upstream bind mounts are root-owned.
 - `update.sh` always calls `backup.sh` before changing upstream code.
 - MISP DB updates are run with the official Cake command as `www-data`.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Follow the normal lifecycle in [Operator guide](operator-guide.md).
+- Use [Getting started](getting-started.md) for a first install.
+- Use [Troubleshooting](troubleshooting.md) when a command fails.

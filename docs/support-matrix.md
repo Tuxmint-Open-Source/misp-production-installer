@@ -9,7 +9,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Area | Supported for `v1.0.0` | Notes |
 | --- | --- | --- |
 | Deployment model | single-server Docker | This project is not a clustered or high-availability orchestrator. |
-| Upstream MISP source | official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) | The installer does not fork, vendor, or rewrite MISP. |
+| Upstream MISP source | official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) | The manager does not fork, vendor, or rewrite MISP. |
 | Installer host OS | Rocky Linux family | Broader OS support requires separate validation. |
 | CPU architecture | x86_64 | Other architectures require separate validation. |
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
@@ -56,3 +56,10 @@ Examples:
 - Nginx reverse-proxy support should be added only after an Nginx fixture is validated.
 - Another Linux distribution should be listed only after fresh install/update validation passes on that distribution.
 - Restore support for a final release should be listed as release-tag validated only after a restore drill passes for that exact release tag.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Try the first install path in [Getting started](getting-started.md).
+- Plan a real deployment with [Production deployment guide](production-deployment.md).
+- Check validated component sets in [Compatibility](compatibility.md).

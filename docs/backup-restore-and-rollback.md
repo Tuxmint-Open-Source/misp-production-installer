@@ -145,3 +145,10 @@ If backup, restore, update, or rollback fails:
 ## v1.0.0 gate
 
 Before `v1.0.0`, the final release candidate and final release tags should repeat restore and rollback validation. The public validation matrix should include those exact-tag results before the production warning is removed.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Follow the end-to-end lifecycle in [Operator guide](operator-guide.md).
+- Review update behavior in [Upgrade path](upgrade-path.md).
+- Review sensitive artifact handling in [Security](security.md).

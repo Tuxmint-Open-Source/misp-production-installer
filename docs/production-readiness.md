@@ -35,10 +35,10 @@ Before removing the public production warning, the project should have:
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
 | Security model and hardening statement | drafted | Documents installer security posture, non-goals, and evidence policy. |
 | Backup restore documentation | ✅ documented | `restore.sh` restores generated config, host data, and database dumps from `backup.sh` output. |
-| Real restore validation | ✅ validated for current `main` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
+| Real restore validation | ✅ validated for `v1.0.0-rc.2` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
 | Rollback/failure recovery docs | ✅ restore-based | A failed-update recovery drill passed using an external pre-update backup and `restore.sh`. |
-| Current-release browser login validation | ✅ validated for current `main` | Playwright Chromium login validation passed against the configured HTTPS URL. |
-| Public production-readiness validation report | ✅ for `v1.0.0-rc.1` | Public-safe exact-tag validation report is available under `docs/validation/`. |
+| Current-release browser login validation | ✅ validated for `v1.0.0-rc.2` | Playwright Chromium login validation passed against the configured HTTPS URL. |
+| Public production-readiness validation report | ✅ for `v1.0.0-rc.2` | Public-safe exact-tag validation report is available under `docs/validation/`. |
 
 ## Required validation before `v1.0.0`
 
@@ -61,11 +61,10 @@ The final `v1.0.0` tag should pass at least these scenarios:
 The recommended release path is:
 
 1. Complete the documentation and validation gaps above.
-2. Publish `v1.0.0-rc.1` as a release candidate.
-3. Validate the immutable `v1.0.0-rc.1` tag.
-4. Fix any release-candidate findings.
-5. Publish `v1.0.0` only after the final release tag passes the full validation set.
-6. Mark `v1.0.0` **validated compatible** only after exact-tag validation passes.
+2. Use `v1.0.0-rc.2` as the current validated release candidate.
+3. Fix any release-candidate findings from operator testing.
+4. Publish `v1.0.0` only after the final release tag passes the full validation set.
+5. Mark `v1.0.0` **validated compatible** only after exact-tag validation passes.
 
 ## What this does not claim yet
 
@@ -90,3 +89,10 @@ Public production-readiness evidence should include:
 - limitations
 
 Public evidence must not include private hostnames, private IP addresses, VM IDs, topology, raw logs, credentials, or private repository paths.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Review the public support scope in [Support matrix](support-matrix.md).
+- Review compatibility evidence in [Compatibility](compatibility.md).
+- Review exact validation coverage in [Validation matrix](validation/matrix.md).

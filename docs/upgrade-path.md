@@ -242,3 +242,10 @@ grep -E '^(CORE|MODULES|GUARD)(_RUNNING)?_TAG=' /opt/misp-docker/.env
 Then restore data from the backup and restore the previous upstream checkout and
 image tags. Avoid downgrading across unknown database migrations unless you have
 tested the rollback path.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Review backup and rollback details in [Backup, restore, and rollback](backup-restore-and-rollback.md).
+- Check validated release/component pairs in [Compatibility](compatibility.md).
+- Follow day-2 flow in [Operator guide](operator-guide.md).

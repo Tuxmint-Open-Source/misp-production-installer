@@ -36,3 +36,9 @@ It is not a guarantee that every environment or component combination works. It 
 
 - [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md)
 - [`real-world-v0.3.1.md`](real-world-v0.3.1.md)
+
+## What to read next
+
+- Return to the [documentation map](../README.md).
+- Review compatibility status definitions in [Compatibility](../compatibility.md).
+- Review production-readiness state in [Production readiness](../production-readiness.md).

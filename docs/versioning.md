@@ -94,3 +94,10 @@ After `1.0.0`:
 - Bump `MAJOR` for breaking changes.
 - Bump `MINOR` for backwards-compatible features.
 - Bump `PATCH` for backwards-compatible fixes.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Review update behavior in [Upgrade path](upgrade-path.md).
+- Review compatibility status definitions in [Compatibility](compatibility.md).
+- Review release mechanics in [Release process](release/release-process.md).

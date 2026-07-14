@@ -7,6 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Added
 
 - Add a documentation landing page, getting-started guide, and operator guide to give human readers a clear path through the repository.
+- Add cross-links and "What to read next" sections to major docs so readers can continue through the operator journey without returning to search manually.
 
 ### Changed
 

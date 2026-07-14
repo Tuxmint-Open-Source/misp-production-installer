@@ -13,7 +13,7 @@ The intended first production-ready deployment shape is:
 - official `MISP/misp-docker` checkout managed in an install directory such as `/opt/misp-docker`
 - generated `.env` and `docker-compose.override.yml`
 - external reverse proxy terminating public HTTPS
-- installer repository used for lifecycle operations, but not required at runtime by MISP itself
+- manager repository used for lifecycle operations, but not required at runtime by MISP itself
 
 ## Prerequisites
 
@@ -106,15 +106,22 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-Before `v1.0.0`, no-lock-in behavior should remain part of release validation.
+No-lock-in behavior remains part of release validation and is included in the release-candidate validation set.
 
 ## Remaining gates before `v1.0.0`
 
 Before the first production-ready major release, these gates remain:
 
 - final support matrix and security model review
-- public production-readiness validation report
-- exact `v1.0.0-rc.1` tag validation
+- final `v1.0.0` release PR
 - exact final `v1.0.0` tag validation
+- public final-release compatibility report
 
-The current `main` line has already passed restore, browser-login, and restore-based rollback validation; those scenarios must still be repeated for the release candidate and final release tags.
+The `v1.0.0-rc.2` tag has passed restore, browser-login, and restore-based rollback validation. Those scenarios must still be repeated for the final `v1.0.0` tag before the production warning is removed.
+
+## What to read next
+
+- Return to the [documentation map](README.md).
+- Use [Getting started](getting-started.md) for the first install path.
+- Use [Operator guide](operator-guide.md) for day-2 lifecycle flow.
+- Review recovery in [Backup, restore, and rollback](backup-restore-and-rollback.md).

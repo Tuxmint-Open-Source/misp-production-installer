@@ -116,3 +116,9 @@ The post-tag compatibility flow is:
 5. Mark the release/component pair **validated compatible** only after the exact tag passes the documented scenarios.
 
 If validation fails, keep the public status as **validation failed** or **pending validation** and prepare a fix release instead of editing the result to look successful.
+
+## What to read next
+
+- Return to the [documentation map](../README.md).
+- Review versioning rules in [Versioning](../versioning.md).
+- Review compatibility publication rules in [Compatibility](../compatibility.md).
