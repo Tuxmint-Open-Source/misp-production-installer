@@ -416,6 +416,48 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('production-oriented lifecycle manager', agents)
         self.assertNotIn('production-oriented installer/overlay', agents)
 
+    def test_community_health_files_exist_and_are_public_safe(self):
+        files = [
+            'CODE_OF_CONDUCT.md',
+            'CONTRIBUTING.md',
+            '.github/PULL_REQUEST_TEMPLATE.md',
+            '.github/ISSUE_TEMPLATE/bug_report.yml',
+            '.github/ISSUE_TEMPLATE/feature_request.yml',
+            '.github/ISSUE_TEMPLATE/documentation.yml',
+            '.github/ISSUE_TEMPLATE/config.yml',
+        ]
+        for rel in files:
+            path = ROOT / rel
+            self.assertTrue(path.exists(), rel)
+            text = path.read_text()
+            self.assertTrue(
+                'misp-docker-lifecycle-manager' in text.lower()
+                or 'misp docker lifecycle manager' in text.lower(),
+                rel,
+            )
+            self.assertNotIn('loc' + '.internal', text)
+            self.assertNotIn('192' + '.168.', text)
+            self.assertNotIn('/home/' + 'hermes', text)
+
+        contributing = (ROOT / 'CONTRIBUTING.md').read_text()
+        self.assertIn('Public-safety rule', contributing)
+        self.assertIn('python3 -m unittest discover -s tests', contributing)
+        self.assertIn('validated compatible', contributing)
+        self.assertIn('CODE_OF_CONDUCT.md', contributing)
+
+        pr_template = (ROOT / '.github' / 'PULL_REQUEST_TEMPLATE.md').read_text()
+        self.assertIn('Public-safety checklist', pr_template)
+        self.assertIn('Runtime impact', pr_template)
+        self.assertIn('Compatibility impact', pr_template)
+
+        bug_template = (ROOT / '.github' / 'ISSUE_TEMPLATE' / 'bug_report.yml').read_text()
+        self.assertIn('If this may be a security vulnerability', bug_template)
+        self.assertIn('Public-safety confirmation', bug_template)
+
+        config = (ROOT / '.github' / 'ISSUE_TEMPLATE' / 'config.yml').read_text()
+        self.assertIn('blank_issues_enabled: false', config)
+        self.assertIn('/security/policy', config)
+
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
         readme = (ROOT / 'README.md').read_text()

@@ -9,6 +9,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add a documentation landing page, getting-started guide, and operator guide to give human readers a clear path through the repository.
 - Add cross-links and "What to read next" sections to major docs so readers can continue through the operator journey without returning to search manually.
 - Refresh the shell-script reference against actual command help output, including main commands, helper scripts, destructive workflows, backup artifacts, credential handling, and safety notes.
+- Add community health files and GitHub templates for code of conduct, contributing, pull requests, bugs, feature requests, and documentation improvements.
 
 ### Changed
 

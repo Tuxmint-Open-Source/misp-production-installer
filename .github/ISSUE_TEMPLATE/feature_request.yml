@@ -1,0 +1,59 @@
+name: Feature request
+description: Suggest an improvement or new lifecycle-manager capability
+title: "Feature: "
+labels: ["type: feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement to MISP Docker Lifecycle Manager.
+
+        This project intentionally stays non-invasive: it manages official `MISP/misp-docker` deployments without vendoring, forking, or rewriting upstream MISP source trees.
+
+        Keep examples public-safe. Do not include private hostnames/IPs, internal topology, credentials, raw logs, or generated configuration.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What operator problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or workflow you would like.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Install / host preparation
+        - Update / component tracking
+        - Backup / restore / rollback
+        - Reset / removal
+        - Doctor / status / login checks
+        - Validation / compatibility evidence
+        - Documentation
+        - GitHub Actions / repository process
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Are there simpler ways to solve this, including manual Docker Compose operations?
+    validations:
+      required: false
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope confirmation
+      options:
+        - label: This request preserves the no-lock-in model and does not require forking or vendoring upstream `MISP/misp-docker`.
+          required: true
+        - label: I did not include secrets, private deployment details, raw logs, or generated configuration.
+          required: true
