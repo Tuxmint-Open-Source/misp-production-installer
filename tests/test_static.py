@@ -498,6 +498,7 @@ class StaticRepoTests(unittest.TestCase):
 
         self.assertIn('name: ShellCheck', shellcheck)
         self.assertIn('scandir: ./installer', shellcheck)
+        self.assertIn('severity: error', shellcheck)
         self.assertIn('ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38', shellcheck)
         self.assertNotIn('@2.0.0', shellcheck)
 
