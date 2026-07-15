@@ -9,7 +9,7 @@ This project is on a deliberate path toward a first production-ready major relea
 | Area | Status |
 | --- | --- |
 | Latest manager release | `v1.0.0` |
-| Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
+| Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
 | Compatibility status | ✅ `v1.0.0` validated compatible |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Production-ready status | first stable release line for the documented support scope |
