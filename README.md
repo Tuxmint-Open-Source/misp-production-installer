@@ -46,6 +46,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
+| report a reproducible bug safely | [`docs/sos-report.md`](docs/sos-report.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |
 | report a security vulnerability | [`SECURITY.md`](SECURITY.md) |
 

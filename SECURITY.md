@@ -46,6 +46,8 @@ Use public issues for non-sensitive topics such as:
 - compatibility questions that do not include private deployment details;
 - validation failures with secrets and private infrastructure removed.
 
+For public-safe reproducible bug reports, use the anonymous SOS report guide in [`docs/sos-report.md`](docs/sos-report.md). If an SOS report cannot be safely anonymized, use the private security-reporting path instead.
+
 ## Public-safety rules
 
 Never include the following in public issues, pull requests, comments, screenshots, or logs:
@@ -99,4 +101,5 @@ If a report affects upstream `MISP/misp-docker` or MISP itself rather than this 
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security model](docs/security.md)
+- [Anonymous SOS reports](docs/sos-report.md)
 - [Support matrix](docs/support-matrix.md)

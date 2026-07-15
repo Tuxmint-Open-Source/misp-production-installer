@@ -36,14 +36,17 @@ admin@example.com
 
 ## Good issue reports
 
+For bugs, include an anonymous SOS report when possible. Start with [`docs/sos-report.md`](docs/sos-report.md), review the report before posting, and paste only public-safe values.
+
 For bugs, include:
 
 - the manager version or Git commit;
-- the command shape you ran, with secrets removed;
+- the affected workflow, such as fresh install, update, backup, restore, rollback, reset, doctor/status, or login check;
+- the command shape you ran, with secrets and deployment-specific values removed;
 - expected behavior;
 - actual behavior;
-- relevant sanitized output;
-- whether this is a fresh install, update, backup, restore, rollback, or reset workflow.
+- relevant sanitized output summary, not raw logs;
+- whether the issue is reproducible on a fresh install.
 
 If you are unsure whether something is security-sensitive, do not open a public issue with details. Use [`SECURITY.md`](SECURITY.md) instead.
 

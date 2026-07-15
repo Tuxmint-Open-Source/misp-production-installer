@@ -8,9 +8,11 @@ body:
       value: |
         Thanks for reporting a problem.
 
-        This is a public repository. Do not include secrets, `.env` contents, private hostnames/IPs, internal topology, raw logs, database dumps, or backup contents. Replace sensitive values with `[REDACTED]` and use examples such as `misp.example.com` and `/opt/misp-docker`.
+        This is a public repository. Do not include secrets, `.env` contents, private hostnames/IPs, internal topology, raw logs, database dumps, backup contents, generated configuration archives, or screenshots with private details. Replace sensitive values with `[REDACTED]` and use examples such as `misp.example.com` and `/opt/misp-docker`.
 
-        If this may be a security vulnerability, do not file a public issue. Use the repository security reporting path instead.
+        For reproducible reports, use the anonymous SOS report guide: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/blob/main/docs/sos-report.md
+
+        If this may be a security vulnerability, or if you cannot explain the issue without sensitive deployment details, do not file a public issue. Use the repository security reporting path instead.
   - type: input
     id: version
     attributes:
@@ -37,6 +39,24 @@ body:
     validations:
       required: true
   - type: textarea
+    id: sos_report
+    attributes:
+      label: Anonymous SOS report
+      description: Paste the reviewed public-safe SOS report from docs/sos-report.md. Do not paste raw logs, .env contents, generated config, database dumps, backup contents, real hostnames/IPs, or screenshots with private details.
+      placeholder: |
+        # MISP Docker Lifecycle Manager SOS Report
+
+        ## Safety confirmation
+        I reviewed this report before posting and removed secrets, credentials, private hostnames/IPs, internal topology, raw logs, database dumps, backup contents, generated configuration, and deployment-specific data.
+
+        ## Summary
+        - Manager version/ref: misp-docker-lifecycle-manager 1.0.0-rc.2
+        - Report format: manual-sos-v1
+        - Affected workflow: install | update | backup | restore | rollback | reset | doctor | status | login-check | documentation | other
+        - Reproducible on a fresh install: yes | no | unknown
+    validations:
+      required: false
+  - type: textarea
     id: expected
     attributes:
       label: Expected behavior
@@ -47,7 +67,7 @@ body:
     id: actual
     attributes:
       label: Actual behavior
-      description: What happened instead? Keep output sanitized.
+      description: What happened instead? Keep output sanitized. Do not paste raw logs.
     validations:
       required: true
   - type: textarea
@@ -78,5 +98,7 @@ body:
     attributes:
       label: Public-safety confirmation
       options:
-        - label: I removed secrets, passwords, tokens, `.env` contents, private hostnames/IPs, raw logs, database dumps, and backup contents.
+        - label: I reviewed the report before posting and removed secrets, passwords, tokens, `.env` contents, private hostnames/IPs, internal topology, raw logs, database dumps, backup contents, generated configuration, and screenshots with private details.
+          required: true
+        - label: If this may be a security vulnerability or cannot be explained safely in public, I will use the private security reporting path instead.
           required: true

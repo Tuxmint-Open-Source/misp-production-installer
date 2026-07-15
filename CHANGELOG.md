@@ -13,6 +13,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add a repository-level security policy for private vulnerability reporting, supported versions, disclosure expectations, and public redaction rules.
 - Add low-noise dependency and code-scanning automation for GitHub Actions, Python CodeQL analysis, and ShellCheck.
 - Add a maintainer workflow guide for labels, PR review, repository settings, automation rollout, branch-protection timing, and release discipline.
+- Add anonymous SOS report documentation and update the bug-report template so users can provide reproducible public-safe diagnostics without leaking deployment details.
 
 ### Changed
 
