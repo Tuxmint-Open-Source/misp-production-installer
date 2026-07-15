@@ -75,7 +75,7 @@ file_mode_or_missing() {
 safe_cmd_one_line() {
   local output status
   set +e
-  output="$($@ 2>&1)"
+  output="$("$@" 2>&1)"
   status=$?
   set -e
   output="$(printf '%s' "$output" | tr '\n' ' ' | redact)"
