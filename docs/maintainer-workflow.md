@@ -188,6 +188,14 @@ For every upstream review PR:
 6. If compatibility status changes, update public compatibility docs only after validation passes.
 7. Keep all public comments sanitized; no private validation infrastructure details.
 
+If the scheduled workflow reports success but no upstream review PR is visible, check for the review branch manually:
+
+```text
+automation/upstream-misp-docker-review
+```
+
+A pushed review branch without an open PR still means upstream drift exists. Open the branch as a PR manually, then investigate why `peter-evans/create-pull-request` did not return a PR number. The workflow should fail loudly when drift is detected but no PR number is produced, so a silent branch-only state is treated as an automation defect, not as "nothing to review."
+
 New automation should start with a low-noise configuration. Do not make noisy advisory findings required until they have been triaged or cleaned up in a focused follow-up PR.
 
 ## Branch protection

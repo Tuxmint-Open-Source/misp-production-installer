@@ -271,10 +271,15 @@ class StaticRepoTests(unittest.TestCase):
         workflow = (ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').read_text()
         self.assertIn('continue-on-error: true', workflow)
         self.assertIn('Report manual PR fallback', workflow)
+        self.assertIn("steps.create-pr.outputs.pull-request-number == ''", workflow)
+        self.assertIn('Upstream drift detected but no pull request number was returned', workflow)
+        self.assertIn('exit 1', workflow)
         self.assertIn('pull/new/automation/upstream-misp-docker-review', workflow)
         script = (ROOT / 'scripts' / 'check-upstream-misp-docker.py').read_text()
+        maintainer = (ROOT / 'docs' / 'maintainer-workflow.md').read_text()
         self.assertIn('Run compatibility validation for the affected manager release/ref', script)
         self.assertIn('validated compatible', script)
+        self.assertIn('A pushed review branch without an open PR still means upstream drift exists', maintainer)
 
     def test_release_docs_require_exact_tag_compatibility_validation(self):
         release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()
