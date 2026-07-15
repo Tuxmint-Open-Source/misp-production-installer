@@ -35,10 +35,10 @@ Before removing the public production warning, the project should have:
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
 | Security model and hardening statement | drafted | Documents installer security posture, non-goals, and evidence policy. |
 | Backup restore documentation | ✅ documented | `restore.sh` restores generated config, host data, and database dumps from `backup.sh` output. |
-| Real restore validation | ✅ validated for `v1.0.0-rc.3` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
+| Real restore validation | ✅ validated for `v1.0.0` | Restore drill passed: fresh install -> backup -> reset -> restore -> doctor/login. |
 | Rollback/failure recovery docs | ✅ restore-based | A failed-update recovery drill passed using an external pre-update backup and `restore.sh`. |
-| Current-release browser login validation | ✅ validated for `v1.0.0-rc.3` | Playwright Chromium login validation passed against the configured HTTPS URL. |
-| Public production-readiness validation report | ✅ for `v1.0.0-rc.3` | Public-safe exact-tag validation report is available under `docs/validation/`. |
+| Current-release browser login validation | ✅ validated for `v1.0.0` | Playwright Chromium login validation passed against the configured HTTPS URL. |
+| Public production-readiness validation report | ✅ for `v1.0.0` | Public-safe exact-tag validation report is available under `docs/validation/`. |
 
 ## Required validation before `v1.0.0`
 
