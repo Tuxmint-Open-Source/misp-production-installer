@@ -19,6 +19,7 @@ These operator-facing scripts support both `--help` and `--version`:
 | `status.sh` | Show Docker Compose service status and MISP heartbeat. | Day-2 status checks. |
 | `admin-credentials.sh` | Show the configured initial admin account; hide password unless explicitly requested. | Safe credential lookup. |
 | `login-check.sh` | Perform a CSRF-aware Web UI login check without printing the password. | Readiness and login validation. |
+| `sos-report.sh` | Generate a public-safe anonymous SOS report for bug reports. | Reproducible support diagnostics without raw logs/secrets. |
 | `get-current-misp-versions.sh` | Show upstream MISP Docker component versions and optionally compare local `.env`. | Version/compatibility review. |
 | `reset-installation.sh` | Dry-run or remove a managed deployment scope. | Failed install cleanup or deliberate removal. |
 
@@ -189,6 +190,16 @@ Compare local `.env` metadata and runtime image pins:
 ```bash
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
+
+## Anonymous SOS reports
+
+Generate a public-safe bug-report summary without raw logs, `.env` contents, backups, database dumps, or generated configuration:
+
+```bash
+sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+```
+
+Review the generated file before posting it publicly. Use [`docs/sos-report.md`](sos-report.md) for the reporting workflow and redaction guidance.
 
 ## Safety notes
 

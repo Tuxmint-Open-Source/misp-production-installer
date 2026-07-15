@@ -18,7 +18,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -552,6 +552,72 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Anonymous SOS report', bug_template)
         self.assertIn('I reviewed the report before posting', bug_template)
         self.assertIn('sos report documentation', changelog.lower())
+
+    def test_sos_report_command_generates_sanitized_public_report(self):
+        with tempfile.TemporaryDirectory() as td:
+            install_dir = Path(td) / 'private-install'
+            install_dir.mkdir()
+            (install_dir / '.env').write_text(
+                '\n'.join([
+                    'CORE_TAG=v2.5.43',
+                    'MODULES_TAG=v3.0.8',
+                    'GUARD_TAG=v1.2',
+                    'CORE_RUNNING_TAG=v2.5.43',
+                    'MODULES_RUNNING_TAG=v3.0.8',
+                    'GUARD_RUNNING_TAG=v1.2',
+                    'MYSQL_PASSWORD_VALUE=do-not-print',
+                ]) + '\n'
+            )
+            (install_dir / '.installer-state.json').write_text('{"base_url":"https://private.example.net"}\n')
+            output = Path(td) / 'sos.md'
+            result = subprocess.check_output([
+                str(ROOT / 'installer' / 'sos-report.sh'),
+                '--no-docker',
+                '--workflow', 'fresh-install',
+                '--install-dir', str(install_dir),
+                '--output', str(output),
+                '--explain-redaction',
+            ], text=True, cwd=ROOT)
+            self.assertIn('SOS report written', result)
+            report = output.read_text()
+            self.assertIn('# MISP Docker Lifecycle Manager SOS Report', report)
+            self.assertIn('Report format: generated-sos-v1', report)
+            self.assertIn('Affected workflow: fresh-install', report)
+            self.assertIn('Install directory used: [REDACTED_PATH]', report)
+            self.assertIn('CORE_TAG: v2.5.43', report)
+            self.assertIn('Docker checks enabled: no', report)
+            self.assertIn('not checked (--no-docker)', report)
+            self.assertIn('Review before sharing publicly', report)
+            self.assertIn('raw logs', report)
+            self.assertIn('[REDACTED_PATH]', report)
+            self.assertNotIn(str(install_dir), report)
+            self.assertNotIn('do-not-print', report)
+            self.assertNotIn('private.example.net', report)
+            self.assertEqual(oct(output.stat().st_mode & 0o777), '0o600')
+
+    def test_sos_redaction_helper_redacts_sensitive_samples(self):
+        sample = '\n'.join([
+            'url=https://secret.example.net/path',
+            'ip=203.0.113.5',
+            'email=admin@example.net',
+            'token=abcdef0123456789abcdef0123456789',
+            'path=/home/example/private',
+        ])
+        redacted = subprocess.check_output(
+            ['python3', str(ROOT / 'scripts' / 'redact-sos-report.py'), '/tmp/private-demo'],
+            input=sample,
+            text=True,
+            cwd=ROOT,
+        )
+        self.assertIn('https://[REDACTED_HOST]', redacted)
+        self.assertIn('[REDACTED_IP]', redacted)
+        self.assertIn('[REDACTED_EMAIL]', redacted)
+        self.assertIn('[REDACTED_SECRET]', redacted)
+        self.assertIn('[REDACTED_PATH]', redacted)
+        self.assertNotIn('secret.example.net', redacted)
+        self.assertNotIn('203.0.113.5', redacted)
+        self.assertNotIn('admin@example.net', redacted)
+        self.assertNotIn('/home/example', redacted)
 
     def test_release_candidate_is_validated_but_final_v1_remains_pending(self):
         version = (ROOT / 'VERSION').read_text().strip()
