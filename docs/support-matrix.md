@@ -15,7 +15,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
 | Direct-QA mode | validation and controlled QA only | Direct-QA is not the recommended long-term public exposure mode. |
 | MISP component selection | official component tags from upstream or explicit official tags | Custom images/forks are not covered. |
-| Lifecycle helpers | install, doctor, login check, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | Final `v1.0.0` still requires exact release-tag validation before production claims. |
+| Lifecycle helpers | install, doctor, login check, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | `v1.0.0-rc.3` validated this scope; final `v1.0.0` compatibility is marked after exact final-tag validation. |
 
 ## Explicit non-goals for `v1.0.0`
 

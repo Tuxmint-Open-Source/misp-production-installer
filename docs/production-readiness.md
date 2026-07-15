@@ -2,17 +2,17 @@
 
 This project is on a deliberate path toward a first production-ready major release.
 
-The current release candidate, `v1.0.0-rc.3`, has passed exact-tag validation after user-facing SOS report and maintainer workflow additions. The repository keeps the **not production ready** warning until the final `v1.0.0` tag is prepared, published, and validated separately.
+`v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. The exact final `v1.0.0` tag still needs its own validation before it is marked validated compatible in the public compatibility matrix.
 
 ## Current status
 
 | Area | Status |
 | --- | --- |
-| Latest manager release candidate | `v1.0.0-rc.3` |
+| Latest manager release | `v1.0.0` |
 | Latest validated MISP component set | core `v2.5.43`, modules `v3.0.8`, guard `v1.2` |
-| Compatibility status | ✅ `v1.0.0-rc.3` validated compatible; final `v1.0.0` still pending |
+| Compatibility status | 🟡 `v1.0.0` pending exact-tag validation; `v1.0.0-rc.3` remains validated compatible |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
-| Production-ready status | not yet |
+| Production-ready status | first stable release line; final compatibility pending exact-tag validation |
 
 ## What must be true before `v1.0.0`
 
@@ -29,7 +29,7 @@ Before removing the public production warning, the project should have:
 
 | Requirement | Status | Notes |
 | --- | --- | --- |
-| Exact release-tag compatibility validation | ✅ passed for `v1.0.0-rc.3` | Must be repeated for final `v1.0.0`. |
+| Exact release-tag compatibility validation | 🟡 pending for `v1.0.0` | Passed for `v1.0.0-rc.3`; must be repeated for the exact final tag. |
 | Public compatibility matrix | ✅ | Tracks manager release/ref × official MISP Docker component set. |
 | Public support matrix | drafted | Defines intended `v1.0.0` support scope and explicit non-goals. |
 | Production deployment guide | drafted | Describes intended single-server Docker deployment workflow and remaining gates. |
@@ -61,14 +61,13 @@ The final `v1.0.0` tag should pass at least these scenarios:
 The recommended release path is:
 
 1. Complete the documentation and validation gaps above.
-2. Use `v1.0.0-rc.3` as the current validated release candidate.
-3. Fix any release-candidate findings from operator testing.
-4. Publish `v1.0.0` only after the final release tag passes the full validation set.
-5. Mark `v1.0.0` **validated compatible** only after exact-tag validation passes.
+2. Publish and validate the exact final `v1.0.0` tag.
+3. Mark `v1.0.0` **validated compatible** only after exact-tag validation passes.
+4. Keep known limitations explicit in the public docs.
 
 ## What this does not claim yet
 
-Until `v1.0.0` is published and validated, this project does not claim:
+Until exact `v1.0.0` validation passes, this project does not claim:
 
 - broad operating-system support beyond documented validation
 - high-availability or multi-node deployment support

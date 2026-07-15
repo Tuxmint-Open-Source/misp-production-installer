@@ -2,7 +2,7 @@
 
 This guide describes the intended production deployment workflow for `misp-docker-lifecycle-manager`.
 
-The current release is validated compatible with a specific official MISP Docker component set, but the project will remain marked **not production ready** until the remaining `v1.0.0` documentation and validation gates are complete.
+`v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. Compatibility for the exact final tag is recorded only after final-tag validation passes.
 
 ## Intended production shape
 
@@ -108,16 +108,9 @@ The generated deployment remains a normal official `MISP/misp-docker` checkout. 
 
 No-lock-in behavior remains part of release validation and is included in the release-candidate validation set.
 
-## Remaining gates before `v1.0.0`
+## Remaining final-tag validation gate
 
-Before the first production-ready major release, these gates remain:
-
-- final support matrix and security model review
-- final `v1.0.0` release PR
-- exact final `v1.0.0` tag validation
-- public final-release compatibility report
-
-The `v1.0.0-rc.3` tag has passed restore, browser-login, and restore-based rollback validation. Those scenarios must still be repeated for the final `v1.0.0` tag before the production warning is removed.
+The `v1.0.0-rc.3` tag passed restore, browser-login, and restore-based rollback validation. The exact final `v1.0.0` tag must still repeat validation before the public compatibility table marks final `v1.0.0` as validated compatible.
 
 ## What to read next
 
