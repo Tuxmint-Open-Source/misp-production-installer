@@ -80,7 +80,7 @@ sudo ./installer/login-check.sh --install-dir /opt/misp-docker
 
 ## Restore validation evidence
 
-A private validation drill passed for the current `main` line after `restore.sh` was added. The drill exercised:
+Exact-tag validation for `v1.0.0-rc.3` passed after `restore.sh` was added. The restore drill exercised:
 
 1. fresh install
 2. creation of meaningful host-mounted state
@@ -113,7 +113,7 @@ If an update fails after the pre-update backup is created:
 6. run `doctor.sh`
 7. run `login-check.sh`
 
-A restore-based rollback drill passed for the current `main` line by intentionally triggering an update failure after backup creation, then recovering with `restore.sh` from the pre-update backup.
+A restore-based rollback drill passed for `v1.0.0-rc.3` by intentionally triggering an update failure after backup creation, then recovering with `restore.sh` from the pre-update backup.
 
 ## Reset behavior
 
@@ -144,7 +144,7 @@ If backup, restore, update, or rollback fails:
 
 ## v1.0.0 gate
 
-Before `v1.0.0`, the final release candidate and final release tags should repeat restore and rollback validation. The public validation matrix should include those exact-tag results before the production warning is removed.
+`v1.0.0-rc.3` includes exact-tag restore and rollback validation. The final `v1.0.0` tag must repeat restore and rollback validation before the production warning is removed.
 
 ## What to read next
 
