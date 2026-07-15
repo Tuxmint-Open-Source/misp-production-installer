@@ -47,7 +47,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release-candidate status
 
-`v1.0.0-rc.2` is validated compatible with the documented MISP Docker component set, but the project still keeps the public production warning until final `v1.0.0` is tagged and validated separately.
+`v1.0.0-rc.3` is pending exact-tag validation with the documented MISP Docker component set. `v1.0.0-rc.2` remains validated compatible, and the project still keeps the public production warning until final `v1.0.0` is tagged and validated separately.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

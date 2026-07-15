@@ -29,7 +29,7 @@ cd misp-docker-lifecycle-manager
 For release-candidate testing, use the release tag you want to evaluate:
 
 ```bash
-git checkout v1.0.0-rc.2
+git checkout v1.0.0-rc.3
 ```
 
 ## 2. Prepare a Rocky Linux host

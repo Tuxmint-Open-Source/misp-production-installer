@@ -8,7 +8,7 @@
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current manager version: `1.0.0-rc.2`
+Current manager version: `1.0.0-rc.3`
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -57,7 +57,7 @@ For a first release-candidate test, read [`docs/getting-started.md`](docs/gettin
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager
-git checkout v1.0.0-rc.2
+git checkout v1.0.0-rc.3
 sudo ./installer/prepare-host-rocky.sh
 sudo ./installer/install.sh \
   --install-dir /opt/misp-docker \
@@ -89,6 +89,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
+| `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Pending exact-tag validation |
 | `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -131,7 +132,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.0.0-rc.2` is validated compatible with the documented MISP Docker component set, but the project still keeps the public production warning until final `v1.0.0` is tagged and validated separately.
+`v1.0.0-rc.3` is pending exact-tag validation with the documented MISP Docker component set. `v1.0.0-rc.2` remains validated compatible, and the project still keeps the public production warning until final `v1.0.0` is tagged and validated separately.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 
