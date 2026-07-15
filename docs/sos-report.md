@@ -8,9 +8,7 @@ Do **not** use a public SOS report for suspected security vulnerabilities. Use [
 
 ## Current status
 
-The current project version documents the SOS-report format and bug-report workflow. A future runtime command may generate this report automatically.
-
-Until that command exists, use this page as the template for a manually prepared, sanitized report.
+The project includes `installer/sos-report.sh`, which generates a public-safe Markdown report automatically. You should still review every line before sharing it.
 
 ## Before posting publicly
 
@@ -48,6 +46,21 @@ A useful public bug report answers these questions:
 5. What happened instead?
 6. What public-safe environment was involved?
 7. Can the issue be reproduced on a fresh install?
+
+## Generate a report
+
+```bash
+sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+less ./misp-sos-report.md
+```
+
+Use `--no-docker` if you want to avoid Docker/Compose checks:
+
+```bash
+./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
+```
+
+The generated file is written with restrictive permissions when possible. Review it manually before posting.
 
 ## Manual SOS report template
 
