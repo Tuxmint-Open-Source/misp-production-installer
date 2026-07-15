@@ -146,6 +146,48 @@ The repository uses low-noise automation:
 - ShellCheck for installer shell scripts;
 - scheduled upstream MISP Docker drift monitoring.
 
+### GitHub Actions maintenance
+
+When GitHub Actions annotations report deprecations, treat them as maintenance work even if checks still pass. For pinned actions:
+
+1. Identify the replacement major version from the upstream action release notes.
+2. Resolve the replacement tag to an immutable commit SHA.
+3. Update the workflow `uses:` pin and keep a nearby comment with the human-readable major version.
+4. Keep static tests SHA-enforcing so Dependabot can still update pins safely.
+5. Re-run the workflow and confirm annotations no longer include the targeted deprecation warning.
+
+### Official MISP Docker upstream drift PRs
+
+The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when selected official `MISP/misp-docker` inputs change. Treat those PRs as review prompts, not as compatibility proof.
+
+Use this classification:
+
+| Class | Upstream change | Default response |
+| --- | --- | --- |
+| A | Component tag defaults changed, such as `CORE_TAG`, `MODULES_TAG`, or `GUARD_TAG` | Review changelogs/release notes, update compatibility/readiness docs to pending for the new component set if needed, then run compatibility validation before marking validated. |
+| B | `docker-compose.yml` service names, image expressions, ports, volumes, health/readiness behavior, or dependency structure changed | Inspect installer assumptions and run targeted code/docs tests. Patch manager code if assumptions changed. Full validation is likely needed before compatibility claims. |
+| C | `template.env`, README versioning guidance, required variables, defaults, or operator instructions changed without obvious compose/service changes | Review config generation and documentation. Patch generated `.env` handling or docs if defaults/required variables changed. Validation scope depends on whether runtime behavior changed. |
+
+Combination handling:
+
+- **A only:** validation/docs response first; code changes only if tags expose a manager assumption.
+- **B only:** code-assumption review first; validate after any patch.
+- **C only:** config/docs review first; validate if install/update/runtime behavior changes.
+- **A+B:** treat as high impact. Patch assumptions first, then run full compatibility validation for the new component set.
+- **A+C:** update config/docs and run compatibility validation for the new component set.
+- **B+C:** patch code/config/docs, then run targeted validation at minimum; full validation if install/update/readiness is affected.
+- **A+B+C:** treat as release-impacting upstream drift. Patch, document, and run full compatibility validation before any validated-compatible claim.
+
+For every upstream review PR:
+
+1. Read `.upstream/reports/misp-docker-upstream-review.md`.
+2. Open the upstream compare link and inspect the actual upstream diff.
+3. Classify changes as A, B, C, or a combination.
+4. Decide whether this repo needs a manager code PR, docs-only PR, validation-only follow-up, or no change.
+5. Never merge the upstream lockfile PR as "validated compatible" evidence by itself.
+6. If compatibility status changes, update public compatibility docs only after validation passes.
+7. Keep all public comments sanitized; no private validation infrastructure details.
+
 New automation should start with a low-noise configuration. Do not make noisy advisory findings required until they have been triaged or cleaned up in a focused follow-up PR.
 
 ## Branch protection
