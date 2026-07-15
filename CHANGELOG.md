@@ -4,6 +4,10 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Changed
+
+- Mark `v1.0.0` as validated compatible with MISP core `v2.5.44` and modules `v3.0.9` after upstream drift validation.
+
 ## [1.0.0] - 2026-07-15
 
 ### Changed
