@@ -60,6 +60,14 @@ Use `--no-docker` if you want to avoid Docker/Compose checks:
 ./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
 ```
 
+Use `--no-health-commands` if Docker/Compose status is acceptable but you do not want the report to run `doctor.sh`, `status.sh`, or `login-check.sh --machine-readable`:
+
+```bash
+sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --no-health-commands --output ./misp-sos-report.md
+```
+
+The generated report includes concise, redacted command summaries only. It does not include raw logs.
+
 The generated file is written with restrictive permissions when possible. Review it manually before posting.
 
 ## Manual SOS report template

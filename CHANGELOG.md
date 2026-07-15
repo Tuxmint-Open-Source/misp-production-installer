@@ -15,6 +15,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add a maintainer workflow guide for labels, PR review, repository settings, automation rollout, branch-protection timing, and release discipline.
 - Add anonymous SOS report documentation and update the bug-report template so users can provide reproducible public-safe diagnostics without leaking deployment details.
 - Add `installer/sos-report.sh` and a redaction helper for generated public-safe SOS bug reports.
+- Add concise redacted health-command and backup-shape summaries to generated SOS reports.
 
 ### Changed
 

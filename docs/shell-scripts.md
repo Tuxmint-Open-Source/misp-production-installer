@@ -199,6 +199,14 @@ Generate a public-safe bug-report summary without raw logs, `.env` contents, bac
 sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
 ```
 
+By default, the report includes concise, redacted summaries from `doctor.sh`, `status.sh`, and `login-check.sh --machine-readable` when Docker and the install directory are available. Use `--no-health-commands` to skip those summaries, or `--no-docker` to avoid Docker/Compose checks entirely:
+
+```bash
+./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
+```
+
+The report may also include backup presence/count metadata, but never backup names, backup paths, backup contents, database dumps, generated configuration archives, or checksums.
+
 Review the generated file before posting it publicly. Use [`docs/sos-report.md`](sos-report.md) for the reporting workflow and redaction guidance.
 
 ## Safety notes

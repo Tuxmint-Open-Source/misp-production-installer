@@ -16,6 +16,7 @@ Options:
   --format markdown       Output format; only markdown is currently supported
   --workflow NAME         Affected workflow label to include in the report
   --no-docker             Do not call Docker or Docker Compose
+  --no-health-commands    Do not run doctor/status/login-check summaries
   --explain-redaction     Include redaction guidance in the generated report
   -h, --help              Show this help
   --version               Show manager version
@@ -34,6 +35,7 @@ OUTPUT="./misp-sos-report.md"
 FORMAT="markdown"
 WORKFLOW="unknown"
 USE_DOCKER=1
+USE_HEALTH_COMMANDS=1
 EXPLAIN_REDACTION=0
 
 while [[ $# -gt 0 ]]; do
@@ -42,7 +44,8 @@ while [[ $# -gt 0 ]]; do
     --output) OUTPUT="$2"; shift 2;;
     --format) FORMAT="$2"; shift 2;;
     --workflow) WORKFLOW="$2"; shift 2;;
-    --no-docker) USE_DOCKER=0; shift;;
+    --no-docker) USE_DOCKER=0; USE_HEALTH_COMMANDS=0; shift;;
+    --no-health-commands) USE_HEALTH_COMMANDS=0; shift;;
     --explain-redaction) EXPLAIN_REDACTION=1; shift;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
@@ -133,6 +136,64 @@ container_summary() {
   printf '%s' "$output" | redact
 }
 
+health_command_summary() {
+  local name="$1"; shift
+  if [[ "$USE_HEALTH_COMMANDS" -ne 1 ]]; then
+    printf '%s: not checked (--no-health-commands or --no-docker)\n' "$name"
+    return
+  fi
+  if [[ ! -d "$INSTALL_DIR" || ! -f "$INSTALL_DIR/docker-compose.yml" || ! -f "$INSTALL_DIR/.env" ]]; then
+    printf '%s: not checked (install directory incomplete)\n' "$name"
+    return
+  fi
+  if [[ "$USE_DOCKER" -ne 1 ]]; then
+    printf '%s: not checked (--no-docker)\n' "$name"
+    return
+  fi
+  if ! command -v docker >/dev/null 2>&1; then
+    printf '%s: unavailable (docker command missing)\n' "$name"
+    return
+  fi
+
+  local output status first_lines
+  set +e
+  output="$("$@" 2>&1)"
+  status=$?
+  set -e
+  first_lines="$(printf '%s\n' "$output" | redact | sed -n '1,12p')"
+  if [[ $status -eq 0 ]]; then
+    printf '%s: passed\n' "$name"
+  else
+    printf '%s: failed (exit %s)\n' "$name" "$status"
+  fi
+  if [[ -n "$first_lines" ]]; then
+    printf '%s\n' "$first_lines"
+  fi
+}
+
+health_summaries() {
+  health_command_summary "doctor.sh" "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
+  printf '\n'
+  health_command_summary "status.sh" "$SCRIPT_DIR/status.sh" --install-dir "$INSTALL_DIR"
+  printf '\n'
+  health_command_summary "login-check.sh" "$SCRIPT_DIR/login-check.sh" --install-dir "$INSTALL_DIR" --machine-readable
+}
+
+backup_shape_summary() {
+  local backup_root="$INSTALL_DIR/backups"
+  if [[ ! -d "$backup_root" ]]; then
+    printf 'Backup directory present: no\n'
+    return
+  fi
+  local count
+  count="$(find "$backup_root" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')"
+  printf 'Backup directory present: yes\n'
+  printf 'Backup set count: %s\n' "${count:-0}"
+  if [[ "${count:-0}" != "0" ]]; then
+    printf 'Latest backup detected: yes\n'
+  fi
+}
+
 mkdir -p "$(dirname "$OUTPUT")"
 TMP_OUTPUT="$(mktemp)"
 trap 'rm -f "$TMP_OUTPUT"' EXIT
@@ -204,10 +265,25 @@ Generated locally. Review before sharing publicly. Do not post this report if it
 
 ## Health summary
 - Docker checks enabled: $([[ "$USE_DOCKER" -eq 1 ]] && printf 'yes' || printf 'no')
+- Health command summaries enabled: $([[ "$USE_HEALTH_COMMANDS" -eq 1 ]] && printf 'yes' || printf 'no')
 - Compose/container status:
 
 \`\`\`text
 $(container_summary)
+\`\`\`
+
+## Command summaries
+These are concise, redacted summaries. Raw logs are not included.
+
+\`\`\`text
+$(health_summaries)
+\`\`\`
+
+## Backup shape summary
+This section reports backup presence only. It does not include backup names, backup paths, backup contents, database dumps, generated configuration, or checksums.
+
+\`\`\`text
+$(backup_shape_summary)
 \`\`\`
 
 ## Reproduction prompt

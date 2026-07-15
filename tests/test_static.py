@@ -586,6 +586,13 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('Install directory used: [REDACTED_PATH]', report)
             self.assertIn('CORE_TAG: v2.5.43', report)
             self.assertIn('Docker checks enabled: no', report)
+            self.assertIn('Health command summaries enabled: no', report)
+            self.assertIn('## Command summaries', report)
+            self.assertIn('doctor.sh: not checked (--no-health-commands or --no-docker)', report)
+            self.assertIn('status.sh: not checked (--no-health-commands or --no-docker)', report)
+            self.assertIn('login-check.sh: not checked (--no-health-commands or --no-docker)', report)
+            self.assertIn('## Backup shape summary', report)
+            self.assertIn('Backup directory present: no', report)
             self.assertIn('not checked (--no-docker)', report)
             self.assertIn('Review before sharing publicly', report)
             self.assertIn('raw logs', report)
@@ -594,6 +601,31 @@ class StaticRepoTests(unittest.TestCase):
             self.assertNotIn('do-not-print', report)
             self.assertNotIn('private.example.net', report)
             self.assertEqual(oct(output.stat().st_mode & 0o777), '0o600')
+
+    def test_sos_report_command_supports_no_health_mode_with_backup_shape(self):
+        with tempfile.TemporaryDirectory() as td:
+            install_dir = Path(td) / 'private-install'
+            backups = install_dir / 'backups' / 'private-backup-name'
+            backups.mkdir(parents=True)
+            (install_dir / '.env').write_text('CORE_TAG=v2.5.43\n')
+            (install_dir / 'docker-compose.yml').write_text('services: {}\n')
+            output = Path(td) / 'sos-no-health.md'
+            subprocess.check_call([
+                str(ROOT / 'installer' / 'sos-report.sh'),
+                '--workflow', 'backup',
+                '--install-dir', str(install_dir),
+                '--output', str(output),
+                '--no-health-commands',
+            ], cwd=ROOT)
+            report = output.read_text()
+            self.assertIn('Docker checks enabled: yes', report)
+            self.assertIn('Health command summaries enabled: no', report)
+            self.assertIn('doctor.sh: not checked (--no-health-commands or --no-docker)', report)
+            self.assertIn('Backup directory present: yes', report)
+            self.assertIn('Backup set count: 1', report)
+            self.assertIn('Latest backup detected: yes', report)
+            self.assertNotIn(str(install_dir), report)
+            self.assertNotIn('private-backup-name', report)
 
     def test_sos_redaction_helper_redacts_sensitive_samples(self):
         sample = '\n'.join([
