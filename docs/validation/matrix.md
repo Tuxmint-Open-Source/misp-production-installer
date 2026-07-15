@@ -8,7 +8,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Compatibility status | Fresh install | Reverse proxy | Update path | Lifecycle smoke | Guardrails | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- | --- |
-| `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | 🟡 Pending exact-tag validation | 🟡 | 🟡 | 🟡 | 🟡 | 🟡 | Pending exact-tag validation after tag publication. |
+| `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md) |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md) |

@@ -117,7 +117,7 @@ Before the first production-ready major release, these gates remain:
 - exact final `v1.0.0` tag validation
 - public final-release compatibility report
 
-The `v1.0.0-rc.3` tag is pending exact-tag validation. `v1.0.0-rc.2` passed restore, browser-login, and restore-based rollback validation. Those scenarios must still be repeated for `v1.0.0-rc.3` and the final `v1.0.0` tag before the production warning is removed.
+The `v1.0.0-rc.3` tag has passed restore, browser-login, and restore-based rollback validation. Those scenarios must still be repeated for the final `v1.0.0` tag before the production warning is removed.
 
 ## What to read next
 
