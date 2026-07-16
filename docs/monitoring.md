@@ -2,7 +2,7 @@
 
 MISP Docker Lifecycle Manager manages more than first install. Operators also need a stable way to ask: "is this managed deployment healthy enough for production monitoring?"
 
-This page defines the monitoring contract for the planned lifecycle-manager healthcheck interface. It is intentionally documented before implementation so operators, reviewers, and contributors can agree on stable output semantics before tooling is built around them.
+This page defines the monitoring contract for the lifecycle-manager healthcheck interface. The command is designed for modern monitoring systems while keeping output stable, bounded, and safe to copy into dashboards or tickets.
 
 ## Scope
 
@@ -17,15 +17,15 @@ It is not intended to replace:
 - MISP application-level business monitoring;
 - external reverse-proxy, TLS, DNS, mail-delivery, or SIEM monitoring.
 
-## Planned command
+## Command
 
-The planned monitoring command is:
+The monitoring command is:
 
 ```bash
 sudo ./installer/healthcheck.sh --install-dir /opt/misp-docker
 ```
 
-Planned options:
+Options:
 
 ```text
 --install-dir PATH
@@ -38,17 +38,9 @@ Planned options:
 --help
 ```
 
-Until this command exists, use the current manual checks:
-
-```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/status.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
-```
-
 ## Status contract
 
-The healthcheck command should use monitoring-plugin compatible exit codes:
+The healthcheck command uses monitoring-plugin compatible exit codes:
 
 | Exit code | Status | Meaning |
 | ---: | --- | --- |
@@ -68,9 +60,9 @@ Examples:
 
 The command should finish within the configured timeout and avoid unbounded network waits.
 
-## Planned check IDs
+## Check IDs
 
-The first implementation should prefer a small, stable set of check identifiers:
+The command supports a small, stable set of check identifiers:
 
 | Check ID | Purpose | Default |
 | --- | --- | --- |
@@ -79,8 +71,8 @@ The first implementation should prefer a small, stable set of check identifiers:
 | `misp-heartbeat` | Query the container-local MISP heartbeat endpoint. | enabled |
 | `schema-ready` | Confirm schema readiness required by login-dependent workflows. | enabled |
 | `login` | Perform CSRF-aware login check without printing the password. | optional |
-| `backup-freshness` | Warn when no recent backup is detected. | optional |
-| `version-drift` | Report local component tags compared with the latest reviewed upstream state. | optional |
+| `backup-freshness` | Reserved warning check for future backup freshness thresholds. | optional |
+| `version-drift` | Reserved warning check for future local/upstream component drift reporting. | optional |
 
 Login should not be mandatory for the fastest default probe. It is useful as a deeper check, but it reads credentials and performs a real web login flow, so operators should enable it deliberately.
 
@@ -160,7 +152,7 @@ Do not expose hostnames, email addresses, install paths, backup names, URLs, or 
 
 ## Zabbix example
 
-A Zabbix agent can call the healthcheck through a `UserParameter` after the command is implemented:
+A Zabbix agent can call the healthcheck through a `UserParameter`:
 
 ```text
 UserParameter=misp.lifecycle.health,sudo /path/to/misp-docker-lifecycle-manager/installer/healthcheck.sh --install-dir /opt/misp-docker --format json --timeout 20
@@ -175,7 +167,7 @@ Recommended approach:
 
 ## Checkmk example
 
-A Checkmk local check can call the planned Checkmk format:
+A Checkmk local check can call the Checkmk format:
 
 ```bash
 #!/usr/bin/env bash

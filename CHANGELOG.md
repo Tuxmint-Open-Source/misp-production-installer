@@ -6,7 +6,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Added
 
-- Document the planned monitoring healthcheck contract, including exit codes, JSON schema, and Zabbix/Checkmk/Nagios integration examples.
+- Document the monitoring healthcheck contract, including exit codes, JSON schema, and Zabbix/Checkmk/Nagios integration examples.
+- Add `installer/healthcheck.sh` with text, JSON, Nagios/Icinga, Checkmk, and Prometheus-style output formats.
 
 ### Changed
 

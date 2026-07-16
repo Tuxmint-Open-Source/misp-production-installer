@@ -12,7 +12,7 @@ This project is on a deliberate path toward a first production-ready major relea
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
 | Compatibility status | ✅ `v1.0.0` validated compatible |
 | Public compatibility docs | ✅ available in [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
-| Monitoring contract | 🟡 documented contract started in [`monitoring.md`](monitoring.md); command implementation pending |
+| Monitoring contract | ✅ `healthcheck.sh` provides bounded monitoring-friendly output; see [`monitoring.md`](monitoring.md) |
 | Production-ready status | first stable release line for the documented support scope |
 
 ## What must be true before `v1.0.0`

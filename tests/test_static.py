@@ -18,7 +18,7 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
-        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
+        for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'healthcheck.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
             script = ROOT / 'installer' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
@@ -380,7 +380,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('## What to read next', release)
         self.assertIn('../README.md', release)
 
-    def test_monitoring_contract_is_documented_before_healthcheck_command(self):
+    def test_monitoring_contract_is_documented_and_healthcheck_command_matches_it(self):
         monitoring = (ROOT / 'docs' / 'monitoring.md').read_text()
         readme = (ROOT / 'README.md').read_text()
         docs_index = (ROOT / 'docs' / 'README.md').read_text()
@@ -388,6 +388,7 @@ class StaticRepoTests(unittest.TestCase):
         shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
         readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
         changelog = (ROOT / 'CHANGELOG.md').read_text()
+        healthcheck = (ROOT / 'installer' / 'healthcheck.sh').read_text()
 
         self.assertIn('installer/healthcheck.sh', monitoring)
         self.assertIn('--format text|json|nagios|checkmk|prometheus', monitoring)
@@ -405,6 +406,66 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('[Monitoring](monitoring.md)', shell_docs)
         self.assertIn('Monitoring contract', readiness)
         self.assertIn('monitoring healthcheck contract', changelog)
+        self.assertIn('STATUS_RANK', healthcheck)
+        self.assertIn('misp-docker-lifecycle-manager-health-v1', healthcheck)
+        self.assertIn('backup-freshness', healthcheck)
+        self.assertIn('version-drift', healthcheck)
+
+    def test_healthcheck_outputs_stable_machine_formats_without_deployment(self):
+        script = ROOT / 'installer' / 'healthcheck.sh'
+        with tempfile.TemporaryDirectory() as tmp:
+            json_proc = subprocess.run(
+                [str(script), '--install-dir', tmp, '--format', 'json', '--timeout', '1'],
+                text=True,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            self.assertEqual(json_proc.returncode, 3)
+            import json
+            data = json.loads(json_proc.stdout)
+            self.assertEqual(data['schema'], 'misp-docker-lifecycle-manager-health-v1')
+            self.assertEqual(data['status'], 'unknown')
+            self.assertEqual(data['exit_code'], 3)
+            self.assertEqual(data['checks'][0]['id'], 'preflight')
+            serialized = json_proc.stdout + json_proc.stderr
+            forbidden_markers = [
+                'ADMIN_PASSWORD',
+                'MYSQL_PASSWORD',
+                '.installer-state.json',
+                'misp-backup-',
+                'BEGIN ' + 'OPENSSH ' + 'PRIVATE KEY',
+            ]
+            for forbidden in forbidden_markers:
+                self.assertNotIn(forbidden, serialized)
+
+            nagios = subprocess.run(
+                [str(script), '--install-dir', tmp, '--format', 'nagios', '--timeout', '1'],
+                text=True,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+            )
+            self.assertEqual(nagios.returncode, 3)
+            self.assertTrue(nagios.stdout.startswith('UNKNOWN - '))
+            self.assertIn('| services_running=', nagios.stdout)
+
+            checkmk = subprocess.run(
+                [str(script), '--install-dir', tmp, '--format', 'checkmk', '--timeout', '1'],
+                text=True,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+            )
+            self.assertEqual(checkmk.returncode, 3)
+            self.assertIn('"misp_lifecycle_health"', checkmk.stdout)
+
+            prometheus = subprocess.run(
+                [str(script), '--install-dir', tmp, '--format', 'prometheus', '--timeout', '1'],
+                text=True,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+            )
+            self.assertEqual(prometheus.returncode, 3)
+            self.assertIn('misp_lifecycle_health_status 0', prometheus.stdout)
 
     def test_shell_scripts_reference_matches_current_command_surface(self):
         shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
@@ -418,6 +479,7 @@ class StaticRepoTests(unittest.TestCase):
             'restore.sh',
             'doctor.sh',
             'status.sh',
+            'healthcheck.sh',
             'admin-credentials.sh',
             'login-check.sh',
             'get-current-misp-versions.sh',

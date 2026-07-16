@@ -20,7 +20,7 @@ It adds:
 - install and host-preparation helpers;
 - generated `.env` values and Compose overrides;
 - deterministic component tag handling;
-- health, status, login, monitoring-contract, and credential checks;
+- healthcheck, status, login, monitoring-contract, and credential checks;
 - backup, restore, update, and restore-based rollback workflows;
 - reset/removal helpers with safety checks;
 - compatibility and validation documentation.
