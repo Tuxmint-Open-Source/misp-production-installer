@@ -39,12 +39,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 require_cmd git
+validate_upstream_source "$UPSTREAM_REPO" "$UPSTREAM_REF"
+
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-git clone --depth 1 --filter=blob:none --no-checkout "$UPSTREAM_REPO" "$TMPDIR/upstream" >/dev/null 2>&1 || fatal "Failed to clone $UPSTREAM_REPO"
-git -C "$TMPDIR/upstream" fetch --depth 1 origin "$UPSTREAM_REF" >/dev/null 2>&1 || true
-git -C "$TMPDIR/upstream" checkout --quiet "$UPSTREAM_REF" 2>/dev/null || git -C "$TMPDIR/upstream" checkout --quiet FETCH_HEAD
+git clone --depth 1 --filter=blob:none --no-checkout -- "$UPSTREAM_REPO" "$TMPDIR/upstream" >/dev/null 2>&1 || fatal "Failed to clone $UPSTREAM_REPO"
+git -C "$TMPDIR/upstream" fetch --depth 1 origin "$UPSTREAM_REF" >/dev/null 2>&1 || fatal "Failed to resolve requested upstream ref"
+git -C "$TMPDIR/upstream" checkout --quiet --detach FETCH_HEAD
 [[ -f "$TMPDIR/upstream/template.env" ]] || fatal "template.env not found at upstream ref $UPSTREAM_REF"
 UPSTREAM_COMMIT="$(git -C "$TMPDIR/upstream" rev-parse --short HEAD)"
 

@@ -62,7 +62,44 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ "$IMAGE_TRACK" =~ ^(version-tags|latest|keep)$ ]] || fatal "--image-track must be version-tags, latest, or keep"
+[[ -z "$UPSTREAM_REF" ]] || validate_upstream_source "https://github.com/MISP/misp-docker.git" "$UPSTREAM_REF"
 [[ -d "$INSTALL_DIR/.git" ]] || fatal "$INSTALL_DIR is not an upstream git checkout"
+state_file="$INSTALL_DIR/.installer-state.json"
+[[ -f "$state_file" ]] || fatal "$state_file missing; refusing to update an unmarked checkout"
+state_values_file="$(mktemp)"
+trap 'rm -f "$state_values_file"' EXIT
+python3 - "$state_file" "$INSTALL_DIR" <<'PY' > "$state_values_file"
+import json
+import sys
+from pathlib import Path
+state = json.loads(Path(sys.argv[1]).read_text())
+if state.get('installer') != 'misp-docker-lifecycle-manager':
+    raise SystemExit('unexpected installer identity in state file')
+recorded_install = state.get('install_dir')
+repo = state.get('upstream_repo')
+exposure = state.get('exposure')
+base_url = state.get('base_url')
+if not all(isinstance(value, str) for value in (recorded_install, repo, exposure, base_url)):
+    raise SystemExit('state source/deployment fields must be strings')
+if Path(recorded_install).resolve() != Path(sys.argv[2]).resolve():
+    raise SystemExit('state install directory does not match update target')
+if not repo or exposure not in {'reverse-proxy', 'direct-qa'} or not base_url:
+    raise SystemExit('state file lacks valid repository/exposure/base URL metadata')
+if any(ord(ch) < 32 or ord(ch) == 127 for value in (repo, exposure, base_url) for ch in value):
+    raise SystemExit('state source/deployment fields contain control characters')
+print(repo)
+print(exposure)
+print(base_url)
+PY
+mapfile -t state_vals < "$state_values_file"
+state_repo="${state_vals[0]:-}"
+state_exposure="${state_vals[1]:-}"
+state_base_url="${state_vals[2]:-}"
+validate_upstream_source "$state_repo" "${UPSTREAM_REF:-HEAD}"
+validate_public_base_url "$state_base_url" "$state_exposure"
+origin_url="$(git -C "$INSTALL_DIR" remote get-url origin)"
+validate_upstream_source "$origin_url" "${UPSTREAM_REF:-HEAD}"
+[[ "$origin_url" == "$state_repo" ]] || fatal "Git origin does not match lifecycle-manager state; refusing update."
 old_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
 
 # Always back up first. MISP updates may include database migrations.
@@ -89,6 +126,8 @@ check_misp_schema_ready "$INSTALL_DIR"
 wait_for_misp_live_marker "$INSTALL_DIR" 900
 "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
 
+new_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
+write_state "$state_file" "$origin_url" "$new_commit" "$INSTALL_DIR" "$state_exposure" "$state_base_url"
 new_ref="$(git -C "$INSTALL_DIR" rev-parse --short HEAD)"
 log "Updated upstream $old_ref -> $new_ref"
 log "Interactive login: ready (MISP live marker observed)."

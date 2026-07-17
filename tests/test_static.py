@@ -218,13 +218,18 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('chmod 700 "$out"', text)
         self.assertIn('misp-config.tar.gz', text)
         self.assertIn('chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/misp-config.tar.gz"', text)
+        self.assertIn('sha256sum misp.sql misp-host-data.tar.gz misp-config.tar.gz > SHA256SUMS', text)
 
     def test_restore_has_destructive_safety_and_imports_backup(self):
         text = (ROOT / 'installer' / 'restore.sh').read_text()
         self.assertIn('--backup-dir', text)
         self.assertIn('Dry-run only', text)
         self.assertIn('Type RESTORE to continue', text)
-        self.assertIn('sha256sum -c SHA256SUMS', text)
+        self.assertIn('validate-backup.py', text)
+        self.assertIn('tar --no-same-owner --no-same-permissions -C "$INSTALL_DIR" -xzf "$BACKUP_DIR/misp-config.tar.gz"', text)
+        self.assertIn('sudo tar -C "$INSTALL_DIR" -xzf "$BACKUP_DIR/misp-host-data.tar.gz"', text)
+        self.assertNotIn('sudo tar --no-same-owner', text)
+        self.assertIn('write_state "$INSTALL_DIR/.installer-state.json"', text)
         self.assertIn('misp-config.tar.gz', text)
         self.assertIn('misp-host-data.tar.gz', text)
         self.assertIn('misp.sql', text)
@@ -238,6 +243,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('backup_args=(--install-dir "$INSTALL_DIR")', text)
         self.assertIn('backup_args+=(--backup-root "$BACKUP_ROOT")', text)
         self.assertIn('"$SCRIPT_DIR/backup.sh" "${backup_args[@]}"', text)
+        self.assertIn('write_state "$state_file"', text)
+        self.assertIn('new_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"', text)
 
     def test_temp_checkout_cleanup_trap_expands_tmpdir(self):
         text = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()

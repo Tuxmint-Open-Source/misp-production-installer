@@ -92,6 +92,28 @@ print(urlparse(base_url).hostname or fallback)
 PY
 }
 
+validate_upstream_source() {
+  local upstream_repo="$1" upstream_ref="$2"
+  python3 - "$upstream_repo" "$upstream_ref" <<'PY'
+import re
+import sys
+from urllib.parse import urlparse
+repo, ref = sys.argv[1:]
+if not repo or repo.startswith('-') or any(ord(ch) < 32 or ord(ch) == 127 for ch in repo):
+    raise SystemExit('upstream repository contains unsafe option/control characters')
+parsed = urlparse(repo)
+if parsed.scheme:
+    if parsed.scheme not in {'https', 'ssh', 'git'}:
+        raise SystemExit('upstream repository uses an unsupported URL scheme')
+    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise SystemExit('upstream repository URL must not contain credentials, query parameters, or fragments')
+if not ref or ref.startswith('-') or len(ref) > 255 or any(ord(ch) < 32 or ord(ch) == 127 for ch in ref):
+    raise SystemExit('upstream ref contains unsafe option/control characters')
+if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/@{}+~-]*', ref):
+    raise SystemExit('upstream ref contains unsupported characters')
+PY
+}
+
 compose_interpolation_defaults() {
   # Upstream misp-docker references many optional variables in docker-compose.yml.
   # Docker Compose prints a warning for each unset variable before defaulting it
@@ -315,7 +337,8 @@ write_state() {
   # Store non-secret deployment metadata for operators and future update runs.
   local state_file="$1" upstream_repo="$2" upstream_ref="$3" install_dir="$4" exposure="$5" base_url="$6"
   python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$install_dir" "$exposure" "$base_url" "$(installer_version)" <<'PY'
-import json, sys, datetime
+import datetime, json, os, sys, tempfile
+from pathlib import Path
 p, repo, ref, install_dir, exposure, base_url, installer_version = sys.argv[1:]
 data={
     'upstream_repo': repo,
@@ -325,8 +348,28 @@ data={
     'base_url': base_url,
     'installer': 'misp-docker-lifecycle-manager',
     'installer_version': installer_version,
-    'updated_at_utc': datetime.datetime.utcnow().replace(microsecond=0).isoformat()+'Z',
+    'updated_at_utc': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),
 }
-open(p, 'w').write(json.dumps(data, indent=2)+'\n')
+target = Path(p)
+fd, temporary = tempfile.mkstemp(prefix='.installer-state.', dir=target.parent)
+try:
+    os.fchmod(fd, 0o600)
+    with os.fdopen(fd, 'w') as stream:
+        json.dump(data, stream, indent=2)
+        stream.write('\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, target)
+    os.chmod(target, 0o600)
+except BaseException:
+    try:
+        os.close(fd)
+    except OSError:
+        pass
+    try:
+        os.unlink(temporary)
+    except FileNotFoundError:
+        pass
+    raise
 PY
 }

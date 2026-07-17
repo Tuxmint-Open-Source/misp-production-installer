@@ -44,10 +44,26 @@ done
 [[ -f "$INSTALL_DIR/.env" ]] || fatal "$INSTALL_DIR/.env missing"
 BACKUP_ROOT="${BACKUP_ROOT:-$INSTALL_DIR/backups}"
 umask 077
-stamp="$(date -u +%Y%m%dT%H%M%SZ)"
-out="$BACKUP_ROOT/misp-backup-$stamp"
-mkdir -p "$out"
+mkdir -p "$BACKUP_ROOT"
+python3 - "$BACKUP_ROOT" "$(id -u)" "${SUDO_UID:-}" <<'PY'
+import os
+import stat
+import sys
+from pathlib import Path
+root = Path(sys.argv[1])
+info = root.lstat()
+allowed_owners = {int(value) for value in sys.argv[2:] if value}
+if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+    raise SystemExit('backup root must be a non-symlink directory')
+if info.st_uid not in allowed_owners:
+    raise SystemExit('backup root is not owned by the invoking operator or root process')
+if info.st_mode & 0o022:
+    raise SystemExit('backup root must not be group- or world-writable')
+PY
+out="$(mktemp -d --tmpdir="$BACKUP_ROOT" 'misp-backup-XXXXXXXX')"
 chmod 700 "$out"
+complete=false
+trap 'if [[ "$complete" != true ]]; then rm -rf -- "$out"; fi' EXIT
 
 # Database backup: single-transaction keeps the dump consistent without a long
 # global lock for typical InnoDB tables.
@@ -68,6 +84,8 @@ sudo chown "$(id -u):$(id -g)" "$out/misp-host-data.tar.gz"
 # restore can reproduce the exact runtime settings and secrets used by the DB.
 # This archive is sensitive because it contains .env.
 (cd "$INSTALL_DIR" && tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml .installer-state.json 2>/dev/null || tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml)
-sha256sum "$out"/* > "$out/SHA256SUMS"
+(cd "$out" && sha256sum misp.sql misp-host-data.tar.gz misp-config.tar.gz > SHA256SUMS)
 chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/misp-config.tar.gz" "$out/SHA256SUMS"
+complete=true
+trap - EXIT
 log "Backup written to $out"

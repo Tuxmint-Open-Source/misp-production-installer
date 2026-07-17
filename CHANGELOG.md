@@ -17,6 +17,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Changed
 
 - Mark `v1.0.0` as validated compatible with MISP core `v2.5.44` and modules `v3.0.9` after upstream drift validation.
+- Validate backup manifests and archive member/link allowlists before destructive restore, reject credential-bearing or option-like upstream sources, require matching managed-target identity, stop on cleanup failure, create unpredictable backup sets under trusted roots, refresh update state to the resolved upstream commit, and write installer state atomically with mode `0600`.
 
 ## [1.0.0] - 2026-07-15
 

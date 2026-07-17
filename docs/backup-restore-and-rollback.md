@@ -19,7 +19,7 @@ A backup includes:
 - `misp-config.tar.gz` — generated deployment configuration such as `.env`, Compose override, and installer state
 - `SHA256SUMS` — checksum manifest
 
-Backups are sensitive. `misp-config.tar.gz` contains generated deployment secrets, and `misp.sql` can contain sensitive MISP data.
+Backups are sensitive. `misp-config.tar.gz` contains generated deployment secrets, and `misp.sql` can contain sensitive MISP data. Backup creation refuses symlinked, foreign-owned, or group/world-writable backup roots and creates a fresh unpredictable set directory. Treat a backup as trusted recovery input: the restore validator limits paths, types, and manifest entries, but checksums do not authenticate who created an otherwise internally consistent backup.
 
 ## Backup verification
 
@@ -47,7 +47,18 @@ sudo ./installer/restore.sh \
 By default, restore is conservative:
 
 - `--backup-dir` is required
-- `SHA256SUMS` is verified before restore
+- the checksum manifest is parsed without following manifest paths and all three fixed artifacts are verified
+- backup artifacts must be regular non-symlink files and are copied through no-follow file descriptors into a private staging directory; restore validates and consumes only that staged snapshot;
+- backup roots must be trusted, non-symlink directories that are not group/world writable; each backup uses a new unpredictable directory;
+- existing restore targets must carry lifecycle-manager state matching the canonical target path before Docker is invoked;
+- failed Compose cleanup stops restore rather than continuing into a mixed deployment state;
+- configuration and host-data archive member names/types/links are validated before extraction;
+- restored state must identify this manager and contain safe source fields; a non-default upstream repository is never adopted silently and must be repeated explicitly with `--upstream-repo`;
+- an existing checkout's Git origin must exactly match the selected upstream repository before any Compose teardown;
+- lifecycle state is regenerated atomically for the actual restore target and resolved upstream commit, including for older backups without state metadata;
+- generated configuration is extracted without archive ownership/modes, while validated host data preserves its archived runtime ownership and permissions;
+- host-data members must stay under the documented `configs`, `logs`, `files`, `ssl`, `gnupg`, `custom`, and `guard` roots
+- unsafe links, special files, duplicate members, unexpected files, and invalid lifecycle-manager state are rejected before destructive operations
 - the install directory is safety-checked
 - destructive mode requires `--yes`
 - interactive confirmation requires typing `RESTORE`
