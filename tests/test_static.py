@@ -28,7 +28,7 @@ class StaticRepoTests(unittest.TestCase):
     def test_version_files_are_consistent(self):
         version = (ROOT / 'VERSION').read_text().strip()
         self.assertRegex(version, r'^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$')
-        self.assertIn(f'Current manager version: `{version}`', (ROOT / 'README.md').read_text())
+        self.assertIn(f'Current `VERSION` value on `main`: `{version}`', (ROOT / 'README.md').read_text())
         self.assertIn(f'## [{version}]', (ROOT / 'CHANGELOG.md').read_text())
 
     def test_redis_password_url_safe_generation(self):
@@ -312,6 +312,10 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Restore-based rollback after failed update', backup_restore)
         self.assertIn('misp-config.tar.gz', backup_restore)
         self.assertIn('restore.sh', backup_restore)
+        self.assertNotIn('current `main` at PR #22 validation time', (ROOT / 'docs' / 'compatibility.md').read_text())
+        self.assertNotIn('current `main` at PR #22 validation time', (ROOT / 'docs' / 'validation' / 'matrix.md').read_text())
+        self.assertNotIn('1.0.0-rc.2', (ROOT / '.github' / 'ISSUE_TEMPLATE' / 'bug_report.yml').read_text())
+        self.assertNotIn('1.0.0-rc.2', (ROOT / 'docs' / 'sos-report.md').read_text())
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
 
@@ -445,6 +449,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('did **not** use running Zabbix, Checkmk, Nagios/Icinga, or Prometheus servers', validation_report)
         self.assertIn('post-`v1.0.0` development commit', validation_report)
         self.assertIn('`promtool` was not installed', validation_report)
+        self.assertIn('../monitoring.md#integration-validation-status', validation_report)
+        self.assertIn('[`CONTRIBUTING.md`](../CONTRIBUTING.md)', docs_index)
+        self.assertIn('community testing issue #62', docs_index)
 
     def test_healthcheck_output_validator_accepts_unknown_contract(self):
         validator = ROOT / 'scripts' / 'validate-healthcheck-output.py'
@@ -621,7 +628,10 @@ class StaticRepoTests(unittest.TestCase):
         docs_security = (ROOT / 'docs' / 'security.md').read_text()
 
         self.assertIn('Supported versions', security)
-        self.assertIn('v1.0.0-rc.2', security)
+        self.assertIn('`v1.0.0` | Current stable release', security)
+        self.assertIn('Release candidates and pre-`v1.0.0` tags | Historical and unsupported for routine fixes', security)
+        self.assertNotIn('This project is still pre-`v1.0.0`', security)
+        self.assertIn('best effort, with no service-level agreement', security)
         self.assertIn('/security/advisories/new', security)
         self.assertIn('Do **not** open a public issue for security vulnerabilities', security)
         self.assertIn('command injection', security)
@@ -831,7 +841,8 @@ class StaticRepoTests(unittest.TestCase):
         security = (ROOT / 'SECURITY.md').read_text()
 
         self.assertEqual(version, '1.0.0')
-        self.assertIn('Current manager version: `1.0.0`', readme)
+        self.assertIn('Current `VERSION` value on `main`: `1.0.0`', readme)
+        self.assertIn('The `v1.0.0` tag is the stable artifact', readme)
         self.assertIn('First stable release line', readme)
         self.assertNotIn('**NOT PRODUCTION READY**', readme)
         self.assertNotIn('🟡 Pending exact-tag validation', readme)
@@ -850,7 +861,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('compatibility-v1.0.0-misp-core-v2.5.43.md', matrix)
         self.assertIn('`v1.0.0` validated compatible', readiness)
         self.assertIn('core `v2.5.44`, modules `v3.0.9`, guard `v1.2`', readiness)
-        self.assertIn('| `v1.0.0` | Current stable validated release', security)
+        self.assertIn('| `v1.0.0` | Current stable release', security)
         self.assertIn('## [1.0.0] - 2026-07-15', changelog)
         self.assertIn('Mark final `v1.0.0` as validated compatible', changelog)
         self.assertIn('Overall result | ✅ Validated compatible', final_report)

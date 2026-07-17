@@ -12,7 +12,7 @@ This documentation is organized around the operator journey: understand the mode
 4. [Production deployment guide](production-deployment.md) — plan reverse proxy, host, secrets, and operational choices.
 5. [Backup, restore, and rollback](backup-restore-and-rollback.md) — understand recovery before you need it.
 6. [Upgrade path](upgrade-path.md) — update the manager and MISP components safely.
-7. [Monitoring](monitoring.md) — plan healthcheck output for Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text, and automation.
+7. [Monitoring](monitoring.md) — review the unreleased `main` healthcheck contract and planned integrations.
 8. [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) — see which manager/component pairs are validated.
 9. [Troubleshooting](troubleshooting.md) — diagnose failed installs, login issues, and update problems.
 
@@ -27,13 +27,14 @@ This documentation is organized around the operator journey: understand the mode
 | check which MISP versions are validated | [Compatibility](compatibility.md) |
 | update MISP components | [Upgrade path](upgrade-path.md) |
 | back up or restore MISP | [Backup, restore, and rollback](backup-restore-and-rollback.md) |
-| plan monitoring integration | [Monitoring](monitoring.md) |
+| plan monitoring integration on `main` | [Monitoring](monitoring.md) and [community testing issue #62](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62) |
 | recover from a failed update | [Backup, restore, and rollback](backup-restore-and-rollback.md#restore-based-rollback-after-failed-update) |
 | understand secrets and privileges | [Security](security.md) |
 | inspect every script and option | [Shell scripts reference](shell-scripts.md) |
 | debug a failure | [Troubleshooting](troubleshooting.md) |
 | report a reproducible bug safely | [Anonymous SOS reports](sos-report.md) |
-| contribute or cut a release | [Maintainer workflow](maintainer-workflow.md), then [release process](release/release-process.md) |
+| contribute code, docs, or integration testing | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
+| maintain the repository or cut a release | [Maintainer workflow](maintainer-workflow.md), then [release process](release/release-process.md) |
 
 ## Documentation types
 

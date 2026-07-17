@@ -22,7 +22,6 @@ A pair is called **validated compatible** only after the documented validation s
 | `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-13 | [`compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md`](validation/compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-12 | [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](validation/compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md) |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
-| current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-11 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | 2026-07-12 | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](validation/compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 

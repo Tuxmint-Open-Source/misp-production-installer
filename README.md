@@ -7,7 +7,7 @@
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current manager version: `1.0.0`
+Current `VERSION` value on `main`: `1.0.0`. The `v1.0.0` tag is the stable artifact; `main` also contains unreleased changes added after that tag.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -20,7 +20,8 @@ It adds:
 - install and host-preparation helpers;
 - generated `.env` values and Compose overrides;
 - deterministic component tag handling;
-- healthcheck, status, login, monitoring-contract, and credential checks;
+- health, status, login, and credential checks;
+- monitoring healthcheck and machine-readable output contracts on the unreleased `main` development line;
 - backup, restore, update, and restore-based rollback workflows;
 - reset/removal helpers with safety checks;
 - compatibility and validation documentation.
@@ -44,7 +45,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | plan a real deployment | [`docs/production-deployment.md`](docs/production-deployment.md) |
 | understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
-| plan monitoring integration | [`docs/monitoring.md`](docs/monitoring.md) |
+| plan monitoring integration on the unreleased `main` line | [`docs/monitoring.md`](docs/monitoring.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
 | report a reproducible bug safely | [`docs/sos-report.md`](docs/sos-report.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |

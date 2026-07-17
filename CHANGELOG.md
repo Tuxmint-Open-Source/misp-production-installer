@@ -11,6 +11,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add a monitoring-output validator, an explicit integration-evidence matrix, and a community call for real Zabbix, Checkmk, Nagios/Icinga, and Prometheus testing.
 - Record successful real-deployment monitoring validation across healthy, UNKNOWN, controlled-CRITICAL, and recovery states while preserving the untested-platform limitation.
 - Align primary README, readiness, deployment, support, security, and versioning docs with the published stable `v1.0.0` state while keeping post-release monitoring work clearly on `main`.
+- Clarify stable security support, community support expectations, issue examples, contribution discovery, and public evidence navigation after the post-v1 trust review.
 
 ### Changed
 

@@ -14,7 +14,6 @@ It is not a guarantee that every environment or component combination works. It 
 | `v1.0.0-rc.2` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.1` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md) |
 | `v0.3.3` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md) |
-| current `main` at PR #22 validation time | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.2` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ❌ Validation failed | ❌ | ❌ | ❌ | ❌ | ✅ | [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md) |
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | ✅ | — | ✅ | — | — | [`real-world-v0.3.1.md`](real-world-v0.3.1.md) |
 
@@ -37,6 +36,12 @@ It is not a guarantee that every environment or component combination works. It 
 
 ## Detailed reports
 
+- [`compatibility-v1.0.0-misp-core-v2.5.44.md`](compatibility-v1.0.0-misp-core-v2.5.44.md)
+- [`compatibility-v1.0.0-misp-core-v2.5.43.md`](compatibility-v1.0.0-misp-core-v2.5.43.md)
+- [`monitoring-healthcheck-pr61.md`](monitoring-healthcheck-pr61.md) — post-`v1.0.0` producer-side monitoring evidence for `main`, not release compatibility
+- [`compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md)
+- [`compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md)
+- [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md)
 - [`compatibility-v0.3.3-misp-core-v2.5.43.md`](compatibility-v0.3.3-misp-core-v2.5.43.md)
 - [`real-world-v0.3.1.md`](real-world-v0.3.1.md)
 

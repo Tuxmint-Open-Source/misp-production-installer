@@ -54,7 +54,7 @@ This validation did **not** use running Zabbix, Checkmk, Nagios/Icinga, or Prome
 
 `promtool` was not installed in this run, so Prometheus output was checked by the repository validator's built-in exposition parser. The validator will additionally invoke `promtool check metrics` automatically when that utility is available.
 
-Real monitoring-platform configuration, agent execution context, discovery, ingestion, alert routing, dashboards, and upgrades remain community-testing work. See [Monitoring integrations](../monitoring.md#validation-status-and-community-testing) for the current evidence matrix and contribution request.
+Real monitoring-platform configuration, agent execution context, discovery, ingestion, alert routing, dashboards, and upgrades remain community-testing work. See [Monitoring integrations](../monitoring.md#integration-validation-status) for the current evidence matrix and contribution request.
 
 ## Evidence handling
 

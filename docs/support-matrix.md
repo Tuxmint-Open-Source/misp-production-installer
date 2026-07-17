@@ -32,6 +32,12 @@ The stable release does not claim support for:
 - automatic certificate issuance for every reverse-proxy environment
 - long-term monitoring/alerting stack management
 
+## Support expectations
+
+Community support is best effort and has no service-level agreement. Use public GitHub issues for sanitized bugs, questions, and feature requests. Use the private path in [`SECURITY.md`](../SECURITY.md) for suspected vulnerabilities or reports that cannot be explained safely in public.
+
+Routine fixes target the current stable release and `main`; historical release candidates and pre-`v1.0.0` tags are not maintained release lines.
+
 ## Compatibility is still versioned separately
 
 Supported deployment scope and MISP component compatibility are separate questions.
