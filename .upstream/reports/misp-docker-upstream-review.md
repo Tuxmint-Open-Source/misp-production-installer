@@ -1,6 +1,8 @@
 # Upstream MISP Docker review
 
-## Summary
+> Historical disposition: reviewed. The component set below was subsequently validated with the immutable `v1.0.0` lifecycle-manager release; see [`docs/compatibility.md`](../../docs/compatibility.md) and the linked detailed reports. This retained report is evidence of the prior review prompt, not a current pending review.
+
+This report is a review prompt, not compatibility proof.
 
 The scheduled upstream monitor detected changes in official `MISP/misp-docker` inputs that this installer depends on.
 
@@ -32,15 +34,15 @@ The scheduled upstream monitor detected changes in official `MISP/misp-docker` i
 
 ## Review checklist
 
-- [ ] Check upstream component tag changes.
-- [ ] Check `docker-compose.yml` service names used by installer scripts.
-- [ ] Check MISP image expressions and runtime tag variables.
-- [ ] Check new or changed required variables in `template.env`.
-- [ ] Check health/readiness assumptions.
-- [ ] Decide whether installer code changes are needed.
-- [ ] Run repository validation before merge.
-- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set.
-- [ ] Update `docs/compatibility.md` and the matching `docs/validation/compatibility-*.md` report before marking the combination validated compatible.
+- [x] Checked upstream component tag changes.
+- [x] Checked `docker-compose.yml` service assumptions used by lifecycle-manager scripts.
+- [x] Checked MISP image expressions and runtime tag variables.
+- [x] Checked changed environment-variable requirements represented by this historical report.
+- [x] Checked health/readiness assumptions.
+- [x] Decided whether lifecycle-manager code or documentation changes were needed.
+- [x] Ran repository validation before merge.
+- [x] Ran compatibility validation for the immutable `v1.0.0` manager release and official component set.
+- [x] Updated `docs/compatibility.md` and matching detailed reports only after the scenarios passed.
 
 ## Compatibility note
 

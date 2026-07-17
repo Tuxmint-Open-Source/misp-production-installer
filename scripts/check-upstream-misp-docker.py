@@ -326,6 +326,11 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
     return changes
 
 
+def markdown_code(value: object) -> str:
+    text = str(value).replace("\r", " ").replace("\n", " ")
+    return text.replace("`", "'").replace("|", "¦")
+
+
 def manager_context() -> dict[str, str]:
     version_path = ROOT / "VERSION"
     version = read_text(version_path).strip() if version_path.exists() else "unknown"
@@ -341,7 +346,10 @@ def component_table(old: dict[str, object] | None, new: dict[str, object]) -> st
     new_tags = as_mapping(new.get("component_tags"))
     rows = ["| Component | Previous | Current |", "|---|---:|---:|"]
     for key in COMPONENT_KEYS:
-        rows.append(f"| `{key}` | `{old_tags.get(key, '(none)')}` | `{new_tags.get(key, '')}` |")
+        rows.append(
+            f"| `{markdown_code(key)}` | `{markdown_code(old_tags.get(key, '(none)'))}` | "
+            f"`{markdown_code(new_tags.get(key, ''))}` |"
+        )
     return "\n".join(rows)
 
 
@@ -389,10 +397,10 @@ Validation status: **review required / not validated**
 
 ## Upstream
 
-- Repository: `{new['repo']}`
-- Ref: `{new['ref']}`
-- Previous reviewed commit: `{old.get('upstream_commit') if old else '(none)'}`
-- Current commit: `{new['upstream_commit']}`
+- Repository: `{markdown_code(new['repo'])}`
+- Ref: `{markdown_code(new['ref'])}`
+- Previous reviewed commit: `{markdown_code(old.get('upstream_commit') if old else '(none)')}`
+- Current commit: `{markdown_code(new['upstream_commit'])}`
 - Compare: {compare_url(old, new)}
 
 ## Detected changes
@@ -465,6 +473,13 @@ def main() -> int:
 
     lock_path = Path(args.lock)
     report_path = Path(args.report)
+    if args.write and args.repo != DEFAULT_REPO:
+        try:
+            report_path.resolve().relative_to(ROOT.resolve())
+        except ValueError:
+            pass
+        else:
+            parser.error("refusing to write a non-official repository into a public in-repo report path")
     old = load_lock(lock_path)
     new = collect_state(args.repo, args.ref)
     changes = diff_state(old, new)

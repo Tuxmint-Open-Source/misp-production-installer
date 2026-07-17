@@ -138,6 +138,9 @@ volumes:
         })
         self.assertNotIn("do-not-record", str(inventory))
 
+    def test_markdown_code_escapes_table_and_code_delimiters(self):
+        self.assertEqual(WATCH.markdown_code("v1|bad`line\nnext"), "v1¦bad'line next")
+
     def test_report_preserves_compatibility_boundary(self):
         old = self.make_state()
         new = copy.deepcopy(old)
