@@ -138,13 +138,18 @@ Must:
 
 ## Upstream drift acceptance criteria
 
-The upstream monitor should keep these assumptions reviewable:
+The upstream monitor should keep these assumptions reviewable without opening PRs for unrelated upstream commits:
 
-- official `MISP/misp-docker` upstream commit
-- watched file hashes for `template.env`, `docker-compose.yml`, and `README.md`
+- official `MISP/misp-docker` upstream commit as comparison context, not a drift signal by itself
+- full hashes for `template.env`, `docker-compose.yml`, entrypoint/configuration scripts, and critical/minimum environment definitions
+- selected README operator-section hashes for getting started, configuration, optional guard, authentication, production, SELinux/root-CA handling, database management, troubleshooting, and versioning
 - component tags for core, modules, and guard
 - runtime image tag defaults
-- Compose service names and MISP image expressions
+- active and commented `template.env` key inventories without recording values
+- Compose service names, complete service-block hashes, image expressions, and interpolation-variable inventory
+- A/B/C classifications and structured added/removed key/service deltas in review reports
+
+The parser has fixture-driven unit tests for commit-only movement, component-tag drift, Compose service drift, environment inventory privacy, operator-guidance drift, and the compatibility-proof boundary.
 
 When the scheduled workflow opens an upstream review PR, a maintainer should decide whether code or documentation changes are needed before merging the baseline update.
 

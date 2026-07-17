@@ -158,15 +158,15 @@ When GitHub Actions annotations report deprecations, treat them as maintenance w
 
 ### Official MISP Docker upstream drift PRs
 
-The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when selected official `MISP/misp-docker` inputs change. Treat those PRs as review prompts, not as compatibility proof.
+The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when lifecycle-sensitive official `MISP/misp-docker` inputs change. Treat those PRs as review prompts, not as compatibility proof. A new upstream commit by itself is comparison context and does not open a PR; this keeps unrelated upstream work from creating noise.
 
 Use this classification:
 
 | Class | Upstream change | Default response |
 | --- | --- | --- |
 | A | Component tag defaults changed, such as `CORE_TAG`, `MODULES_TAG`, or `GUARD_TAG` | Review changelogs/release notes, update compatibility/readiness docs to pending for the new component set if needed, then run compatibility validation before marking validated. |
-| B | `docker-compose.yml` service names, image expressions, ports, volumes, health/readiness behavior, or dependency structure changed | Inspect installer assumptions and run targeted code/docs tests. Patch manager code if assumptions changed. Full validation is likely needed before compatibility claims. |
-| C | `template.env`, README versioning guidance, required variables, defaults, or operator instructions changed without obvious compose/service changes | Review config generation and documentation. Patch generated `.env` handling or docs if defaults/required variables changed. Validation scope depends on whether runtime behavior changed. |
+| B | `docker-compose.yml` service blocks, image expressions, interpolation keys, ports, volumes, health/readiness behavior, dependency/profile structure, upstream entrypoint/configuration scripts, or critical/minimum environment definitions changed | Inspect installer assumptions and run targeted code/docs tests. Patch manager code if assumptions changed. Full validation is likely needed before compatibility claims. |
+| C | `template.env` key inventory/defaults or selected README operator guidance changed without obvious compose/service changes | Review config generation and documentation. Patch generated `.env` handling or docs if defaults/required variables changed. Validation scope depends on whether runtime behavior changed. |
 
 Combination handling:
 
@@ -182,11 +182,12 @@ For every upstream review PR:
 
 1. Read `.upstream/reports/misp-docker-upstream-review.md`.
 2. Open the upstream compare link and inspect the actual upstream diff.
-3. Classify changes as A, B, C, or a combination.
-4. Decide whether this repo needs a manager code PR, docs-only PR, validation-only follow-up, or no change.
-5. Never merge the upstream lockfile PR as "validated compatible" evidence by itself.
-6. If compatibility status changes, update public compatibility docs only after validation passes.
-7. Keep all public comments sanitized; no private validation infrastructure details.
+3. Read the detected A/B/C classes and structured service/environment deltas, then inspect the upstream diff rather than treating hashes as a complete explanation.
+4. Check entrypoint/configuration, critical/minimum environment definitions, and selected operator-guidance sections when listed.
+5. Decide whether this repo needs a manager code PR, docs-only PR, validation-only follow-up, or no change.
+6. Never merge the upstream lockfile PR as "validated compatible" evidence by itself.
+7. If compatibility status changes, update public compatibility docs only after validation passes.
+8. Keep all public comments sanitized; no private validation infrastructure details.
 
 If the scheduled workflow reports success but no upstream review PR is visible, check for the review branch manually:
 

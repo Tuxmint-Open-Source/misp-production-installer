@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 """Check official MISP/misp-docker upstream drift.
 
-This script records public upstream facts that this installer depends on:
-- template.env component tags
-- docker-compose.yml service names and MISP image tag expressions
-- hashes of selected upstream files
+The watcher records public upstream facts that the lifecycle manager depends on.
+It deliberately ignores commit-only movement: a new upstream commit opens a review
+only when a lifecycle-sensitive file or extracted fact changed.
 
-When upstream changes, it writes an updated lock file and a public-safe review
-report that a scheduled GitHub Action can turn into a Pull Request.
+The generated report is a review prompt, never compatibility proof.
 """
 from __future__ import annotations
 
@@ -17,9 +15,7 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -28,9 +24,36 @@ DEFAULT_REPO = "https://github.com/MISP/misp-docker.git"
 DEFAULT_REF = "master"
 LOCK_PATH = ROOT / ".upstream" / "misp-docker.lock.json"
 REPORT_PATH = ROOT / ".upstream" / "reports" / "misp-docker-upstream-review.md"
-WATCHED_FILES = ["template.env", "docker-compose.yml", "README.md"]
+
+# Full hashes are appropriate for runtime/configuration inputs: even a small change
+# can affect install, update, restore, readiness, or generated configuration.
+WATCHED_FILE_CLASSES = {
+    "template.env": "C",
+    "docker-compose.yml": "B",
+    "core/files/entrypoint.sh": "B",
+    "core/files/configure_misp.sh": "B",
+}
+WATCHED_TREE_CLASSES = {
+    # These public JSON files define critical, minimum, optional, proxy, storage,
+    # and initialization environment handling. Track the directory so newly added
+    # definitions are visible without updating this script first.
+    "core/files/etc/misp-docker": "B",
+}
+WATCHED_FILES = list(WATCHED_FILE_CLASSES)
 COMPONENT_KEYS = ["CORE_TAG", "MODULES_TAG", "GUARD_TAG"]
 RUNNING_KEYS = ["CORE_RUNNING_TAG", "MODULES_RUNNING_TAG", "GUARD_RUNNING_TAG"]
+README_SECTIONS = [
+    "Getting Started",
+    "Configuration",
+    "MISP-Guard (optional)",
+    "Authentication",
+    "Production",
+    "SELinux",
+    "Installing custom root CA certificates",
+    "Database Management",
+    "Troubleshooting",
+    "Versioning",
+]
 
 
 def run(cmd: list[str], cwd: Path | None = None) -> str:
@@ -39,6 +62,11 @@ def run(cmd: list[str], cwd: Path | None = None) -> str:
 
 def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8", errors="replace")).hexdigest()
+
+
+def normalized_sha(text: str) -> str:
+    normalized = "\n".join(line.rstrip() for line in text.splitlines()).strip()
+    return sha256_text(normalized)
 
 
 def read_text(path: Path) -> str:
@@ -56,60 +84,105 @@ def parse_active_env(text: str) -> dict[str, str]:
     return values
 
 
-def parse_compose_facts(text: str) -> dict[str, object]:
-    services: list[str] = []
-    images: dict[str, str] = {}
-    current_service: str | None = None
-    in_services = False
-
+def parse_env_key_inventory(text: str) -> dict[str, list[str]]:
+    active: set[str] = set()
+    commented: set[str] = set()
     for line in text.splitlines():
+        active_match = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)=", line)
+        if active_match:
+            active.add(active_match.group(1))
+            continue
+        commented_match = re.match(r"^\s*#\s*([A-Za-z_][A-Za-z0-9_]*)=", line)
+        if commented_match:
+            commented.add(commented_match.group(1))
+    return {
+        "active_keys": sorted(active),
+        "commented_keys": sorted(commented),
+    }
+
+
+def compose_service_blocks(text: str) -> dict[str, str]:
+    lines = text.splitlines()
+    blocks: dict[str, list[str]] = {}
+    in_services = False
+    current: str | None = None
+    for line in lines:
         if re.match(r"^services:\s*$", line):
             in_services = True
-            current_service = None
+            current = None
             continue
         if in_services and re.match(r"^[A-Za-z0-9_.-]+:\s*$", line):
-            in_services = False
-            current_service = None
+            break
         if not in_services:
             continue
-        service_match = re.match(r"^  ([A-Za-z0-9_.-]+):\s*$", line)
-        if service_match:
-            current_service = service_match.group(1)
-            services.append(current_service)
+        match = re.match(r"^  ([A-Za-z0-9_.-]+):\s*$", line)
+        if match:
+            service = match.group(1)
+            current = service
+            blocks[service] = [line]
             continue
-        image_match = re.match(r"^    image:\s*(.+?)\s*$", line)
-        if image_match and current_service:
-            images[current_service] = image_match.group(1).strip().strip('"')
+        if current is not None:
+            blocks[current].append(line)
+    return {name: "\n".join(block) for name, block in blocks.items()}
 
-    interesting_images = {
-        service: image
-        for service, image in images.items()
-        if service in {"misp-core", "misp-modules", "misp-guard"}
-        or "misp-docker" in image
+
+def parse_compose_facts(text: str) -> dict[str, object]:
+    blocks = compose_service_blocks(text)
+    images: dict[str, str] = {}
+    service_block_hashes: dict[str, str] = {}
+    for service, block in blocks.items():
+        service_block_hashes[service] = normalized_sha(block)
+        image_match = re.search(r"^    image:\s*(.+?)\s*$", block, re.MULTILINE)
+        if image_match:
+            images[service] = image_match.group(1).strip().strip('"')
+    variables = sorted(set(re.findall(r"\$\{([A-Za-z_][A-Za-z0-9_]*)", text)))
+    return {
+        "services": sorted(blocks),
+        "images": images,
+        "service_block_hashes": service_block_hashes,
+        "interpolation_keys": variables,
     }
-    return {"services": sorted(services), "misp_images": interesting_images}
 
 
-def extract_readme_versioning(text: str) -> str:
+def extract_markdown_section(text: str, heading: str) -> str:
     lines = text.splitlines()
-    start = None
+    start: int | None = None
+    level = 0
+    pattern = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
     for idx, line in enumerate(lines):
-        if line.strip().lower() == "## versioning":
+        match = pattern.match(line)
+        if match and match.group(2).strip().lower() == heading.lower():
             start = idx
+            level = len(match.group(1))
             break
     if start is None:
         return ""
     end = len(lines)
     for idx in range(start + 1, len(lines)):
-        if lines[idx].startswith("## "):
+        match = pattern.match(lines[idx])
+        if match and len(match.group(1)) <= level:
             end = idx
             break
     return "\n".join(lines[start:end]).strip()
 
 
+def readme_section_hashes(text: str) -> dict[str, str]:
+    return {heading: normalized_sha(extract_markdown_section(text, heading)) for heading in README_SECTIONS}
+
+
+def collect_tree_hashes(root: Path, rel: str) -> dict[str, dict[str, str | bool]]:
+    directory = root / rel
+    if not directory.is_dir():
+        return {".": {"exists": False, "sha256": ""}}
+    result: dict[str, dict[str, str | bool]] = {}
+    for path in sorted(item for item in directory.rglob("*") if item.is_file()):
+        child = path.relative_to(directory).as_posix()
+        result[child] = {"exists": True, "sha256": sha256_text(read_text(path))}
+    return result
+
+
 def clone_upstream(repo: str, ref: str, target: Path) -> str:
     run(["git", "clone", "--filter=blob:none", "--no-checkout", repo, str(target)])
-    # Fetch the requested ref if it is not already available from the default clone.
     try:
         run(["git", "fetch", "--depth", "1", "origin", ref], cwd=target)
     except subprocess.CalledProcessError:
@@ -137,23 +210,29 @@ def collect_state(repo: str, ref: str) -> dict[str, object]:
             else:
                 file_hashes[rel] = {"exists": False, "sha256": ""}
 
-        template_values = parse_active_env(file_text.get("template.env", ""))
-        component_tags = {key: template_values.get(key, "") for key in COMPONENT_KEYS}
-        running_defaults = {key: template_values.get(key, "(commented or unset)") for key in RUNNING_KEYS}
-        compose_facts = parse_compose_facts(file_text.get("docker-compose.yml", ""))
-        readme_versioning_sha = sha256_text(extract_readme_versioning(file_text.get("README.md", "")))
+        readme_path = upstream / "README.md"
+        readme_text = read_text(readme_path) if readme_path.exists() else ""
+        template_text = file_text.get("template.env", "")
+        template_values = parse_active_env(template_text)
+        watched_trees = {
+            rel: collect_tree_hashes(upstream, rel) for rel in WATCHED_TREE_CLASSES
+        }
 
         return {
-            "schema": 1,
+            "schema": 2,
             "repo": repo,
             "ref": ref,
             "upstream_commit": commit,
             "checked_at_utc": dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
             "watched_files": file_hashes,
-            "component_tags": component_tags,
-            "running_tag_defaults_in_template_env": running_defaults,
-            "compose": compose_facts,
-            "readme_versioning_section_sha256": readme_versioning_sha,
+            "watched_trees": watched_trees,
+            "component_tags": {key: template_values.get(key, "") for key in COMPONENT_KEYS},
+            "running_tag_defaults_in_template_env": {
+                key: template_values.get(key, "(commented or unset)") for key in RUNNING_KEYS
+            },
+            "template_env_keys": parse_env_key_inventory(template_text),
+            "compose": parse_compose_facts(file_text.get("docker-compose.yml", "")),
+            "readme_operator_section_sha256": readme_section_hashes(readme_text),
         }
 
 
@@ -163,26 +242,73 @@ def load_lock(path: Path) -> dict[str, object] | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[str]:
+def as_mapping(value: object) -> dict[str, object]:
+    return value if isinstance(value, dict) else {}
+
+
+def changed_mapping_keys(old: object, new: object) -> list[str]:
+    old_map = as_mapping(old)
+    new_map = as_mapping(new)
+    return sorted(key for key in set(old_map) | set(new_map) if old_map.get(key) != new_map.get(key))
+
+
+def list_delta(old: object, new: object) -> tuple[list[str], list[str]]:
+    old_set = set(old if isinstance(old, list) else [])
+    new_set = set(new if isinstance(new, list) else [])
+    return sorted(new_set - old_set), sorted(old_set - new_set)
+
+
+def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[dict[str, str]]:
     if old is None:
-        return ["No previous upstream baseline existed."]
-    changes: list[str] = []
-    if old.get("upstream_commit") != new.get("upstream_commit"):
-        changes.append(f"Upstream commit changed: `{old.get('upstream_commit')}` -> `{new.get('upstream_commit')}`")
-    for key in ["component_tags", "running_tag_defaults_in_template_env", "compose", "readme_versioning_section_sha256"]:
-        if old.get(key) != new.get(key):
-            changes.append(f"`{key}` changed.")
-    old_files = old.get("watched_files", {}) if isinstance(old.get("watched_files"), dict) else {}
-    new_files = new.get("watched_files", {}) if isinstance(new.get("watched_files"), dict) else {}
+        return [{"class": "A+B+C", "detail": "No previous upstream baseline existed."}]
+
+    changes: list[dict[str, str]] = []
+
+    if old.get("component_tags") != new.get("component_tags"):
+        changes.append({"class": "A", "detail": "Official component tag defaults changed."})
+    if old.get("running_tag_defaults_in_template_env") != new.get("running_tag_defaults_in_template_env"):
+        changes.append({"class": "A", "detail": "Runtime image tag defaults changed."})
+
+    old_files = as_mapping(old.get("watched_files"))
+    new_files = as_mapping(new.get("watched_files"))
     for rel in WATCHED_FILES:
         if old_files.get(rel) != new_files.get(rel):
-            changes.append(f"Watched file changed: `{rel}`")
+            changes.append({"class": WATCHED_FILE_CLASSES[rel], "detail": f"Watched file changed: `{rel}`"})
+
+    old_trees = as_mapping(old.get("watched_trees"))
+    new_trees = as_mapping(new.get("watched_trees"))
+    for rel, change_class in WATCHED_TREE_CLASSES.items():
+        old_tree = as_mapping(old_trees.get(rel))
+        new_tree = as_mapping(new_trees.get(rel))
+        changed_children = changed_mapping_keys(old_tree, new_tree)
+        if changed_children:
+            children = ", ".join(f"`{rel}/{child}`" for child in changed_children)
+            changes.append({"class": change_class, "detail": f"Watched configuration tree changed: {children}"})
+
+    old_compose = as_mapping(old.get("compose"))
+    new_compose = as_mapping(new.get("compose"))
+    changed_services = changed_mapping_keys(old_compose.get("service_block_hashes"), new_compose.get("service_block_hashes"))
+    if changed_services:
+        changes.append({"class": "B", "detail": "Compose service definitions changed: " + ", ".join(f"`{s}`" for s in changed_services)})
+    if old_compose.get("interpolation_keys") != new_compose.get("interpolation_keys"):
+        changes.append({"class": "B", "detail": "Compose interpolation-key inventory changed."})
+
+    if old.get("template_env_keys") != new.get("template_env_keys"):
+        changes.append({"class": "C", "detail": "`template.env` active/commented key inventory changed."})
+
+    changed_sections = changed_mapping_keys(
+        old.get("readme_operator_section_sha256"), new.get("readme_operator_section_sha256")
+    )
+    if changed_sections:
+        changes.append({"class": "C", "detail": "Operator guidance changed: " + ", ".join(f"`{s}`" for s in changed_sections)})
+
+    # Upstream commit movement alone is informational and intentionally not drift.
     return changes
 
 
 def component_table(old: dict[str, object] | None, new: dict[str, object]) -> str:
-    old_tags = old.get("component_tags", {}) if old else {}
-    new_tags = new.get("component_tags", {})
+    old_tags = as_mapping(old.get("component_tags")) if old else {}
+    new_tags = as_mapping(new.get("component_tags"))
     rows = ["| Component | Previous | Current |", "|---|---:|---:|"]
     for key in COMPONENT_KEYS:
         rows.append(f"| `{key}` | `{old_tags.get(key, '(none)')}` | `{new_tags.get(key, '')}` |")
@@ -200,22 +326,28 @@ def compare_url(old: dict[str, object] | None, new: dict[str, object]) -> str:
     return ""
 
 
-def render_report(old: dict[str, object] | None, new: dict[str, object], changes: list[str]) -> str:
-    changed_files = []
-    old_files = old.get("watched_files", {}) if old else {}
-    new_files = new.get("watched_files", {})
-    for rel in WATCHED_FILES:
-        if not old or old_files.get(rel) != new_files.get(rel):
-            changed_files.append(f"- `{rel}`")
-    if not changed_files:
-        changed_files.append("- No watched file hash changes detected.")
+def render_delta(label: str, old: object, new: object) -> str:
+    added, removed = list_delta(old, new)
+    added_text = ", ".join(f"`{item}`" for item in added) or "none"
+    removed_text = ", ".join(f"`{item}`" for item in removed) or "none"
+    return f"- {label} added: {added_text}\n- {label} removed: {removed_text}"
 
-    changes_text = "\n".join(f"- {item}" for item in changes) if changes else "- No relevant upstream drift detected."
+
+def render_report(old: dict[str, object] | None, new: dict[str, object], changes: list[dict[str, str]]) -> str:
+    old_compose = as_mapping(old.get("compose")) if old else {}
+    new_compose = as_mapping(new.get("compose"))
+    old_env = as_mapping(old.get("template_env_keys")) if old else {}
+    new_env = as_mapping(new.get("template_env_keys"))
+    classes = sorted({change["class"] for change in changes})
+    changes_text = "\n".join(f"- **Class {item['class']}** — {item['detail']}" for item in changes)
+
     return f"""# Upstream MISP Docker review
 
 ## Summary
 
-The scheduled upstream monitor detected changes in official `MISP/misp-docker` inputs that this installer depends on.
+The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs. Upstream commit movement without a watched-file or extracted-fact change does not create a review.
+
+Detected classes: **{'+'.join(classes) if classes else 'none'}**
 
 ## Upstream
 
@@ -227,31 +359,41 @@ The scheduled upstream monitor detected changes in official `MISP/misp-docker` i
 
 ## Detected changes
 
-{changes_text}
+{changes_text or '- No relevant upstream drift detected.'}
 
 ## Component tags
 
 {component_table(old, new)}
 
-## Watched files
+## Structured deltas
 
-{chr(10).join(changed_files)}
+{render_delta('Compose services', old_compose.get('services'), new_compose.get('services'))}
+{render_delta('Compose interpolation keys', old_compose.get('interpolation_keys'), new_compose.get('interpolation_keys'))}
+{render_delta('Active template.env keys', old_env.get('active_keys'), new_env.get('active_keys'))}
+{render_delta('Commented template.env keys', old_env.get('commented_keys'), new_env.get('commented_keys'))}
+
+## Classification
+
+- **A:** component or runtime image tag defaults changed.
+- **B:** Compose structure or runtime/configuration behavior changed, including service blocks, ports, volumes, dependencies, profiles, healthchecks, entrypoint/configuration scripts, or critical/minimum environment definitions.
+- **C:** template environment inventory or selected operator guidance changed.
 
 ## Review checklist
 
-- [ ] Check upstream component tag changes.
-- [ ] Check `docker-compose.yml` service names used by installer scripts.
-- [ ] Check MISP image expressions and runtime tag variables.
-- [ ] Check new or changed required variables in `template.env`.
-- [ ] Check health/readiness assumptions.
-- [ ] Decide whether installer code changes are needed.
+- [ ] Inspect the upstream compare link; hashes and extracted facts summarize drift but do not replace review.
+- [ ] Check upstream component tag changes and release notes.
+- [ ] Check Compose service names, image expressions, ports, volumes, dependencies, profiles, healthchecks, and interpolation variables.
+- [ ] Check new, removed, or changed required/default variables in `template.env` and the critical/minimum environment definitions.
+- [ ] Check entrypoint, configuration, migration, startup, and readiness behavior.
+- [ ] Check install, production, backup/restore, troubleshooting, and versioning guidance.
+- [ ] Decide whether manager code, docs, or validation changes are needed.
 - [ ] Run repository validation before merge.
-- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set.
-- [ ] Update `docs/compatibility.md` and the matching `docs/validation/compatibility-*.md` report before marking the combination validated compatible.
+- [ ] Run compatibility validation for the affected manager release/ref and official MISP component set when runtime or component behavior is affected.
+- [ ] Update compatibility docs only after the documented compatibility scenarios pass.
 
 ## Compatibility note
 
-This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed component set becomes **validated compatible** only after the documented compatibility scenarios pass and the public compatibility docs are updated.
+This upstream-review report is a drift-detection prompt, not compatibility proof by itself. A listed manager release/ref and component set becomes **validated compatible** only after the documented compatibility scenarios pass and public compatibility evidence is updated.
 
 ## Validation command
 
@@ -280,7 +422,7 @@ def main() -> int:
     parser.add_argument("--lock", default=str(LOCK_PATH))
     parser.add_argument("--report", default=str(REPORT_PATH))
     parser.add_argument("--write", action="store_true", help="write updated lock/report files")
-    parser.add_argument("--check", action="store_true", help="fail if upstream drift is detected")
+    parser.add_argument("--check", action="store_true", help="fail if lifecycle-sensitive upstream drift is detected")
     args = parser.parse_args()
 
     lock_path = Path(args.lock)
@@ -292,8 +434,10 @@ def main() -> int:
 
     print(f"upstream_commit={new['upstream_commit']}")
     print(f"drift={'true' if drift else 'false'}")
+    if old and old.get("upstream_commit") != new.get("upstream_commit") and not drift:
+        print("- Upstream commit changed, but no lifecycle-sensitive watched input changed.")
     for change in changes:
-        print(f"- {change}")
+        print(f"- Class {change['class']}: {change['detail']}")
 
     set_github_output("drift", "true" if drift else "false")
     set_github_output("upstream_commit", str(new["upstream_commit"]))
