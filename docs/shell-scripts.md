@@ -210,7 +210,7 @@ Generate a public-safe bug-report summary without raw logs, `.env` contents, bac
 sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
 ```
 
-By default, the report includes concise, redacted summaries from `doctor.sh`, `status.sh`, and `login-check.sh --machine-readable` when Docker and the install directory are available. Use `--no-health-commands` to skip those summaries, or `--no-docker` to avoid Docker/Compose checks entirely:
+By default, the report runs the bounded non-login healthcheck and retains only allowlisted status enums and counts. It never copies raw helper, Docker, Compose, application, or system command output. Use `--no-health-commands` to skip the structured health probe, or `--no-docker` to avoid Docker/Compose/version checks entirely:
 
 ```bash
 ./installer/sos-report.sh --no-docker --output ./misp-sos-report.md

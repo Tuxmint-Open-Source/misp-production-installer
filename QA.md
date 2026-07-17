@@ -141,6 +141,18 @@ Must:
 - report login status markers
 - attempt logout after successful login
 
+### `sos-report.sh`
+
+Must:
+
+- emit only bounded allowlisted enums, booleans, numeric counts, validated public tags, restricted versions, and fixed health-check IDs/statuses
+- never copy raw subprocess output or health summaries into the report
+- never collect URLs, hosts, IPs, emails, topology, backup metadata, logs, generated configuration, or MISP business data
+- avoid the credential-bearing login check
+- reject free-form workflow labels and symlink output targets
+- write reports atomically with mode `0600`
+- fail closed for malformed, duplicate, oversized, or private-registry-like component-tag inputs
+
 ## Upstream drift acceptance criteria
 
 The upstream monitor should keep these assumptions reviewable without opening PRs for unrelated upstream commits:
