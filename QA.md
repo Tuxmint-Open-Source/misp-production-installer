@@ -132,6 +132,11 @@ Must:
 
 - read credentials from `.env`
 - preserve cookies and CSRF fields
+- verify TLS by default and refuse plain HTTP before credential submission
+- reject cross-origin redirects, including redirects that could replay a credential POST
+- require positive same-origin authenticated-session evidence rather than absence of known errors
+- emit stable machine-readable reasons for expected transport and authentication failures
+- reject simultaneous `--strict-tls` and `--insecure`
 - never print the password
 - report login status markers
 - attempt logout after successful login

@@ -35,6 +35,8 @@ Rules:
 - Do not paste generated passwords into public issues or logs.
 - Use `admin-credentials.sh` for controlled credential inspection.
 - Password-revealing helper options should be used only on trusted terminals.
+- Credential-bearing login checks verify TLS and same-origin redirects by default and require positive authenticated-session evidence.
+- The explicit `--insecure` login option is limited to isolated validation environments; it must not be used across untrusted networks.
 - Backups must be treated as sensitive because they can include database data and generated secrets.
 
 ## File permissions

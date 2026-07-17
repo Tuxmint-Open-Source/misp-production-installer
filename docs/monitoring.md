@@ -87,6 +87,7 @@ Options:
 --checks CHECKS
 --timeout SECONDS
 --strict-tls
+--insecure
 --no-login
 --version
 --help
@@ -128,7 +129,7 @@ The command supports a small, stable set of check identifiers:
 | `backup-freshness` | Reserved warning check for future backup freshness thresholds. | optional |
 | `version-drift` | Reserved warning check for future local/upstream component drift reporting. | optional |
 
-Login should not be mandatory for the fastest default probe. It is useful as a deeper check, but it reads credentials and performs a real web login flow, so operators should enable it deliberately.
+Login should not be mandatory for the fastest default probe. It is useful as a deeper check, but it reads credentials and performs a real web login flow, so operators should enable it deliberately. Login checks verify TLS by default and require a positive authenticated-session marker. `--insecure` is an explicit unsafe compatibility option for isolated testing and must not be used across an untrusted network.
 
 ## Output formats
 

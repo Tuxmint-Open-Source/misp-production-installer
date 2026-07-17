@@ -15,7 +15,8 @@ Options:
   --format FORMAT         Output format: text, json, nagios, checkmk, prometheus (default: text)
   --checks LIST           Comma-separated checks to run (default: compose-config,compose-services,misp-heartbeat,schema-ready)
   --timeout SECONDS       Per-command timeout for bounded probes (default: 20)
-  --strict-tls            Verify TLS certificates for login checks
+  --strict-tls            Verify TLS certificates for login checks (default)
+  --insecure              Explicitly allow insecure transport for login checks
   --no-login              Remove login from the selected checks
   -h, --help              Show this help
   --version               Show manager version
@@ -51,7 +52,9 @@ INSTALL_DIR="/opt/misp-docker"
 FORMAT="text"
 CHECKS="compose-config,compose-services,misp-heartbeat,schema-ready"
 TIMEOUT_SECONDS="20"
-STRICT_TLS="false"
+INSECURE="false"
+STRICT_TLS_SEEN="false"
+INSECURE_SEEN="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -59,19 +62,21 @@ while [[ $# -gt 0 ]]; do
     --format) FORMAT="$2"; shift 2;;
     --checks) CHECKS="$2"; shift 2;;
     --timeout) TIMEOUT_SECONDS="$2"; shift 2;;
-    --strict-tls) STRICT_TLS="true"; shift;;
+    --strict-tls) INSECURE="false"; STRICT_TLS_SEEN="true"; shift;;
+    --insecure) INSECURE="true"; INSECURE_SEEN="true"; shift;;
     --no-login) CHECKS=",$CHECKS,"; CHECKS="${CHECKS//,login,/,}"; CHECKS="${CHECKS#,}"; CHECKS="${CHECKS%,}"; shift;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
     *) fatal "Unknown argument: $1";;
   esac
 done
+[[ "$STRICT_TLS_SEEN" != true || "$INSECURE_SEEN" != true ]] || fatal "--strict-tls and --insecure cannot be used together"
 
 [[ "$FORMAT" =~ ^(text|json|nagios|checkmk|prometheus)$ ]] || fatal "format must be text, json, nagios, checkmk, or prometheus"
 [[ "$TIMEOUT_SECONDS" =~ ^[0-9]+$ ]] || fatal "timeout must be a positive integer"
 (( TIMEOUT_SECONDS > 0 )) || fatal "timeout must be greater than zero"
 
-python3 - "$INSTALL_DIR" "$FORMAT" "$CHECKS" "$TIMEOUT_SECONDS" "$STRICT_TLS" "$SCRIPT_DIR" <<'PY'
+python3 - "$INSTALL_DIR" "$FORMAT" "$CHECKS" "$TIMEOUT_SECONDS" "$INSECURE" "$SCRIPT_DIR" <<'PY'
 from __future__ import annotations
 
 import json
@@ -88,7 +93,7 @@ install_dir = Path(sys.argv[1])
 output_format = sys.argv[2]
 checks_arg = sys.argv[3]
 timeout = int(sys.argv[4])
-strict_tls = sys.argv[5] == 'true'
+insecure = sys.argv[5] == 'true'
 script_dir = Path(sys.argv[6])
 
 STATUS_RANK = {'ok': 0, 'warning': 1, 'critical': 2, 'unknown': 3}
@@ -228,23 +233,24 @@ raise SystemExit(1 if missing else 0)
 
 def check_login() -> None:
     args = [str(script_dir / 'login-check.sh'), '--install-dir', str(install_dir), '--machine-readable']
-    if strict_tls:
-        args.append('--strict-tls')
+    if insecure:
+        args.append('--insecure')
     result = run_cmd(args)
-    if result.returncode != 0:
-        add_check('login', 'critical', 'login-check command failed')
-        return
     values = {}
     for line in result.stdout.splitlines():
         if '=' in line:
             key, value = line.split('=', 1)
             values[key] = value
     status = values.get('status')
-    if status == 'passed':
-        add_check('login', 'ok', 'CSRF-aware Web UI login check passed')
+    reason = values.get('reason', 'unknown')
+    transport = values.get('transport_security', 'unknown')
+    if status == 'passed' and result.returncode == 0:
+        suffix = ' (explicit insecure transport)' if transport == 'insecure-explicit' else ''
+        add_check('login', 'ok', f'CSRF-aware Web UI login check passed{suffix}')
     elif status == 'failed':
-        reason = values.get('reason', 'unknown')
-        add_check('login', 'critical', f'CSRF-aware Web UI login check failed: {reason}')
+        add_check('login', 'critical', f'CSRF-aware Web UI login check failed: {reason} ({transport})')
+    elif result.returncode != 0:
+        add_check('login', 'unknown', 'login-check command failed without recognized machine-readable output')
     else:
         add_check('login', 'unknown', 'login-check returned unrecognized machine-readable output')
 

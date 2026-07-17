@@ -76,11 +76,13 @@ Run the doctor check:
 sudo ./installer/doctor.sh --install-dir /opt/misp-docker
 ```
 
-Run the login check:
+Run the login check (TLS certificates are verified by default, and success requires a positive authenticated-session marker):
 
 ```bash
 sudo ./installer/login-check.sh --install-dir /opt/misp-docker
 ```
+
+If a disposable local deployment still uses HTTP or a bootstrap self-signed certificate, replace that transport before production use. The explicit `--insecure` escape hatch sends administrator credentials without authenticated transport and is intended only for isolated, trusted validation environments.
 
 Show the generated admin account without printing the password:
 

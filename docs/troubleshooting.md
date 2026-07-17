@@ -34,6 +34,8 @@ For automation, monitoring, or AI-agent diagnostics, use stable key/value output
 ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
+The login check verifies TLS certificates by default and refuses plain HTTP before submitting credentials. Success requires a same-origin MISP logout link as positive evidence of an authenticated session. For isolated testing only, `--insecure` explicitly allows HTTP or unverified HTTPS and prints a warning; do not use that mode across an untrusted network.
+
 If the credentials are correct but login still fails:
 
 1. Confirm the browser uses the same URL as `BASE_URL` in `.env`.
