@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-07-17T13:09:59Z",
+  "checked_at_utc": "2026-07-17T13:18:16Z",
   "component_tags": {
     "CORE_TAG": "v2.5.44",
     "GUARD_TAG": "v1.2",
@@ -13,6 +13,676 @@
       "misp-guard": "${REGISTRY_MIRROR_URL:-}ghcr.io/misp/misp-docker/misp-guard:${GUARD_RUNNING_TAG:-latest}",
       "misp-modules": "${REGISTRY_MIRROR_URL:-}ghcr.io/misp/misp-docker/misp-modules:${MODULES_RUNNING_TAG:-latest}",
       "redis": "${REGISTRY_MIRROR_URL:-}valkey/valkey:7.2"
+    },
+    "interpolation_contract": {
+      "AAD_CHECK_GROUPS": [
+        "plain"
+      ],
+      "AAD_CLIENT_ID": [
+        "plain"
+      ],
+      "AAD_CLIENT_SECRET": [
+        "plain"
+      ],
+      "AAD_ENABLE": [
+        "plain"
+      ],
+      "AAD_MISP_ORGADMIN": [
+        "plain"
+      ],
+      "AAD_MISP_SITEADMIN": [
+        "plain"
+      ],
+      "AAD_MISP_USER": [
+        "plain"
+      ],
+      "AAD_PROVIDER": [
+        "plain"
+      ],
+      "AAD_PROVIDER_USER": [
+        "plain"
+      ],
+      "AAD_REDIRECT_URI": [
+        "plain"
+      ],
+      "AAD_TENANT_ID": [
+        "plain"
+      ],
+      "ADMIN_EMAIL": [
+        "plain"
+      ],
+      "ADMIN_KEY": [
+        "plain"
+      ],
+      "ADMIN_ORG": [
+        "plain"
+      ],
+      "ADMIN_ORG_UUID": [
+        "plain"
+      ],
+      "ADMIN_PASSWORD": [
+        "plain"
+      ],
+      "APACHESECUREAUTH_LDAP_APACHE_ENV": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_DEFAULT_ORG": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_DEFAULT_ROLE_ID": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_DN": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_EMAIL_FIELD": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_ENABLE": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_FILTER": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_OPT_NETWORK_TIMEOUT": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_OPT_PROTOCOL_VERSION": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_OPT_REFERRALS": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_READER_PASSWORD": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_READER_USER": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_SEARCH_ATTRIBUTE": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_SEARCH_FILTER": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_SERVER": [
+        ":-"
+      ],
+      "APACHESECUREAUTH_LDAP_STARTTLS": [
+        ":-"
+      ],
+      "ATTACHMENTS_DIR": [
+        "plain"
+      ],
+      "BASE_URL": [
+        ":-",
+        "plain"
+      ],
+      "CACHE_FEED_INTERVAL": [
+        "plain"
+      ],
+      "COMPOSE_PROFILES": [
+        "plain"
+      ],
+      "CONTENT_SECURITY_POLICY": [
+        "plain"
+      ],
+      "CORE_COMMIT": [
+        "plain"
+      ],
+      "CORE_FLAVOR": [
+        ":-"
+      ],
+      "CORE_HTTPS_PORT": [
+        ":-"
+      ],
+      "CORE_HTTP_PORT": [
+        ":-"
+      ],
+      "CORE_RUNNING_TAG": [
+        ":-"
+      ],
+      "CORE_TAG": [
+        ":?"
+      ],
+      "CRON_PULLALL": [
+        "plain"
+      ],
+      "CRON_PUSHALL": [
+        "plain"
+      ],
+      "CRON_USER_ID": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_CUSTOM_LOGOUT": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_CUSTOM_PASSWORD_RESET": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_DISABLE_LOGOUT": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_ENABLE": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_HEADER": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_HEADER_NAMESPACE": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_NAME": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_ONLY_ALLOW_SOURCE": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_REQUIRED": [
+        "plain"
+      ],
+      "CUSTOM_AUTH_USE_HEADER_NAMESPACE": [
+        "plain"
+      ],
+      "CUSTOM_PATH": [
+        "plain"
+      ],
+      "DEBUG": [
+        "plain"
+      ],
+      "DISABLE_CA_REFRESH": [
+        "plain"
+      ],
+      "DISABLE_IPV6": [
+        "plain"
+      ],
+      "DISABLE_PRINTING_PLAINTEXT_CREDENTIALS": [
+        "plain"
+      ],
+      "DISABLE_REDIS_SNAPSHOT": [
+        ":-",
+        "plain"
+      ],
+      "DISABLE_SSL_REDIRECT": [
+        "plain"
+      ],
+      "ENABLE_BACKGROUND_UPDATES": [
+        "plain"
+      ],
+      "ENABLE_DB_SETTINGS": [
+        "plain"
+      ],
+      "ENABLE_REDIS_EMPTY_PASSWORD": [
+        ":-"
+      ],
+      "ENABLE_THEMES": [
+        "plain"
+      ],
+      "ENCRYPTION_KEY": [
+        "plain"
+      ],
+      "FASTCGI_CONNECT_TIMEOUT": [
+        ":-"
+      ],
+      "FASTCGI_READ_TIMEOUT": [
+        ":-"
+      ],
+      "FASTCGI_SEND_TIMEOUT": [
+        ":-"
+      ],
+      "FASTCGI_STATUS_LISTEN": [
+        "plain"
+      ],
+      "FETCH_FEED_INTERVAL": [
+        "plain"
+      ],
+      "GPG_PASSPHRASE": [
+        "plain"
+      ],
+      "GUARD_ARGS": [
+        "plain"
+      ],
+      "GUARD_COMMIT": [
+        "plain"
+      ],
+      "GUARD_PORT": [
+        ":-"
+      ],
+      "GUARD_RUNNING_TAG": [
+        ":-"
+      ],
+      "GUARD_TAG": [
+        ":?"
+      ],
+      "HSTS_MAX_AGE": [
+        "plain"
+      ],
+      "INNODB_BUFFER_POOL_SIZE": [
+        ":-"
+      ],
+      "INNODB_CHANGE_BUFFERING": [
+        ":-"
+      ],
+      "INNODB_IO_CAPACITY": [
+        ":-"
+      ],
+      "INNODB_IO_CAPACITY_MAX": [
+        ":-"
+      ],
+      "INNODB_LOG_FILE_SIZE": [
+        ":-"
+      ],
+      "INNODB_READ_IO_THREADS": [
+        ":-"
+      ],
+      "INNODB_STATS_PERSISTENT": [
+        ":-"
+      ],
+      "INNODB_WRITE_IO_THREADS": [
+        ":-"
+      ],
+      "LDAPAUTH_DEBUG": [
+        "plain"
+      ],
+      "LDAPAUTH_ENABLE": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPALLOWREFERRALS": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPDEFAULTORGID": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPDEFAULTROLEID": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPDN": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPEMAILFIELD": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPNETWORKTIMEOUT": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPPROTOCOL": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPREADERPASSWORD": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPREADERUSER": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPSEARCHATTRIBUTE": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPSEARCHFILTER": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPSERVER": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPTLSCRLCHECK": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPTLSCUSTOMCACERT": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPTLSPROTOCOLMIN": [
+        "plain"
+      ],
+      "LDAPAUTH_LDAPTLSREQUIRECERT": [
+        "plain"
+      ],
+      "LDAPAUTH_MIXEDAUTH": [
+        "plain"
+      ],
+      "LDAPAUTH_STARTTLS": [
+        "plain"
+      ],
+      "LDAPAUTH_UPDATEUSER": [
+        "plain"
+      ],
+      "LDAP_ENABLE": [
+        "plain"
+      ],
+      "MISP_CONTACT": [
+        "plain"
+      ],
+      "MISP_EMAIL": [
+        "plain"
+      ],
+      "MODULES_COMMIT": [
+        "plain"
+      ],
+      "MODULES_FLAVOR": [
+        ":-"
+      ],
+      "MODULES_RUNNING_TAG": [
+        ":-"
+      ],
+      "MODULES_TAG": [
+        ":?"
+      ],
+      "MYSQL_DATABASE": [
+        ":-"
+      ],
+      "MYSQL_HOST": [
+        ":-"
+      ],
+      "MYSQL_PASSWORD": [
+        ":-"
+      ],
+      "MYSQL_PORT": [
+        ":-"
+      ],
+      "MYSQL_ROOT_PASSWORD": [
+        ":-"
+      ],
+      "MYSQL_TLS": [
+        ":-"
+      ],
+      "MYSQL_TLS_CA": [
+        "plain"
+      ],
+      "MYSQL_TLS_CERT": [
+        "plain"
+      ],
+      "MYSQL_TLS_KEY": [
+        "plain"
+      ],
+      "MYSQL_USER": [
+        ":-"
+      ],
+      "NGINX_CLIENT_MAX_BODY_SIZE": [
+        ":-"
+      ],
+      "NGINX_SET_REAL_IP_FROM": [
+        "plain"
+      ],
+      "NGINX_X_FORWARDED_FOR": [
+        "plain"
+      ],
+      "OIDC_ALLOW_EMAIL_LINKING": [
+        "plain"
+      ],
+      "OIDC_AUTH_METHOD": [
+        "plain"
+      ],
+      "OIDC_CLIENT_ID": [
+        "plain"
+      ],
+      "OIDC_CLIENT_SECRET": [
+        "plain"
+      ],
+      "OIDC_CODE_CHALLENGE_METHOD": [
+        "plain"
+      ],
+      "OIDC_DEFAULT_ORG": [
+        "plain"
+      ],
+      "OIDC_DISABLE_PUSHED_AUTHORIZATION_REQUEST": [
+        "plain"
+      ],
+      "OIDC_DISABLE_REQUEST_OBJECT": [
+        "plain"
+      ],
+      "OIDC_ENABLE": [
+        "plain"
+      ],
+      "OIDC_ISSUER": [
+        "plain"
+      ],
+      "OIDC_LOGIN_TEXT": [
+        "plain"
+      ],
+      "OIDC_LOGOUT_URL": [
+        "plain"
+      ],
+      "OIDC_MIXEDAUTH": [
+        "plain"
+      ],
+      "OIDC_PROVIDER_URL": [
+        "plain"
+      ],
+      "OIDC_REDIRECT_URI": [
+        "plain"
+      ],
+      "OIDC_REQUIRE_EMAIL_VERIFIED": [
+        "plain"
+      ],
+      "OIDC_ROLES_MAPPING": [
+        "plain"
+      ],
+      "OIDC_ROLES_PROPERTY": [
+        "plain"
+      ],
+      "OIDC_SCOPES": [
+        "plain"
+      ],
+      "OIDC_SKIP_PROXY": [
+        "plain"
+      ],
+      "PHP_API_VERSION": [
+        ":-"
+      ],
+      "PHP_FCGI_CHILDREN": [
+        ":-"
+      ],
+      "PHP_FCGI_MAX_REQUESTS": [
+        ":-"
+      ],
+      "PHP_FCGI_SPARE_SERVERS": [
+        ":-"
+      ],
+      "PHP_FCGI_START_SERVERS": [
+        ":-"
+      ],
+      "PHP_MAX_EXECUTION_TIME": [
+        ":-"
+      ],
+      "PHP_MAX_FILE_UPLOADS": [
+        ":-"
+      ],
+      "PHP_MAX_INPUT_TIME": [
+        ":-"
+      ],
+      "PHP_MEMORY_LIMIT": [
+        ":-"
+      ],
+      "PHP_PACKAGE_VERSION": [
+        ":-"
+      ],
+      "PHP_POST_MAX_SIZE": [
+        ":-"
+      ],
+      "PHP_SESSION_AUTO_REGENERATE": [
+        ":-"
+      ],
+      "PHP_SESSION_CHECK_AGENT": [
+        ":-"
+      ],
+      "PHP_SESSION_COOKIE_DOMAIN": [
+        "plain"
+      ],
+      "PHP_SESSION_COOKIE_SAMESITE": [
+        ":-"
+      ],
+      "PHP_SESSION_COOKIE_SECURE": [
+        ":-"
+      ],
+      "PHP_SESSION_COOKIE_TIMEOUT": [
+        ":-"
+      ],
+      "PHP_SESSION_DEFAULTS": [
+        ":-"
+      ],
+      "PHP_SESSION_TIMEOUT": [
+        ":-"
+      ],
+      "PHP_UPLOAD_MAX_FILESIZE": [
+        ":-"
+      ],
+      "PROXY_ENABLE": [
+        "plain"
+      ],
+      "PROXY_HOST": [
+        "plain"
+      ],
+      "PROXY_METHOD": [
+        "plain"
+      ],
+      "PROXY_PASSWORD": [
+        "plain"
+      ],
+      "PROXY_PORT": [
+        "plain"
+      ],
+      "PROXY_USER": [
+        "plain"
+      ],
+      "PYPI_JSONSCHEMA_VERSION": [
+        "plain"
+      ],
+      "PYPI_LIEF_VERSION": [
+        "plain"
+      ],
+      "PYPI_MISP_STIX_VERSION": [
+        "plain"
+      ],
+      "PYPI_PLYARA_VERSION": [
+        "plain"
+      ],
+      "PYPI_PYDEEP2_VERSION": [
+        "plain"
+      ],
+      "PYPI_PYMISP_VERSION": [
+        "plain"
+      ],
+      "PYPI_PYTHON_MAGIC_VERSION": [
+        "plain"
+      ],
+      "PYPI_PYZMQ_VERSION": [
+        "plain"
+      ],
+      "PYPI_REDIS_VERSION": [
+        "plain"
+      ],
+      "PYPI_SETUPTOOLS_VERSION": [
+        ":-"
+      ],
+      "PYPI_SUPERVISOR_VERSION": [
+        ":-"
+      ],
+      "PYPI_TAXII2_CLIENT_VERSION": [
+        "plain"
+      ],
+      "REDIS_HOST": [
+        ":-"
+      ],
+      "REDIS_PASSWORD": [
+        ":-"
+      ],
+      "REDIS_PORT": [
+        ":-"
+      ],
+      "REGISTRY_MIRROR_URL": [
+        ":-"
+      ],
+      "S3_ACCESS_KEY": [
+        "plain"
+      ],
+      "S3_BUCKET": [
+        "plain"
+      ],
+      "S3_ENDPOINT": [
+        "plain"
+      ],
+      "S3_SECRET_KEY": [
+        "plain"
+      ],
+      "SALT": [
+        "plain"
+      ],
+      "SES_PASSWORD": [
+        "plain"
+      ],
+      "SES_PORT": [
+        "plain"
+      ],
+      "SES_REGION": [
+        "plain"
+      ],
+      "SES_USER": [
+        "plain"
+      ],
+      "SMARTHOST_ADDRESS": [
+        "plain"
+      ],
+      "SMARTHOST_ALIASES": [
+        "plain"
+      ],
+      "SMARTHOST_PASSWORD": [
+        "plain"
+      ],
+      "SMARTHOST_PORT": [
+        "plain"
+      ],
+      "SMARTHOST_USER": [
+        "plain"
+      ],
+      "SMTP_FQDN": [
+        "plain"
+      ],
+      "SMTP_PORT": [
+        ":-"
+      ],
+      "STUNNEL": [
+        "plain"
+      ],
+      "STUNNEL_CONFIG": [
+        "plain"
+      ],
+      "SUPERVISOR_HOST": [
+        "plain"
+      ],
+      "SUPERVISOR_PASSWORD": [
+        "plain"
+      ],
+      "SUPERVISOR_USERNAME": [
+        "plain"
+      ],
+      "SYNCSERVERS": [
+        "plain"
+      ],
+      "SYNCSERVERS_1_KEY": [
+        "plain"
+      ],
+      "SYNCSERVERS_1_NAME": [
+        "plain"
+      ],
+      "SYNCSERVERS_1_PULL_RULES": [
+        "plain"
+      ],
+      "SYNCSERVERS_1_URL": [
+        "plain"
+      ],
+      "SYNCSERVERS_1_UUID": [
+        "plain"
+      ],
+      "TZ": [
+        ":-"
+      ],
+      "UUID": [
+        "plain"
+      ],
+      "X_FRAME_OPTIONS": [
+        "plain"
+      ],
+      "redis_snapshot": [
+        "plain"
+      ]
     },
     "interpolation_keys": [
       "AAD_CHECK_GROUPS",
@@ -124,22 +794,7 @@
       "LDAPAUTH_MIXEDAUTH",
       "LDAPAUTH_STARTTLS",
       "LDAPAUTH_UPDATEUSER",
-      "LDAP_APACHE_ENV",
-      "LDAP_DEFAULT_ORG",
-      "LDAP_DEFAULT_ROLE_ID",
-      "LDAP_DN",
-      "LDAP_EMAIL_FIELD",
       "LDAP_ENABLE",
-      "LDAP_FILTER",
-      "LDAP_OPT_NETWORK_TIMEOUT",
-      "LDAP_OPT_PROTOCOL_VERSION",
-      "LDAP_OPT_REFERRALS",
-      "LDAP_READER_PASSWORD",
-      "LDAP_READER_USER",
-      "LDAP_SEARCH_ATTRIBUTE",
-      "LDAP_SEARCH_FILTER",
-      "LDAP_SERVER",
-      "LDAP_STARTTLS",
       "MISP_CONTACT",
       "MISP_EMAIL",
       "MODULES_COMMIT",
@@ -528,6 +1183,14 @@
       "exists": true,
       "sha256": "8f4837b12d6be2fea6f45b681e878b527645f4fd3fcd861f5f0c2c91fdf8638c"
     },
+    "core/files/entrypoint_nginx.sh": {
+      "exists": true,
+      "sha256": "315107c4ed7f02b71b763a5ef635798f5ffe4330758f7ce53e5abbd63dbae6b7"
+    },
+    "core/files/utilities.sh": {
+      "exists": true,
+      "sha256": "48829982cef7dda65d8e34652ebd6aa42995f770f2d670464cbc5e10c2731739"
+    },
     "docker-compose.yml": {
       "exists": true,
       "sha256": "2fd5cfa7778bd16aecbe18bc93e5db1583930f126887df57091c4670b520dcc8"
@@ -594,6 +1257,56 @@
       "s3.envars.json": {
         "exists": true,
         "sha256": "bf89a8a686adf76eea7c2022dec56fb4af1a2bbc6bfab374db81a1e93388fda6"
+      }
+    },
+    "core/files/etc/nginx": {
+      "includes/misp": {
+        "exists": true,
+        "sha256": "3735450022857fa798440dc62d6efe46bf8f9f1cb0473318c7a6a1b99053441e"
+      },
+      "sites-available/misp443": {
+        "exists": true,
+        "sha256": "bad35781c221728f3dcb4fbe79ada7420fb052851d517bb773f4944e07dfe115"
+      },
+      "sites-available/misp80": {
+        "exists": true,
+        "sha256": "c69d0f161d6877d6b26587f9f78320ed55aebec23b8d7261c31a0c16748f331b"
+      },
+      "sites-available/php-fpm-status": {
+        "exists": true,
+        "sha256": "54bb74f5b59873861bc7aacdd4e3c9389767fb71bf90662abf83b5e7eb3c8106"
+      }
+    },
+    "core/files/etc/supervisor": {
+      "conf.d/10-supervisor.conf": {
+        "exists": true,
+        "sha256": "e0b4631ade5e8be4852020aef5ca6879571e89c3f878463632bac9fbae4a3380"
+      },
+      "conf.d/10-supervisor.conf.kubernetes": {
+        "exists": true,
+        "sha256": "11e71020236380254382f0886adf0b133a5ed77967a7b75969662cbd1691743b"
+      },
+      "conf.d/40-stunnel.conf": {
+        "exists": true,
+        "sha256": "881e3736641348dd9641933b1120f4aff7a9420a301adb55af895f4ed429da38"
+      },
+      "conf.d/50-workers.conf": {
+        "exists": true,
+        "sha256": "76d9c85ebcc3a1cd35ced26aa35ea454488de3ccf83f90e04000c8f991afc04a"
+      },
+      "conf.d/50-workers.conf.kubernetes": {
+        "exists": true,
+        "sha256": "deb69e46522345f658d719deb6abe1b9fb0cfd8819ca0d911a59550dd264d8d2"
+      },
+      "supervisord.conf": {
+        "exists": true,
+        "sha256": "80f3228dc36de7175a712229e0760621081dc388b210ca8709342e57f81df628"
+      }
+    },
+    "guard/files": {
+      "entrypoint.sh": {
+        "exists": true,
+        "sha256": "e618d1d8daf028a49ad451ecb503c62c64dfe801231082c7e20d913c969e09d1"
       }
     }
   }

@@ -12,7 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Record successful real-deployment monitoring validation across healthy, UNKNOWN, controlled-CRITICAL, and recovery states while preserving the untested-platform limitation.
 - Align primary README, readiness, deployment, support, security, and versioning docs with the published stable `v1.0.0` state while keeping post-release monitoring work clearly on `main`.
 - Clarify stable security support, community support expectations, issue examples, contribution discovery, and public evidence navigation after the post-v1 trust review.
-- Expand upstream MISP Docker drift coverage to Compose service blocks and variables, template key inventory, entrypoint/configuration and critical/minimum environment inputs, and selected operator guidance while suppressing commit-only noise.
+- Expand upstream MISP Docker drift coverage to Compose service blocks and variables, template key inventory, initialization/configuration/readiness/process inputs, and selected operator guidance while suppressing commit-only noise and bounding concurrent workflow runs.
 
 ### Changed
 

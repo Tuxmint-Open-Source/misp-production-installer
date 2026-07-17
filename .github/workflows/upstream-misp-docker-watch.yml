@@ -10,15 +10,25 @@ permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: upstream-misp-docker-review
+  cancel-in-progress: false
+
 jobs:
   check-upstream:
     name: Check official MISP Docker upstream
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Check out repository
         # actions/checkout@v7
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+
+      - name: Validate watcher parser and contract
+        run: |
+          python3 -m unittest tests.test_upstream_watcher
+          python3 -m py_compile scripts/check-upstream-misp-docker.py tests/test_upstream_watcher.py
 
       - name: Check upstream drift
         id: upstream

@@ -47,6 +47,7 @@ class UpstreamWatcherTests(unittest.TestCase):
                 "images": {"misp-core": "example/core:${CORE_RUNNING_TAG:-latest}"},
                 "service_block_hashes": {"db": "db-hash", "misp-core": "core-hash"},
                 "interpolation_keys": ["CORE_RUNNING_TAG"],
+                "interpolation_contract": {"CORE_RUNNING_TAG": [":-"]},
             },
             "readme_operator_section_sha256": {
                 heading: "same" for heading in WATCH.README_SECTIONS
@@ -99,7 +100,22 @@ volumes:
         facts = WATCH.parse_compose_facts(text)
         self.assertEqual(facts["services"], ["db", "misp-core"])
         self.assertEqual(facts["interpolation_keys"], ["CORE_HTTPS_PORT", "CORE_RUNNING_TAG"])
+        self.assertEqual(facts["interpolation_contract"], {
+            "CORE_HTTPS_PORT": [":-"],
+            "CORE_RUNNING_TAG": [":-"],
+        })
         self.assertEqual(set(facts["service_block_hashes"]), {"db", "misp-core"})
+
+    def test_interpolation_requiredness_change_is_class_b_without_values(self):
+        old = self.make_state()
+        new = copy.deepcopy(old)
+        new["compose"]["interpolation_contract"]["CORE_RUNNING_TAG"] = [":?"]
+        changes = WATCH.diff_state(old, new)
+        self.assertTrue(any(
+            change["class"] == "B" and "operator contract" in change["detail"]
+            for change in changes
+        ))
+        self.assertNotIn("latest", str(new["compose"]["interpolation_contract"]))
 
     def test_configuration_tree_addition_is_class_b(self):
         old = self.make_state()
@@ -128,6 +144,8 @@ volumes:
         new["component_tags"]["CORE_TAG"] = "v2"
         report = WATCH.render_report(old, new, WATCH.diff_state(old, new))
         self.assertIn("prompt, not compatibility proof", report)
+        self.assertIn("review required / not validated", report)
+        self.assertIn("Lifecycle-manager context", report)
         self.assertIn("validated compatible", report)
         self.assertIn("Compose services added", report)
         self.assertNotIn("certified", report.lower())

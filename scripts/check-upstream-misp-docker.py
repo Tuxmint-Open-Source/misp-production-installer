@@ -31,13 +31,18 @@ WATCHED_FILE_CLASSES = {
     "template.env": "C",
     "docker-compose.yml": "B",
     "core/files/entrypoint.sh": "B",
+    "core/files/entrypoint_nginx.sh": "B",
     "core/files/configure_misp.sh": "B",
+    "core/files/utilities.sh": "B",
 }
 WATCHED_TREE_CLASSES = {
     # These public JSON files define critical, minimum, optional, proxy, storage,
     # and initialization environment handling. Track the directory so newly added
     # definitions are visible without updating this script first.
     "core/files/etc/misp-docker": "B",
+    "core/files/etc/supervisor": "B",
+    "core/files/etc/nginx": "B",
+    "guard/files": "B",
 }
 WATCHED_FILES = list(WATCHED_FILE_CLASSES)
 COMPONENT_KEYS = ["CORE_TAG", "MODULES_TAG", "GUARD_TAG"]
@@ -126,6 +131,18 @@ def compose_service_blocks(text: str) -> dict[str, str]:
     return {name: "\n".join(block) for name, block in blocks.items()}
 
 
+def parse_interpolation_contract(text: str) -> dict[str, list[str]]:
+    contract: dict[str, set[str]] = {}
+    for expression in re.findall(r"\$\{([^}]+)\}", text):
+        match = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)(:?[-?+])?", expression)
+        if not match:
+            continue
+        key = match.group(1)
+        operator = match.group(2) or "plain"
+        contract.setdefault(key, set()).add(operator)
+    return {key: sorted(operators) for key, operators in sorted(contract.items())}
+
+
 def parse_compose_facts(text: str) -> dict[str, object]:
     blocks = compose_service_blocks(text)
     images: dict[str, str] = {}
@@ -135,12 +152,13 @@ def parse_compose_facts(text: str) -> dict[str, object]:
         image_match = re.search(r"^    image:\s*(.+?)\s*$", block, re.MULTILINE)
         if image_match:
             images[service] = image_match.group(1).strip().strip('"')
-    variables = sorted(set(re.findall(r"\$\{([A-Za-z_][A-Za-z0-9_]*)", text)))
+    interpolation_contract = parse_interpolation_contract(text)
     return {
         "services": sorted(blocks),
         "images": images,
         "service_block_hashes": service_block_hashes,
-        "interpolation_keys": variables,
+        "interpolation_keys": sorted(interpolation_contract),
+        "interpolation_contract": interpolation_contract,
     }
 
 
@@ -292,6 +310,8 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
         changes.append({"class": "B", "detail": "Compose service definitions changed: " + ", ".join(f"`{s}`" for s in changed_services)})
     if old_compose.get("interpolation_keys") != new_compose.get("interpolation_keys"):
         changes.append({"class": "B", "detail": "Compose interpolation-key inventory changed."})
+    if old_compose.get("interpolation_contract") != new_compose.get("interpolation_contract"):
+        changes.append({"class": "B", "detail": "Compose interpolation required/default operator contract changed."})
 
     if old.get("template_env_keys") != new.get("template_env_keys"):
         changes.append({"class": "C", "detail": "`template.env` active/commented key inventory changed."})
@@ -304,6 +324,16 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
 
     # Upstream commit movement alone is informational and intentionally not drift.
     return changes
+
+
+def manager_context() -> dict[str, str]:
+    version_path = ROOT / "VERSION"
+    version = read_text(version_path).strip() if version_path.exists() else "unknown"
+    try:
+        commit = run(["git", "rev-parse", "HEAD"], cwd=ROOT).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        commit = "unknown"
+    return {"version": version, "commit": commit}
 
 
 def component_table(old: dict[str, object] | None, new: dict[str, object]) -> str:
@@ -340,6 +370,7 @@ def render_report(old: dict[str, object] | None, new: dict[str, object], changes
     new_env = as_mapping(new.get("template_env_keys"))
     classes = sorted({change["class"] for change in changes})
     changes_text = "\n".join(f"- **Class {item['class']}** — {item['detail']}" for item in changes)
+    manager = manager_context()
 
     return f"""# Upstream MISP Docker review
 
@@ -348,6 +379,13 @@ def render_report(old: dict[str, object] | None, new: dict[str, object], changes
 The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs. Upstream commit movement without a watched-file or extracted-fact change does not create a review.
 
 Detected classes: **{'+'.join(classes) if classes else 'none'}**
+
+Validation status: **review required / not validated**
+
+## Lifecycle-manager context
+
+- `VERSION` value: `{manager['version']}`
+- Source commit at detection time: `{manager['commit']}`
 
 ## Upstream
 

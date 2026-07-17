@@ -141,7 +141,7 @@ Must:
 The upstream monitor should keep these assumptions reviewable without opening PRs for unrelated upstream commits:
 
 - official `MISP/misp-docker` upstream commit as comparison context, not a drift signal by itself
-- full hashes for `template.env`, `docker-compose.yml`, entrypoint/configuration scripts, and critical/minimum environment definitions
+- full hashes for `template.env`, `docker-compose.yml`, initialization/configuration scripts, MISP environment definitions, supervisor process definitions, Nginx routing, and guard runtime files
 - selected README operator-section hashes for getting started, configuration, optional guard, authentication, production, SELinux/root-CA handling, database management, troubleshooting, and versioning
 - component tags for core, modules, and guard
 - runtime image tag defaults
