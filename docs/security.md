@@ -1,6 +1,6 @@
 # Security model
 
-This document describes the security posture intended for the first production-ready major release of `misp-docker-lifecycle-manager`.
+This document describes the security posture of the stable `misp-docker-lifecycle-manager` line within its documented support scope.
 
 It focuses on the lifecycle manager and its helper scripts. MISP application security and official Docker image contents remain upstream responsibilities of the official MISP projects.
 
@@ -13,6 +13,7 @@ This project manages:
 - generated `.env` values
 - generated Docker Compose override
 - backup/update/reset/doctor/login-check helper scripts
+- bounded monitoring healthcheck and machine-readable output contracts
 - public-safe validation and compatibility documentation
 
 This project does not:
@@ -122,16 +123,17 @@ At minimum:
 - do not include private infrastructure details, secrets, logs, database dumps, or backup contents in public issues;
 - distinguish project security issues from upstream MISP security issues.
 
-## v1.0.0 security gate
+## Stable-release security evidence
 
-Before removing the production warning, the project should have:
+The `v1.0.0` line was released with:
 
-- this security model reviewed and linked from the README
-- documented restore and rollback expectations
-- public support matrix
-- exact release-tag validation
-- no known high-severity manager security findings
-- public validation artifacts sanitized according to this policy
+- this security model linked from the public documentation;
+- documented and exercised restore and rollback workflows;
+- a public support matrix;
+- exact release-tag compatibility validation;
+- public validation artifacts sanitized according to this policy.
+
+New runtime surfaces added after `v1.0.0`, including monitoring, remain development-line work until included in a later tagged release. They must receive focused validation and security review before that release.
 
 ## What to read next
 

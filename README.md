@@ -52,7 +52,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 
 ## Quick test path
 
-For a first release-candidate test, read [`docs/getting-started.md`](docs/getting-started.md). The shortened shape is:
+For a first test install using the stable release, read [`docs/getting-started.md`](docs/getting-started.md). The shortened path is:
 
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
@@ -142,7 +142,7 @@ See [`docs/production-readiness.md`](docs/production-readiness.md).
 
 Contributions are welcome. Start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for the public-safety rules, PR workflow, validation commands, and compatibility-claim expectations.
 
-The monitoring healthcheck has automated contract tests but has not yet been tested end to end with every named monitoring system. Operators with Zabbix, Checkmk, Nagios/Icinga, or Prometheus experience are especially welcome to review and test the integrations described in [`docs/monitoring.md`](docs/monitoring.md).
+The monitoring healthcheck is contract/parser tested and has passed healthy, UNKNOWN, controlled-CRITICAL, and recovery checks on a managed MISP deployment. Native ingestion by Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains community-testing work. Operators with those systems are invited to contribute through [monitoring issue #62](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62) after reading [`docs/monitoring.md`](docs/monitoring.md).
 
 Please keep public examples sanitized and avoid committing generated secrets, runtime `.env` files, raw logs, private infrastructure details, or deployment-specific credentials.
 

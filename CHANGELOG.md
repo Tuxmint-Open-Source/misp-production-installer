@@ -10,6 +10,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add `installer/healthcheck.sh` with text, JSON, Nagios/Icinga, Checkmk, and Prometheus-style output formats.
 - Add a monitoring-output validator, an explicit integration-evidence matrix, and a community call for real Zabbix, Checkmk, Nagios/Icinga, and Prometheus testing.
 - Record successful real-deployment monitoring validation across healthy, UNKNOWN, controlled-CRITICAL, and recovery states while preserving the untested-platform limitation.
+- Align primary README, readiness, deployment, support, security, and versioning docs with the published stable `v1.0.0` state while keeping post-release monitoring work clearly on `main`.
 
 ### Changed
 

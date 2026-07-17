@@ -1,12 +1,12 @@
 # Production deployment guide
 
-This guide describes the intended production deployment workflow for `misp-docker-lifecycle-manager`.
+This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented `v1.0.0` scope.
 
 `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope and is validated compatible with the documented MISP Docker component set.
 
-## Intended production shape
+## Supported production shape
 
-The intended first production-ready deployment shape is:
+The validated production deployment shape is:
 
 - one Linux server
 - Docker Engine and Docker Compose plugin
@@ -106,7 +106,7 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-No-lock-in behavior remains part of release validation and is included in the release-candidate validation set.
+No-lock-in behavior was included in `v1.0.0` release-tag validation and remains a required scenario for future releases that affect lifecycle behavior.
 
 ## Future validation
 

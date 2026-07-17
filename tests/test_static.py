@@ -297,11 +297,11 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('validate the immutable Git tag, not just `main` or a release branch', versioning)
         self.assertIn('compatibility claims are based on the immutable release tag', qa)
         self.assertIn('release/component pairs are marked **validated compatible** only after the documented compatibility scenarios pass', qa)
-        self.assertIn('What must be true before `v1.0.0`', readiness)
-        self.assertIn('Real restore validation', readiness)
-        self.assertIn('✅ validated for `v1.0.0`', readiness)
-        self.assertIn('Current-release browser login validation', readiness)
-        self.assertIn('Public production-readiness validation report | ✅ for `v1.0.0`', readiness)
+        self.assertIn('Current stable-release status', readiness)
+        self.assertIn('Backup, restore, and rollback | ✅ documented and release-tag validated', readiness)
+        self.assertIn('Browser-facing login | ✅ release-tag validated', readiness)
+        self.assertIn('Development line after `v1.0.0`', readiness)
+        self.assertIn('Native ingestion by running Zabbix, Checkmk, Nagios/Icinga, and Prometheus systems remains unvalidated', readiness)
         self.assertIn('single-server Docker', support)
         self.assertIn('Explicit non-goals', support)
         self.assertIn('Post-install verification', deployment)
@@ -314,6 +314,28 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('restore.sh', backup_restore)
         self.assertNotIn('being prepared as `v0.3.3`', compat_report)
         self.assertNotIn('Publish a patch release from the validated `main` line', compat_report)
+
+        current_docs = {
+            'README.md': (ROOT / 'README.md').read_text(),
+            'docs/README.md': (ROOT / 'docs' / 'README.md').read_text(),
+            'docs/production-readiness.md': readiness,
+            'docs/production-deployment.md': deployment,
+            'docs/security.md': security,
+            'docs/support-matrix.md': support,
+        }
+        stale_current_state_phrases = [
+            'first release-candidate test',
+            'Current release-candidate status',
+            'What must be true before `v1.0.0`',
+            'Required validation before `v1.0.0`',
+            'Before removing the public production warning',
+            'intended first production-ready deployment shape',
+            'release-candidate validation set',
+            'support scope intended for the first production-ready major release',
+        ]
+        for path, content in current_docs.items():
+            for phrase in stale_current_state_phrases:
+                self.assertNotIn(phrase, content, f'{path} still presents the stable release as future work')
 
     def test_documentation_red_line_entry_points_exist(self):
         docs_readme = (ROOT / 'docs' / 'README.md').read_text()
@@ -415,7 +437,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Community testing wanted', monitoring)
         self.assertIn('scripts/validate-healthcheck-output.py', monitoring)
         self.assertIn('monitoring-healthcheck-pr61.md', monitoring)
-        self.assertIn('especially welcome to review and test', readme)
+        self.assertIn('monitoring issue #62', readme)
+        self.assertIn('Native ingestion by Zabbix, Checkmk, Nagios/Icinga, and Prometheus remains community-testing work', readme)
         self.assertIn('Monitoring integration contributions', (ROOT / 'CONTRIBUTING.md').read_text())
         validation_report = (ROOT / 'docs' / 'validation' / 'monitoring-healthcheck-pr61.md').read_text()
         self.assertIn('Stop only the `misp-core` service', validation_report)

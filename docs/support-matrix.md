@@ -1,10 +1,10 @@
 # Support matrix
 
-This page defines the public support scope intended for the first production-ready major release.
+This page defines the public support scope of the stable `v1.0.0` release line.
 
 Anything outside this matrix may still work, but it is not part of the validated support contract unless a later compatibility report says so explicitly.
 
-## Intended `v1.0.0` support scope
+## Supported `v1.0.0` scope
 
 | Area | Supported for `v1.0.0` | Notes |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 
 ## Explicit non-goals for `v1.0.0`
 
-The first major release should not imply support for:
+The stable release does not claim support for:
 
 - Kubernetes
 - multi-node or high-availability MISP clusters

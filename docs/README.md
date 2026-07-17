@@ -47,9 +47,9 @@ The docs intentionally separate different kinds of information:
 - **Support and reporting:** [Troubleshooting](troubleshooting.md), [anonymous SOS reports](sos-report.md), [security](security.md).
 - **Maintainer workflow:** [Maintainer workflow](maintainer-workflow.md), [release process](release/release-process.md).
 
-## Current release-candidate status
+## Current release status
 
-`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component set.
+`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component sets. Features added later on `main`, including monitoring work, require a later tagged release before they become part of a stable release artifact.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 
