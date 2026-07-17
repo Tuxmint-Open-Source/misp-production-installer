@@ -108,6 +108,7 @@ class LoginFixture:
                 stderr=subprocess.DEVNULL,
             )
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
             context.load_cert_chain(cert, key)
             self.cert_path = cert
             self.server.socket = context.wrap_socket(self.server.socket, server_side=True)
@@ -131,11 +132,11 @@ class LoginFixture:
 
 
 class LoginSecurityTests(unittest.TestCase):
-    def run_check(self, base_url, *args, extra_env=None, password="fixture-password"):
+    def run_check(self, base_url, *args, extra_env=None, credential_value="fixture-password"):
         with tempfile.TemporaryDirectory() as td:
             install_dir = Path(td)
             (install_dir / ".env").write_text(
-                f"BASE_URL={base_url}\nADMIN_EMAIL=admin@example.com\nADMIN_PASSWORD={password}\n"
+                f"BASE_URL={base_url}\nADMIN_EMAIL=admin@example.com\nADMIN_PASSWORD={credential_value}\n"
             )
             return subprocess.run(
                 [str(LOGIN_CHECK), "--install-dir", str(install_dir), "--machine-readable", *args],
@@ -195,7 +196,7 @@ class LoginSecurityTests(unittest.TestCase):
 
     def test_wrong_password_cannot_produce_authenticated_session(self):
         with LoginFixture() as fixture:
-            result = self.run_check(fixture.url, "--insecure", password="wrong-password")
+            result = self.run_check(fixture.url, "--insecure", credential_value="wrong-password")
             self.assertEqual(result.returncode, 1)
             self.assertIn("status=failed", result.stdout)
             self.assertIn("authenticated_session_marker=false", result.stdout)
