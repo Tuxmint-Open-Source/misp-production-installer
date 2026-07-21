@@ -123,7 +123,7 @@ The command supports a small, stable set of check identifiers:
 | --- | --- | --- |
 | `compose-config` | Validate generated Docker Compose config. | enabled |
 | `compose-services` | Derive the expected service set from resolved Compose configuration, then require every expected service to be present and running. | enabled |
-| `misp-heartbeat` | Require HTTP 200 and the upstream JSON-string contract from the container-local MISP heartbeat endpoint. | enabled |
+| `misp-heartbeat` | Require HTTP 200 and the upstream JSON object containing exactly one bounded `message` string from the container-local MISP heartbeat endpoint. | enabled |
 | `schema-ready` | Confirm schema readiness required by login-dependent workflows. | enabled |
 | `login` | Perform CSRF-aware login check without printing the password. | optional |
 | `backup-freshness` | Reserved warning check for future backup freshness thresholds. | optional |

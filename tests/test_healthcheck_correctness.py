@@ -40,9 +40,11 @@ if [[ "$args" == *"users/heartbeat"* ]]; then
   [[ "$mode" != "slow" ]] || sleep 0.7
   case "$mode" in
     heartbeat-http-error) exit 22 ;;
-    heartbeat-redirect) printf '"redirect body"\n302\n'; exit 0 ;;
+    heartbeat-redirect) printf '{"message":"redirect body"}\n302\n'; exit 0 ;;
     heartbeat-html) printf '<html>login</html>\n200\n'; exit 0 ;;
-    *) printf '"You must construct additional pylons."\n200\n'; exit 0 ;;
+    heartbeat-wrong-json) printf '"You must construct additional pylons."\n200\n'; exit 0 ;;
+    heartbeat-extra-fields) printf '{"message":"ok","debug":"not allowed"}\n200\n'; exit 0 ;;
+    *) printf '{"message":"You must construct additional pylons."}\n200\n'; exit 0 ;;
   esac
 fi
 exit 1
@@ -106,7 +108,10 @@ class HealthcheckCorrectnessTests(unittest.TestCase):
         self.assertEqual(healthy_proc.returncode, 0, healthy_proc.stderr)
         self.assertEqual(healthy["status"], "ok")
 
-        for mode in ("heartbeat-http-error", "heartbeat-redirect", "heartbeat-html"):
+        for mode in (
+            "heartbeat-http-error", "heartbeat-redirect", "heartbeat-html",
+            "heartbeat-wrong-json", "heartbeat-extra-fields",
+        ):
             with self.subTest(mode=mode):
                 proc, data = self.run_healthcheck("misp-heartbeat", mode)
                 self.assertEqual(proc.returncode, 2, proc.stderr)

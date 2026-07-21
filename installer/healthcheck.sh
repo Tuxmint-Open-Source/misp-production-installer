@@ -235,7 +235,8 @@ def check_misp_heartbeat() -> None:
     except json.JSONDecodeError:
         add_check('misp-heartbeat', 'critical', 'MISP heartbeat response did not match the JSON contract')
         return
-    if isinstance(payload, str) and 0 < len(payload) <= 512:
+    message = payload.get('message') if isinstance(payload, dict) and set(payload) == {'message'} else None
+    if isinstance(message, str) and 0 < len(message) <= 512:
         add_check('misp-heartbeat', 'ok', 'MISP heartbeat returned the expected JSON response contract')
     else:
         add_check('misp-heartbeat', 'critical', 'MISP heartbeat response did not match the JSON contract')
