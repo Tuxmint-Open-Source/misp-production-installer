@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.1.0` is the current stable release line for the documented single-server Docker lifecycle-manager scope. Its runtime capabilities passed focused branch validation, but full compatibility remains pending until the immutable tag passes the documented release scenarios.
+`v1.1.0` is both the latest published and latest validated release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -10,23 +10,23 @@ Production readiness here applies only to the public support matrix and explicit
 | --- | --- |
 | Latest manager release | `v1.1.0` |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
-| Compatibility status | 🟡 `v1.1.0` pending exact-tag validation; ✅ `v1.0.0` remains validated compatible |
+| Compatibility status | ✅ `v1.1.0` validated compatible for the listed component tuple |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
 | Security model | ✅ [`security.md`](security.md) |
-| Backup, restore, and rollback | 🟡 `v1.0.0` release-tag evidence exists; changed `v1.1.0` behavior awaits exact-tag validation |
-| Browser-facing login | 🟡 `v1.0.0` release-tag evidence exists; hardened `v1.1.0` behavior awaits exact-tag validation |
-| No-lock-in Compose operation | 🟡 `v1.0.0` release-tag evidence exists; `v1.1.0` awaits exact-tag validation |
+| Backup, restore, and rollback | ✅ `v1.1.0` exact-tag evidence |
+| Browser-facing login | ✅ `v1.1.0` exact-tag browser evidence |
+| No-lock-in Compose operation | ✅ `v1.1.0` exact-tag evidence |
 | Monitoring contract in `v1.1.0` | ✅ contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
 
 ## `v1.1.0` release-validation state
 
-`v1.1.0` packages work added after the `v1.0.0` tag. It is not called validated compatible until its immutable tag passes the full release suite.
+`v1.1.0` packages work added after the `v1.0.0` tag. Its immutable tag passed the full release suite for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`.
 
 The monitoring healthcheck is contract/parser tested and exercised against a managed MISP deployment in healthy, UNKNOWN, controlled-CRITICAL, and recovery states. Native ingestion by running Zabbix, Checkmk, Nagios/Icinga, and Prometheus systems remains unvalidated. See [Monitoring](monitoring.md) and the [community testing issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62).
 
-The post-tag compatibility run must still cover install, reverse proxy, update, lifecycle, failure, restore, browser, rollback, and monitoring scenarios before public compatibility status changes from pending.
+The post-tag evidence covers install, reverse proxy, update, lifecycle, failure, restore, browser, rollback, monitoring, and structured SOS scenarios. See the detailed `v1.1.0` compatibility report.
 
 ## `v1.0.0` validation coverage
 

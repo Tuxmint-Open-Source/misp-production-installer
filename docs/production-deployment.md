@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented `v1.1.0` scope.
 
-`v1.1.0` is the current stable release line for the documented single-server Docker lifecycle-manager scope. Exact component compatibility remains pending until the immutable tag passes validation; `v1.0.0` remains the latest validated-compatible release evidence until then.
+`v1.1.0` is both the latest published and latest validated release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 ## Supported production shape
 

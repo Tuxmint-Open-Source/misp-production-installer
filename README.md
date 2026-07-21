@@ -1,13 +1,18 @@
 # MISP Docker Lifecycle Manager
 
 > [!IMPORTANT]
-> **Stable release line**
+> **Release channels**
 >
-> `v1.1.0` packages the post-v1 monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work for the documented single-server Docker lifecycle-manager scope. Its compatibility status remains pending until the immutable tag passes exact-tag validation.
+> | Channel | Version | Meaning |
+> | --- | --- | --- |
+> | Latest published | `v1.1.0` | Newest normal SemVer release |
+> | Latest validated | `v1.1.0` | Newest immutable release tag that passed the full compatibility matrix |
+>
+> Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.1.0`. The release becomes a validated-compatible artifact only after the immutable `v1.1.0` tag passes the documented exact-tag validation.
+Current `VERSION` value on `main`: `1.1.0`. The immutable `v1.1.0` tag is validated compatible with the component set listed below.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -90,7 +95,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending exact-tag validation |
+| `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -136,7 +141,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.1.0` is the current release line. Its compatibility status is pending exact-tag validation; `v1.0.0` remains the latest validated-compatible stable artifact until that completes.
+`v1.1.0` is both the latest published and latest validated release for the listed component set. Future manager releases or component sets may cause these channels to diverge until their exact immutable tuple passes validation.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 
