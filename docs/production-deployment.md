@@ -83,8 +83,8 @@ For explicit component versions:
 ```bash
 sudo ./installer/update.sh \
   --install-dir /opt/misp-docker \
-  --core-tag v2.5.43 \
-  --modules-tag v3.0.8 \
+  --core-tag v2.5.44 \
+  --modules-tag v3.0.9 \
   --guard-tag v1.2
 ```
 
@@ -106,11 +106,11 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-No-lock-in behavior was included in `v1.0.0` release-tag validation and remains a required scenario for future releases that affect lifecycle behavior.
+No-lock-in behavior passed exact-tag validation for `v1.1.0` with the documented component tuple and remains a required scenario for future releases that affect lifecycle behavior.
 
-## Future validation
+## Compatibility scope
 
-The `v1.0.0` tag passed restore, browser-login, and restore-based rollback validation. Future upstream component sets or expanded deployment scopes require separate validation before compatibility is claimed.
+The immutable `v1.1.0` tag passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Future manager releases, upstream component sets, or expanded deployment scopes require separate validation before compatibility is claimed.
 
 ## What to read next
 

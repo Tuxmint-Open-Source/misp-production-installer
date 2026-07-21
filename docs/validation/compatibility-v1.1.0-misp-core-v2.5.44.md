@@ -32,7 +32,7 @@ This validates the immutable `v1.1.0` release tag against the listed official MI
 
 ## Rerun classification
 
-The first full run established five passing lanes but used strict TLS for direct-QA login checks against an intentional bootstrap certificate. A corrected targeted rerun passed direct install, update, and rollback. Its remaining shared-slot lanes encountered transient DNS readiness before product installation. Lifecycle then passed in a targeted rerun; the same snapshot-revert readiness race recurred before restore installation. After the private harness required upstream DNS and HTTPS readiness in addition to SSH, the final restore rerun passed.
+The first full run established five passing scenarios but used strict TLS for direct-QA login checks against an intentional bootstrap certificate. A corrected targeted rerun passed direct install, update, and rollback. The remaining scenarios encountered transient pre-install network-readiness failures. Lifecycle then passed in a targeted rerun, and restore passed in the final rerun after the validation readiness check was corrected.
 
 These failures were validation-harness or validation-infrastructure defects, not manager product failures. Failed runs remain retained privately; compatibility is based only on passing evidence for every scenario at the same immutable manager tag and component tuple.
 
