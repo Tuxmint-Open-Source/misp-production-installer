@@ -14,7 +14,7 @@ Options:
   --install-dir PATH      Deployment directory (default: /opt/misp-docker)
   --format FORMAT         Output format: text, json, nagios, checkmk, prometheus (default: text)
   --checks LIST           Comma-separated checks to run (default: compose-config,compose-services,misp-heartbeat,schema-ready)
-  --timeout SECONDS       Per-command timeout for bounded probes (default: 20)
+  --timeout SECONDS       Global deadline for the complete health command (default: 20)
   --strict-tls            Verify TLS certificates for login checks (default)
   --insecure              Explicitly allow insecure transport for login checks
   --no-login              Remove login from the selected checks
@@ -86,6 +86,7 @@ import subprocess
 import sys
 import urllib.request
 import ssl
+import time
 from pathlib import Path
 from typing import Any
 
@@ -104,6 +105,7 @@ VALID_CHECKS = {
     'login', 'backup-freshness', 'version-drift'
 }
 RESERVED_CHECKS = {'backup-freshness', 'version-drift'}
+deadline = time.monotonic() + timeout
 
 selected = [item.strip() for item in checks_arg.split(',') if item.strip()]
 if not selected:
@@ -128,6 +130,9 @@ def add_check(check_id: str, status: str, summary: str, metric_updates: dict[str
         metrics.update(metric_updates)
 
 def run_cmd(args: list[str], cwd: Path | None = None, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise subprocess.TimeoutExpired(args, timeout)
     return subprocess.run(
         args,
         cwd=str(cwd) if cwd else None,
@@ -135,7 +140,7 @@ def run_cmd(args: list[str], cwd: Path | None = None, input_text: str | None = N
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        timeout=timeout,
+        timeout=remaining,
         check=False,
     )
 
@@ -170,7 +175,15 @@ def check_compose_config() -> None:
         add_check('compose-config', 'critical', 'Compose config validation failed')
 
 def check_compose_services() -> None:
-    result = run_cmd(compose_args('ps', '--format', 'json'), cwd=install_dir)
+    expected_result = run_cmd(compose_args('config', '--services'), cwd=install_dir)
+    if expected_result.returncode != 0:
+        add_check('compose-services', 'critical', 'Expected Docker Compose service discovery failed')
+        return
+    expected_names = {line.strip() for line in expected_result.stdout.splitlines() if line.strip()}
+    if not expected_names:
+        add_check('compose-services', 'critical', 'No expected Compose services were configured', {'services_running': 0, 'services_expected': 0})
+        return
+    result = run_cmd(compose_args('ps', '--all', '--format', 'json'), cwd=install_dir)
     if result.returncode != 0:
         add_check('compose-services', 'critical', 'Docker Compose service status failed')
         return
@@ -187,28 +200,45 @@ def check_compose_services() -> None:
             except json.JSONDecodeError:
                 add_check('compose-services', 'unknown', 'Docker Compose returned unparseable service status')
                 return
-    expected_names = {'misp-core', 'misp-modules', 'db', 'redis', 'misp-guard'}
     seen = {str(s.get('Service') or s.get('Name') or '') for s in services}
-    running = 0
+    running_names = set()
     for service in services:
+        name = str(service.get('Service') or service.get('Name') or '')
         state = str(service.get('State') or service.get('Status') or '').lower()
-        if 'running' in state:
-            running += 1
-    expected_present = len(expected_names & seen) or len(services)
-    metrics_update = {'services_running': running, 'services_expected': expected_present}
-    if expected_present == 0:
-        add_check('compose-services', 'critical', 'No Compose services were reported', metrics_update)
-    elif running >= expected_present:
-        add_check('compose-services', 'ok', f'{running}/{expected_present} expected services running', metrics_update)
+        if name in expected_names and 'running' in state:
+            running_names.add(name)
+    missing = expected_names - seen
+    running = len(running_names)
+    expected = len(expected_names)
+    metrics_update = {'services_running': running, 'services_expected': expected}
+    if not missing and running_names == expected_names:
+        add_check('compose-services', 'ok', f'{running}/{expected} expected services running', metrics_update)
     else:
-        add_check('compose-services', 'critical', f'{running}/{expected_present} expected services running', metrics_update)
+        add_check('compose-services', 'critical', f'{running}/{expected} expected services running; {len(missing)} missing', metrics_update)
 
 def check_misp_heartbeat() -> None:
-    result = run_cmd(compose_args('exec', '-T', 'misp-core', 'curl', '-ksS', 'https://localhost/users/heartbeat'), cwd=install_dir)
-    if result.returncode == 0:
-        add_check('misp-heartbeat', 'ok', 'MISP heartbeat endpoint responded')
+    remaining = max(1, int(deadline - time.monotonic()))
+    result = run_cmd(compose_args(
+        'exec', '-T', 'misp-core', 'curl', '-ksS', '--fail', '--max-time', str(remaining),
+        '--write-out', '\n%{http_code}',
+        'https://localhost/users/heartbeat'
+    ), cwd=install_dir)
+    if result.returncode != 0:
+        add_check('misp-heartbeat', 'critical', 'MISP heartbeat endpoint returned an HTTP or transport failure')
+        return
+    body, separator, status_code = result.stdout.rstrip('\r\n').rpartition('\n')
+    if not separator or status_code.strip() != '200':
+        add_check('misp-heartbeat', 'critical', 'MISP heartbeat endpoint returned an unexpected HTTP status')
+        return
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        add_check('misp-heartbeat', 'critical', 'MISP heartbeat response did not match the JSON contract')
+        return
+    if isinstance(payload, str) and 0 < len(payload) <= 512:
+        add_check('misp-heartbeat', 'ok', 'MISP heartbeat returned the expected JSON response contract')
     else:
-        add_check('misp-heartbeat', 'critical', 'MISP heartbeat endpoint did not respond')
+        add_check('misp-heartbeat', 'critical', 'MISP heartbeat response did not match the JSON contract')
 
 def check_schema_ready() -> None:
     code = """

@@ -113,7 +113,7 @@ Examples:
 | Compose config invalid, MISP core stopped, heartbeat fails, schema not ready after timeout | CRITICAL |
 | Install directory missing, Docker unavailable, permission denied, unreadable state | UNKNOWN |
 
-The command should finish within the configured timeout and avoid unbounded network waits.
+`--timeout` is one monotonic deadline for the complete healthcheck invocation, including preflight and every selected probe. It is not reset per subprocess. The command should finish within that global deadline apart from minimal process startup/cleanup overhead.
 
 ## Check IDs
 
@@ -122,8 +122,8 @@ The command supports a small, stable set of check identifiers:
 | Check ID | Purpose | Default |
 | --- | --- | --- |
 | `compose-config` | Validate generated Docker Compose config. | enabled |
-| `compose-services` | Confirm expected Compose services are present and running. | enabled |
-| `misp-heartbeat` | Query the container-local MISP heartbeat endpoint. | enabled |
+| `compose-services` | Derive the expected service set from resolved Compose configuration, then require every expected service to be present and running. | enabled |
+| `misp-heartbeat` | Require HTTP 200 and the upstream JSON-string contract from the container-local MISP heartbeat endpoint. | enabled |
 | `schema-ready` | Confirm schema readiness required by login-dependent workflows. | enabled |
 | `login` | Perform CSRF-aware login check without printing the password. | optional |
 | `backup-freshness` | Reserved warning check for future backup freshness thresholds. | optional |
@@ -168,7 +168,7 @@ JSON output should use a stable schema name so scripts can reject incompatible c
     {
       "id": "misp-heartbeat",
       "status": "ok",
-      "summary": "Heartbeat endpoint responded"
+      "summary": "MISP heartbeat returned the expected JSON response contract"
     }
   ],
   "metrics": {
