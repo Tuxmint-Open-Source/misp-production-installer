@@ -8,6 +8,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Compatibility status | Fresh install | Reverse proxy | Update path | Lifecycle smoke | Guardrails | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- | --- | --- | --- | --- |
+| `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending exact-tag validation | — | — | — | — | — | — |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-misp-core-v2.5.44.md`](compatibility-v1.0.0-misp-core-v2.5.44.md) |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-misp-core-v2.5.43.md`](compatibility-v1.0.0-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | ✅ | ✅ | ✅ | ✅ | ✅ | [`compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md) |
@@ -38,7 +39,7 @@ It is not a guarantee that every environment or component combination works. It 
 
 - [`compatibility-v1.0.0-misp-core-v2.5.44.md`](compatibility-v1.0.0-misp-core-v2.5.44.md)
 - [`compatibility-v1.0.0-misp-core-v2.5.43.md`](compatibility-v1.0.0-misp-core-v2.5.43.md)
-- [`monitoring-healthcheck-pr61.md`](monitoring-healthcheck-pr61.md) — post-`v1.0.0` producer-side monitoring evidence for `main`, not release compatibility
+- [`monitoring-healthcheck-pr61.md`](monitoring-healthcheck-pr61.md) — producer-side monitoring evidence; not `v1.1.0` exact-tag compatibility proof
 - [`compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md)
 - [`compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.2-misp-core-v2.5.43.md)
 - [`compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md`](compatibility-v1.0.0-rc.1-misp-core-v2.5.43.md)

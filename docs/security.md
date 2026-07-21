@@ -135,7 +135,7 @@ The `v1.0.0` line was released with:
 - exact release-tag compatibility validation;
 - public validation artifacts sanitized according to this policy.
 
-New runtime surfaces added after `v1.0.0`, including monitoring, remain development-line work until included in a later tagged release. They must receive focused validation and security review before that release.
+`v1.1.0` includes the monitoring and structured SOS surfaces added after `v1.0.0`. They received focused behavioral, privacy, and security review before the release; full exact-tag component compatibility remains pending until the immutable tag passes validation.
 
 ## What to read next
 

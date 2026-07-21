@@ -12,7 +12,7 @@ This documentation is organized around the operator journey: understand the mode
 4. [Production deployment guide](production-deployment.md) — plan reverse proxy, host, secrets, and operational choices.
 5. [Backup, restore, and rollback](backup-restore-and-rollback.md) — understand recovery before you need it.
 6. [Upgrade path](upgrade-path.md) — update the manager and MISP components safely.
-7. [Monitoring](monitoring.md) — review the unreleased `main` healthcheck contract and planned integrations.
+7. [Monitoring](monitoring.md) — review the healthcheck contract and planned integrations.
 8. [Compatibility](compatibility.md) and [validation matrix](validation/matrix.md) — see which manager/component pairs are validated.
 9. [Troubleshooting](troubleshooting.md) — diagnose failed installs, login issues, and update problems.
 
@@ -50,7 +50,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release status
 
-`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component sets. Features added later on `main`, including monitoring work, require a later tagged release before they become part of a stable release artifact.
+`v1.1.0` is the current stable release line and includes the monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work accumulated after `v1.0.0`. Exact `v1.1.0` compatibility remains pending until the immutable tag passes validation; `v1.0.0` remains the latest validated-compatible release until then.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

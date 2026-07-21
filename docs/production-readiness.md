@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. The immutable release tag passed the documented install, update, recovery, browser, failure-mode, and no-lock-in validation scenarios.
+`v1.1.0` is the current stable release line for the documented single-server Docker lifecycle-manager scope. Its runtime capabilities passed focused branch validation, but full compatibility remains pending until the immutable tag passes the documented release scenarios.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -8,9 +8,9 @@ Production readiness here applies only to the public support matrix and explicit
 
 | Area | Status |
 | --- | --- |
-| Latest manager release | `v1.0.0` |
+| Latest manager release | `v1.1.0` |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
-| Compatibility status | ✅ `v1.0.0` validated compatible |
+| Compatibility status | 🟡 `v1.1.0` pending exact-tag validation; ✅ `v1.0.0` remains validated compatible |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
@@ -18,15 +18,15 @@ Production readiness here applies only to the public support matrix and explicit
 | Backup, restore, and rollback | ✅ documented and release-tag validated |
 | Browser-facing login | ✅ release-tag validated |
 | No-lock-in Compose operation | ✅ release-tag validated |
-| Monitoring contract on `main` | ✅ contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
+| Monitoring contract in `v1.1.0` | ✅ contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
 
-## Development line after `v1.0.0`
+## `v1.1.0` release-validation state
 
-`main` contains work added after the `v1.0.0` tag. That work is not retroactively part of the stable release artifact.
+`v1.1.0` packages work added after the `v1.0.0` tag. It is not called validated compatible until its immutable tag passes the full release suite.
 
-The monitoring healthcheck is implemented on `main`, contract/parser tested, and exercised against a managed MISP deployment in healthy, UNKNOWN, controlled-CRITICAL, and recovery states. Native ingestion by running Zabbix, Checkmk, Nagios/Icinga, and Prometheus systems remains unvalidated. See [Monitoring](monitoring.md) and the [community testing issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62).
+The monitoring healthcheck is contract/parser tested and exercised against a managed MISP deployment in healthy, UNKNOWN, controlled-CRITICAL, and recovery states. Native ingestion by running Zabbix, Checkmk, Nagios/Icinga, and Prometheus systems remains unvalidated. See [Monitoring](monitoring.md) and the [community testing issue](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/issues/62).
 
-A later tagged release must include and validate development-line runtime changes before they become part of the stable release line.
+The post-tag compatibility run must still cover install, reverse proxy, update, lifecycle, failure, restore, browser, rollback, and monitoring scenarios before public compatibility status changes from pending.
 
 ## `v1.0.0` validation coverage
 

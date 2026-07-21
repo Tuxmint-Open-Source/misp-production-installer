@@ -1,12 +1,12 @@
 # Support matrix
 
-This page defines the public support scope of the stable `v1.0.0` release line.
+This page defines the public support scope of the stable `v1.1.0` release line.
 
 Anything outside this matrix may still work, but it is not part of the validated support contract unless a later compatibility report says so explicitly.
 
-## Supported `v1.0.0` scope
+## Supported `v1.1.0` scope
 
-| Area | Supported for `v1.0.0` | Notes |
+| Area | Supported for `v1.1.0` | Notes |
 | --- | --- | --- |
 | Deployment model | single-server Docker | This project is not a clustered or high-availability orchestrator. |
 | Upstream MISP source | official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) | The manager does not fork, vendor, or rewrite MISP. |
@@ -15,9 +15,9 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
 | Direct-QA mode | validation and controlled QA only | Direct-QA is not the recommended long-term public exposure mode. |
 | MISP component selection | official component tags from upstream or explicit official tags | Custom images/forks are not covered. |
-| Lifecycle helpers | install, doctor, login check, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | `v1.0.0` validated this scope with the documented component set. |
+| Lifecycle helpers | install, doctor, login check, healthcheck, anonymous SOS report, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | Exact `v1.1.0` component compatibility remains pending until the immutable tag passes validation. |
 
-## Explicit non-goals for `v1.0.0`
+## Explicit non-goals for `v1.1.0`
 
 The stable release does not claim support for:
 

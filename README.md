@@ -1,13 +1,13 @@
 # MISP Docker Lifecycle Manager
 
 > [!IMPORTANT]
-> **First stable release line**
+> **Stable release line**
 >
-> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope and has passed exact-tag validation with the documented MISP Docker component set.
+> `v1.1.0` packages the post-v1 monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work for the documented single-server Docker lifecycle-manager scope. Its compatibility status remains pending until the immutable tag passes exact-tag validation.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.0.0`. The `v1.0.0` tag is the stable artifact; `main` also contains unreleased changes added after that tag.
+Current `VERSION` value on `main`: `1.1.0`. The release becomes a validated-compatible artifact only after the immutable `v1.1.0` tag passes the documented exact-tag validation.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -21,7 +21,7 @@ It adds:
 - generated `.env` values and Compose overrides;
 - deterministic component tag handling;
 - health, status, login, and credential checks;
-- monitoring healthcheck and machine-readable output contracts on the unreleased `main` development line;
+- monitoring healthcheck and machine-readable output contracts;
 - backup, restore, update, and restore-based rollback workflows;
 - reset/removal helpers with safety checks;
 - compatibility and validation documentation.
@@ -45,7 +45,7 @@ There is no lock-in: after a successful install, `/opt/misp-docker` remains a no
 | plan a real deployment | [`docs/production-deployment.md`](docs/production-deployment.md) |
 | understand backup, restore, and rollback | [`docs/backup-restore-and-rollback.md`](docs/backup-restore-and-rollback.md) |
 | check validated MISP component sets | [`docs/compatibility.md`](docs/compatibility.md) |
-| plan monitoring integration on the unreleased `main` line | [`docs/monitoring.md`](docs/monitoring.md) |
+| plan monitoring integration | [`docs/monitoring.md`](docs/monitoring.md) |
 | troubleshoot a failure | [`docs/troubleshooting.md`](docs/troubleshooting.md) |
 | report a reproducible bug safely | [`docs/sos-report.md`](docs/sos-report.md) |
 | inspect every command | [`docs/shell-scripts.md`](docs/shell-scripts.md) |
@@ -58,7 +58,7 @@ For a first test install using the stable release, read [`docs/getting-started.m
 ```bash
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager
-git checkout v1.0.0
+git checkout v1.1.0
 sudo ./installer/prepare-host-rocky.sh
 sudo ./installer/install.sh \
   --install-dir /opt/misp-docker \
@@ -90,6 +90,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
+| `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending exact-tag validation |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -135,7 +136,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.0.0` is the first stable release line and is validated compatible with the documented MISP Docker component set.
+`v1.1.0` is the current release line. Its compatibility status is pending exact-tag validation; `v1.0.0` remains the latest validated-compatible stable artifact until that completes.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 

@@ -16,6 +16,7 @@ A pair is called **validated compatible** only after the documented validation s
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status | Validated | Report |
 | --- | ---: | ---: | ---: | --- | --- | --- |
+| `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending exact-tag validation | — | — |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible | 2026-07-15 | [`compatibility-v1.0.0-misp-core-v2.5.44.md`](validation/compatibility-v1.0.0-misp-core-v2.5.44.md) |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-15 | [`compatibility-v1.0.0-misp-core-v2.5.43.md`](validation/compatibility-v1.0.0-misp-core-v2.5.43.md) |
 | `v1.0.0-rc.3` release candidate tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible | 2026-07-15 | [`compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md`](validation/compatibility-v1.0.0-rc.3-misp-core-v2.5.43.md) |
@@ -26,6 +27,8 @@ A pair is called **validated compatible** only after the documented validation s
 | `v0.3.1` release | `v2.5.42` | `v3.0.8` | `v1.2` | ⚪ Superseded historical validation | 2026-07-08 | [`real-world-v0.3.1.md`](validation/real-world-v0.3.1.md) |
 
 > [!IMPORTANT]
+> `v1.1.0` must pass full validation as an immutable tag before it is called validated compatible. The PR-branch monitoring evidence is capability evidence, not final release compatibility proof.
+>
 > The `v1.0.0` release tag is validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Future upstream component sets require separate validation before compatibility is claimed.
 >
 > The `v0.3.2` release tag is **not** marked validated compatible with MISP core `v2.5.43`. Validation exposed the known first-login readiness race that was fixed later on `main` and released in `v0.3.3`.

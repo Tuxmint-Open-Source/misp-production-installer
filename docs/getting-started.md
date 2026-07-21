@@ -5,7 +5,7 @@ This guide gives you a first successful path through MISP Docker Lifecycle Manag
 It is intentionally shorter than the full [operator guide](operator-guide.md). Use it to understand the flow, then read the production and recovery docs before relying on a deployment.
 
 > [!IMPORTANT]
-> `v1.0.0` is the first stable release line for the documented single-server Docker lifecycle-manager scope. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
+> `v1.1.0` is the current stable release line for the documented single-server Docker lifecycle-manager scope. Its exact component compatibility remains pending until the immutable tag passes validation. Validate your own deployment assumptions and keep backups before relying on a deployment operationally.
 
 ## Before you begin
 
@@ -29,7 +29,7 @@ cd misp-docker-lifecycle-manager
 Use the release tag you want to evaluate:
 
 ```bash
-git checkout v1.0.0
+git checkout v1.1.0
 ```
 
 ## 2. Prepare a Rocky Linux host
