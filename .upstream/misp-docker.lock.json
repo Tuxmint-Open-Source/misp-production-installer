@@ -1,5 +1,5 @@
 {
-  "checked_at_utc": "2026-07-17T13:18:16Z",
+  "checked_at_utc": "2026-07-21T15:18:25Z",
   "component_tags": {
     "CORE_TAG": "v2.5.44",
     "GUARD_TAG": "v1.2",
@@ -925,6 +925,26 @@
       "redis"
     ]
   },
+  "official_component_releases": {
+    "CORE_TAG": {
+      "published_at": "2026-07-13T14:19:48Z",
+      "repo": "MISP/MISP",
+      "tag": "v2.5.44",
+      "url": "https://github.com/MISP/MISP/releases/tag/v2.5.44"
+    },
+    "GUARD_TAG": {
+      "published_at": "2025-07-16T06:11:48Z",
+      "repo": "MISP/misp-guard",
+      "tag": "v1.2",
+      "url": "https://github.com/MISP/misp-guard/releases/tag/v1.2"
+    },
+    "MODULES_TAG": {
+      "published_at": "2026-07-13T11:30:44Z",
+      "repo": "MISP/misp-modules",
+      "tag": "v3.0.9",
+      "url": "https://github.com/MISP/misp-modules/releases/tag/v3.0.9"
+    }
+  },
   "readme_operator_section_sha256": {
     "Authentication": "de5be09c0e0db69fc85c1a371f06fc9cb4bbb56c624986415781e3d7fd8da817",
     "Configuration": "36dbdbd0410ffb6d2f6478d42655a84fdd09d9ce14253e9b4712b75f6c18dcc5",
@@ -944,7 +964,7 @@
     "GUARD_RUNNING_TAG": "(commented or unset)",
     "MODULES_RUNNING_TAG": "(commented or unset)"
   },
-  "schema": 2,
+  "schema": 3,
   "template_env_keys": {
     "active_keys": [
       "ADMIN_EMAIL",

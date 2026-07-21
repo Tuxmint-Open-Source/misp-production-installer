@@ -17,6 +17,8 @@ import os
 import re
 import subprocess
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +48,21 @@ WATCHED_TREE_CLASSES = {
 }
 WATCHED_FILES = list(WATCHED_FILE_CLASSES)
 COMPONENT_KEYS = ["CORE_TAG", "MODULES_TAG", "GUARD_TAG"]
+OFFICIAL_COMPONENT_RELEASES = {
+    "CORE_TAG": {
+        "repo": "MISP/MISP",
+        "api_url": "https://api.github.com/repos/MISP/MISP/releases/latest",
+    },
+    "MODULES_TAG": {
+        "repo": "MISP/misp-modules",
+        "api_url": "https://api.github.com/repos/MISP/misp-modules/releases/latest",
+    },
+    "GUARD_TAG": {
+        "repo": "MISP/misp-guard",
+        "api_url": "https://api.github.com/repos/MISP/misp-guard/releases/latest",
+    },
+}
+RELEASE_TAG_PATTERN = re.compile(r"^v[0-9]+(?:\.[0-9]+){1,3}(?:[-+][0-9A-Za-z.-]+)?$")
 RUNNING_KEYS = ["CORE_RUNNING_TAG", "MODULES_RUNNING_TAG", "GUARD_RUNNING_TAG"]
 README_SECTIONS = [
     "Getting Started",
@@ -76,6 +93,51 @@ def normalized_sha(text: str) -> str:
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
+
+
+def fetch_json(url: str) -> object:
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "misp-docker-lifecycle-manager-upstream-watch",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return json.load(response)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"failed to read official component release metadata from {url}") from exc
+
+
+def parse_release_metadata(component: str, config: dict[str, str], payload: object) -> dict[str, str]:
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"invalid official release metadata for {component}")
+    tag = payload.get("tag_name")
+    published_at = payload.get("published_at")
+    html_url = payload.get("html_url")
+    expected_prefix = f"https://github.com/{config['repo']}/releases/tag/"
+    if not isinstance(tag, str) or not RELEASE_TAG_PATTERN.fullmatch(tag):
+        raise RuntimeError(f"invalid official release tag for {component}")
+    if not isinstance(published_at, str) or not re.fullmatch(r"[0-9TZ:+.-]+", published_at):
+        raise RuntimeError(f"invalid official release timestamp for {component}")
+    if not isinstance(html_url, str) or not html_url.startswith(expected_prefix):
+        raise RuntimeError(f"invalid official release URL for {component}")
+    return {
+        "repo": config["repo"],
+        "tag": tag,
+        "published_at": published_at,
+        "url": html_url,
+    }
+
+
+def collect_official_component_releases() -> dict[str, dict[str, str]]:
+    return {
+        component: parse_release_metadata(component, config, fetch_json(config["api_url"]))
+        for component, config in OFFICIAL_COMPONENT_RELEASES.items()
+    }
 
 
 def parse_active_env(text: str) -> dict[str, str]:
@@ -237,7 +299,7 @@ def collect_state(repo: str, ref: str) -> dict[str, object]:
         }
 
         return {
-            "schema": 2,
+            "schema": 3,
             "repo": repo,
             "ref": ref,
             "upstream_commit": commit,
@@ -245,6 +307,7 @@ def collect_state(repo: str, ref: str) -> dict[str, object]:
             "watched_files": file_hashes,
             "watched_trees": watched_trees,
             "component_tags": {key: template_values.get(key, "") for key in COMPONENT_KEYS},
+            "official_component_releases": collect_official_component_releases(),
             "running_tag_defaults_in_template_env": {
                 key: template_values.get(key, "(commented or unset)") for key in RUNNING_KEYS
             },
@@ -284,6 +347,12 @@ def diff_state(old: dict[str, object] | None, new: dict[str, object]) -> list[di
 
     if old.get("component_tags") != new.get("component_tags"):
         changes.append({"class": "A", "detail": "Official component tag defaults changed."})
+    old_releases = as_mapping(old.get("official_component_releases"))
+    new_releases = as_mapping(new.get("official_component_releases"))
+    old_release_tags = {key: as_mapping(value).get("tag") for key, value in old_releases.items()}
+    new_release_tags = {key: as_mapping(value).get("tag") for key, value in new_releases.items()}
+    if old_release_tags and old_release_tags != new_release_tags:
+        changes.append({"class": "A", "detail": "Official component release tags changed."})
     if old.get("running_tag_defaults_in_template_env") != new.get("running_tag_defaults_in_template_env"):
         changes.append({"class": "A", "detail": "Runtime image tag defaults changed."})
 
@@ -353,6 +422,25 @@ def component_table(old: dict[str, object] | None, new: dict[str, object]) -> st
     return "\n".join(rows)
 
 
+def component_release_table(new: dict[str, object]) -> str:
+    docker_tags = as_mapping(new.get("component_tags"))
+    releases = as_mapping(new.get("official_component_releases"))
+    rows = [
+        "| Component | Official Docker default | Latest official release | Adopted by Docker default? |",
+        "|---|---:|---:|---|",
+    ]
+    for key in COMPONENT_KEYS:
+        release = as_mapping(releases.get(key))
+        docker_tag = str(docker_tags.get(key, ""))
+        release_tag = str(release.get("tag", ""))
+        adopted = "yes" if docker_tag and docker_tag == release_tag else "no — review before validation"
+        rows.append(
+            f"| `{markdown_code(key)}` | `{markdown_code(docker_tag)}` | "
+            f"`{markdown_code(release_tag)}` | {adopted} |"
+        )
+    return "\n".join(rows)
+
+
 def compare_url(old: dict[str, object] | None, new: dict[str, object]) -> str:
     repo = str(new["repo"])
     if repo.endswith(".git"):
@@ -384,7 +472,7 @@ def render_report(old: dict[str, object] | None, new: dict[str, object], changes
 
 ## Summary
 
-The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs. Upstream commit movement without a watched-file or extracted-fact change does not create a review.
+The scheduled upstream monitor detected lifecycle-sensitive changes in official `MISP/misp-docker` inputs or a new official MISP component release. Upstream commit movement without a watched-file, extracted-fact, or component-release change does not create a review.
 
 Detected classes: **{'+'.join(classes) if classes else 'none'}**
 
@@ -411,6 +499,12 @@ Validation status: **review required / not validated**
 
 {component_table(old, new)}
 
+## Latest official component releases
+
+{component_release_table(new)}
+
+A component release that is not yet adopted by official MISP Docker is a review signal, not an instruction to validate or support a speculative combination.
+
 ## Structured deltas
 
 {render_delta('Compose services', old_compose.get('services'), new_compose.get('services'))}
@@ -420,7 +514,7 @@ Validation status: **review required / not validated**
 
 ## Classification
 
-- **A:** component or runtime image tag defaults changed.
+- **A:** an official component release or component/runtime image tag default changed.
 - **B:** Compose structure or runtime/configuration behavior changed, including service blocks, ports, volumes, dependencies, profiles, healthchecks, entrypoint/configuration scripts, or critical/minimum environment definitions.
 - **C:** template environment inventory or selected operator guidance changed.
 
@@ -428,6 +522,7 @@ Validation status: **review required / not validated**
 
 - [ ] Inspect the upstream compare link; hashes and extracted facts summarize drift but do not replace review.
 - [ ] Check upstream component tag changes and release notes.
+- [ ] Check whether each new component release is adopted by official MISP Docker before choosing a validation combination.
 - [ ] Check Compose service names, image expressions, ports, volumes, dependencies, profiles, healthchecks, and interpolation variables.
 - [ ] Check new, removed, or changed required/default variables in `template.env` and the critical/minimum environment definitions.
 - [ ] Check entrypoint, configuration, migration, startup, and readiness behavior.

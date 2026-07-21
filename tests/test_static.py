@@ -722,7 +722,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Dependabot for GitHub Actions updates', maintainer)
         self.assertIn('GitHub Actions annotations report deprecations', maintainer)
         self.assertIn('Official MISP Docker upstream drift PRs', maintainer)
-        self.assertIn('| A | Component tag defaults changed', maintainer)
+        self.assertIn('| A | An official component release changed, or component defaults changed', maintainer)
         self.assertIn('| B | `docker-compose.yml` service blocks', maintainer)
         self.assertIn('| C | `template.env` key inventory/defaults or selected README operator guidance', maintainer)
         self.assertIn('A+B+C', maintainer)

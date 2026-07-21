@@ -13,6 +13,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Align primary README, readiness, deployment, support, security, and versioning docs with the published stable `v1.0.0` state while keeping post-release monitoring work clearly on `main`.
 - Clarify stable security support, community support expectations, issue examples, contribution discovery, and public evidence navigation after the post-v1 trust review.
 - Expand upstream MISP Docker drift coverage to Compose service blocks and variables, template key inventory, initialization/configuration/readiness/process inputs, and selected operator guidance while suppressing commit-only noise and bounding concurrent workflow runs.
+- Monitor official MISP core, modules, and guard releases directly so maintainers are prompted before or after official MISP Docker adopts a new component tag.
 
 ### Changed
 

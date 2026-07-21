@@ -158,13 +158,15 @@ When GitHub Actions annotations report deprecations, treat them as maintenance w
 
 ### Official MISP Docker upstream drift PRs
 
-The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when lifecycle-sensitive official `MISP/misp-docker` inputs change. Treat those PRs as review prompts, not as compatibility proof. A new upstream commit by itself is comparison context and does not open a PR; this keeps unrelated upstream work from creating noise.
+The scheduled upstream monitor opens `Review upstream MISP Docker changes` PRs when lifecycle-sensitive official `MISP/misp-docker` inputs change or when an official MISP core, modules, or guard release changes. Treat those PRs as review prompts, not as compatibility proof. A new upstream commit by itself is comparison context and does not open a PR; this keeps unrelated upstream work from creating noise.
+
+Direct component release monitoring closes the gap between a component release and later adoption in official `misp-docker`. If a release is newer than the Docker default, review it but do not validate or claim support for that speculative combination automatically. Record whether official Docker has adopted the release, then choose a supported validation pair deliberately.
 
 Use this classification:
 
 | Class | Upstream change | Default response |
 | --- | --- | --- |
-| A | Component tag defaults changed, such as `CORE_TAG`, `MODULES_TAG`, or `GUARD_TAG` | Review changelogs/release notes, update compatibility/readiness docs to pending for the new component set if needed, then run compatibility validation before marking validated. |
+| A | An official component release changed, or component defaults changed such as `CORE_TAG`, `MODULES_TAG`, or `GUARD_TAG` | Review release notes and Docker adoption status. Validate a deliberately supported exact component set before marking it validated. |
 | B | `docker-compose.yml` service blocks, image expressions, interpolation keys, ports, volumes, health/readiness behavior, dependency/profile structure, upstream entrypoint/configuration scripts, or critical/minimum environment definitions changed | Inspect installer assumptions and run targeted code/docs tests. Patch manager code if assumptions changed. Full validation is likely needed before compatibility claims. |
 | C | `template.env` key inventory/defaults or selected README operator guidance changed without obvious compose/service changes | Review config generation and documentation. Patch generated `.env` handling or docs if defaults/required variables changed. Validation scope depends on whether runtime behavior changed. |
 

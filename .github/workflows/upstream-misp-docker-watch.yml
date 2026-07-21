@@ -32,6 +32,8 @@ jobs:
 
       - name: Check upstream drift
         id: upstream
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           python3 scripts/check-upstream-misp-docker.py --write
 
