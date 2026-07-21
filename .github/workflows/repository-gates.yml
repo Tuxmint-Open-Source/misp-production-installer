@@ -25,7 +25,8 @@ jobs:
         # actions/checkout@v7
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         # actions/setup-python@v6
@@ -48,15 +49,28 @@ jobs:
       - name: Compile Python sources
         run: python3 -m py_compile scripts/*.py tests/*.py
 
-      - name: Parse workflow YAML
+      - name: Parse tracked YAML
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import subprocess
           import yaml
 
-          for path in sorted(Path(".github").rglob("*.yml")) + sorted(Path(".github").rglob("*.yaml")):
+          tracked = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "*.yml", "*.yaml"]
+          ).decode().split("\0")
+          for name in sorted(filter(None, tracked)):
+              path = Path(name)
               yaml.safe_load(path.read_text())
           PY
 
       - name: Check changed lines for whitespace errors
-        run: git diff --check HEAD^1 HEAD
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before || '' }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [[ -n "$BASE_SHA" && ! "$BASE_SHA" =~ ^0+$ ]]; then
+            git diff --check "$BASE_SHA...$HEAD_SHA"
+          else
+            git diff --check HEAD^ HEAD
+          fi
