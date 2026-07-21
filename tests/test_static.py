@@ -510,6 +510,22 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('formats=json,nagios,checkmk,prometheus', result.stdout)
             self.assertNotIn(str(Path(tmp).resolve()), result.stdout + result.stderr)
 
+        invalid = subprocess.run(
+            [
+                'python3', str(validator),
+                '--healthcheck', str(ROOT / 'installer' / 'healthcheck.sh'),
+                '--install-dir', '/tmp/not-a-misp-install',
+                '--expect-status', 'unknown',
+                '--insecure',
+            ],
+            text=True,
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        self.assertEqual(invalid.returncode, 1)
+        self.assertIn('--insecure requires --include-login', invalid.stderr)
+
     def test_healthcheck_outputs_stable_machine_formats_without_deployment(self):
         script = ROOT / 'installer' / 'healthcheck.sh'
         with tempfile.TemporaryDirectory() as tmp:

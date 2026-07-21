@@ -29,6 +29,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--expect-status", choices=tuple(STATUSES), required=True)
     parser.add_argument("--timeout", type=int, default=20)
     parser.add_argument("--include-login", action="store_true")
+    parser.add_argument(
+        "--insecure",
+        action="store_true",
+        help="Explicitly allow unverified TLS for an included login check (disposable/bootstrap environments only)",
+    )
     parser.add_argument("--sudo", action="store_true", help="Run healthcheck via sudo (use only with an exact trusted command path)")
     return parser.parse_args()
 
@@ -77,6 +82,10 @@ def healthcheck_command(args: argparse.Namespace, output_format: str) -> list[st
     command = [str(args.healthcheck.resolve()), "--install-dir", str(args.install_dir), "--format", output_format, "--timeout", str(args.timeout)]
     if args.include_login:
         command += ["--checks", "compose-config,compose-services,misp-heartbeat,schema-ready,login"]
+    if args.insecure:
+        if not args.include_login:
+            raise ValueError("--insecure requires --include-login")
+        command.append("--insecure")
     if args.sudo:
         command.insert(0, "sudo")
     return command

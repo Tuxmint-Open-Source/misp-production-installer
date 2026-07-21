@@ -69,6 +69,8 @@ sudo python3 scripts/validate-healthcheck-output.py \
 
 The validator checks exit-code consistency, the JSON schema, Nagios and Checkmk line shapes, Prometheus metric syntax, and whether output contains sensitive deployment values. If `promtool` is installed, it also runs `promtool check metrics`; otherwise it reports that only the built-in Prometheus parser ran.
 
+Verified TLS remains the default for the optional login check. Disposable bootstrap environments that intentionally use a self-signed certificate may add `--insecure`; this is an explicit validation-only opt-out and should not be used for a production login probe.
+
 This validation proves contract conformance. It does not prove that a real monitoring server accepted, stored, displayed, or alerted on the output.
 
 ## Command
