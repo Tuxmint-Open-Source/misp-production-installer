@@ -68,6 +68,8 @@ sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --no-health-comman
 
 The generated v2 report contains only fixed enums, booleans, numeric counts, validated public component tags, restricted version fields, file-presence/mode facts, and allowlisted health statuses. It does not include raw command summaries or backup metadata. The health probe does not include the credential-bearing login check.
 
+All Git, Docker, Compose, and health probes share one monotonic end-to-end deadline. The default is 20 seconds; set a different positive global budget with `--timeout SECONDS`. A probe that exhausts the remaining budget is reported as unavailable or unknown, and later probes are skipped rather than receiving fresh timeout windows.
+
 The report is written atomically with mode `0600`; symlink output targets are refused. Review it manually before posting.
 
 ## Manual SOS report template

@@ -18,6 +18,7 @@ Options:
   --no-docker             Do not query Docker, Compose, or deployment health
   --no-health-commands    Do not run the bounded structured health check
   --explain-redaction     Explain the v2 allowlist privacy model in the report
+  --timeout SECONDS       Global deadline for all SOS probes (default: 20)
   -h, --help              Show this help
   --version               Show manager version
 

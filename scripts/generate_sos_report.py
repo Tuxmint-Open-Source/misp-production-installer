@@ -10,6 +10,7 @@ import re
 import secrets
 import stat
 import subprocess
+import time
 from pathlib import Path
 from typing import Any, Callable
 
@@ -116,11 +117,18 @@ def os_facts() -> tuple[str, str, str, str]:
     return os_id, os_major, kernel_series, architecture
 
 
-def run_version(args: list[str]) -> str:
+def remaining_budget(deadline: float) -> float:
+    return max(0.0, deadline - time.monotonic())
+
+
+def run_version(args: list[str], deadline: float) -> str:
+    remaining = remaining_budget(deadline)
+    if remaining <= 0:
+        return "unavailable"
     try:
         result = subprocess.run(
             args, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            timeout=5, check=False,
+            timeout=remaining, check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
         return "unavailable"
@@ -155,22 +163,33 @@ def normalize_health(payload: Any) -> dict[str, Any]:
     return result
 
 
-def collect_health(install_dir: Path, enabled: bool, runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run) -> dict[str, Any]:
+def collect_health(
+    install_dir: Path,
+    enabled: bool,
+    deadline: float,
+    runner: Callable[..., subprocess.CompletedProcess[str]] | None = None,
+) -> dict[str, Any]:
     if not enabled:
         return {
             "overall": "not-checked",
             "checks": {check_id: "not-checked" for check_id in sorted(EXPECTED_HEALTH_IDS)},
             "counts": {status: 0 for status in ("ok", "warning", "critical", "unknown")},
         }
+    remaining = remaining_budget(deadline)
+    health_timeout = int(remaining)
+    if health_timeout <= 0:
+        return normalize_health(None)
+    if runner is None:
+        runner = subprocess.run
     command = [
         str(ROOT / "installer" / "healthcheck.sh"), "--install-dir", str(install_dir),
         "--format", "json", "--checks",
-        "compose-config,compose-services,misp-heartbeat,schema-ready", "--timeout", "8",
+        "compose-config,compose-services,misp-heartbeat,schema-ready", "--timeout", str(health_timeout),
     ]
     try:
         completed = runner(
             command, text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            timeout=45, check=False,
+            timeout=remaining, check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
         return normalize_health(None)
@@ -182,16 +201,19 @@ def collect_health(install_dir: Path, enabled: bool, runner: Callable[..., subpr
         return normalize_health(None)
 
 
-def manager_facts() -> tuple[str, str]:
+def manager_facts(deadline: float) -> tuple[str, str]:
     try:
         version = strict_token((ROOT / "VERSION").read_text().strip(), VERSION_RE)
     except OSError:
         version = "unknown"
     commit = "unknown"
+    remaining = remaining_budget(deadline)
+    if remaining <= 0:
+        return version, commit
     try:
         result = subprocess.run(
             ["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True,
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=5, check=False,
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=remaining, check=False,
         )
         candidate = result.stdout.strip()
         if result.returncode == 0 and re.fullmatch(r"[0-9a-f]{40}", candidate):
@@ -202,17 +224,19 @@ def manager_facts() -> tuple[str, str]:
 
 
 def render_report(args: argparse.Namespace) -> str:
+    deadline = time.monotonic() + args.timeout
     install_dir = args.install_dir
-    manager_version, manager_commit = manager_facts()
+    manager_version, manager_commit = manager_facts(deadline)
     os_id, os_major, kernel_series, architecture = os_facts()
     tags = read_public_tags(install_dir / ".env")
     docker_enabled = not args.no_docker
     health_enabled = docker_enabled and not args.no_health_commands
-    docker_version = run_version(["docker", "version", "--format", "{{.Client.Version}}"])
-    compose_version = run_version(["docker", "compose", "version", "--short"])
-    if not docker_enabled:
+    if docker_enabled:
+        docker_version = run_version(["docker", "version", "--format", "{{.Client.Version}}"], deadline)
+        compose_version = run_version(["docker", "compose", "version", "--short"], deadline)
+    else:
         docker_version = compose_version = "not-checked"
-    health = collect_health(install_dir, health_enabled)
+    health = collect_health(install_dir, health_enabled, deadline)
     lines = [
         "# MISP Docker Lifecycle Manager SOS Report",
         "",
@@ -321,6 +345,16 @@ def write_report(path: Path, content: str) -> None:
         os.close(directory_fd)
 
 
+def positive_timeout(value: str) -> int:
+    try:
+        timeout = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("timeout must be a positive integer") from exc
+    if timeout <= 0:
+        raise argparse.ArgumentTypeError("timeout must be a positive integer")
+    return timeout
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument("--install-dir", type=Path, default=DEFAULT_INSTALL_DIR)
@@ -330,6 +364,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-docker", action="store_true")
     parser.add_argument("--no-health-commands", action="store_true")
     parser.add_argument("--explain-redaction", action="store_true")
+    parser.add_argument("--timeout", type=positive_timeout, default=20, help="Global deadline in seconds for all SOS probes (default: 20)")
     return parser.parse_args()
 
 

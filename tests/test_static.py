@@ -782,6 +782,8 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Anonymous SOS report', bug_template)
         self.assertIn('I reviewed the report before posting', bug_template)
         self.assertIn('sos report documentation', changelog.lower())
+        self.assertIn('one monotonic end-to-end deadline', sos)
+        self.assertIn('--timeout SECONDS', sos)
 
     def test_sos_report_command_generates_sanitized_public_report(self):
         with tempfile.TemporaryDirectory() as td:
