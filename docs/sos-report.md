@@ -8,7 +8,7 @@ Do **not** use a public SOS report for suspected security vulnerabilities. Use [
 
 ## Current status
 
-The project includes `installer/sos-report.sh`, which generates a public-safe Markdown report automatically. You should still review every line before sharing it.
+The project includes `installer/sos-report.sh`, which generates a bounded Markdown report from allowlisted structured facts. It never copies raw helper, Docker, Compose, application, or system command output into the report. You should still review every line before sharing it.
 
 ## Before posting publicly
 
@@ -60,15 +60,15 @@ Use `--no-docker` if you want to avoid Docker/Compose checks:
 ./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
 ```
 
-Use `--no-health-commands` if Docker/Compose status is acceptable but you do not want the report to run `doctor.sh`, `status.sh`, or `login-check.sh --machine-readable`:
+Use `--no-health-commands` if version detection is acceptable but you do not want the report to run the bounded structured `healthcheck.sh` probe:
 
 ```bash
 sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --no-health-commands --output ./misp-sos-report.md
 ```
 
-The generated report includes concise, redacted command summaries only. It does not include raw logs.
+The generated v2 report contains only fixed enums, booleans, numeric counts, validated public component tags, restricted version fields, file-presence/mode facts, and allowlisted health statuses. It does not include raw command summaries or backup metadata. The health probe does not include the credential-bearing login check.
 
-The generated file is written with restrictive permissions when possible. Review it manually before posting.
+The report is written atomically with mode `0600`; symlink output targets are refused. Review it manually before posting.
 
 ## Manual SOS report template
 

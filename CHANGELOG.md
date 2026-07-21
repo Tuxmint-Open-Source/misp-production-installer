@@ -43,6 +43,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add anonymous SOS report documentation and update the bug-report template so users can provide reproducible public-safe diagnostics without leaking deployment details.
 - Add `installer/sos-report.sh` and a redaction helper for generated public-safe SOS bug reports.
 - Add concise redacted health-command and backup-shape summaries to generated SOS reports.
+- Replace free-form SOS command output and backup metadata with a bounded `generated-sos-v2` allowlist of enums, booleans, counts, validated public tags, restricted versions, and non-login health statuses; write reports atomically and refuse symlink targets.
 - Document maintainer triage for anonymous SOS reports, including when to request `needs-sos-report` and when to move reports to private security handling.
 - Update the pinned CodeQL workflow from CodeQL Action v3 to v4 to avoid GitHub Actions Node.js 20 and CodeQL v3 deprecation warnings.
 - Document the maintainer response workflow for scheduled official MISP Docker upstream drift review PRs.
