@@ -739,6 +739,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('timeout-minutes: 15', workflow)
         self.assertIn('cancel-in-progress: true', workflow)
         self.assertIn('uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', workflow)
+        self.assertIn('fetch-depth: 2', workflow)
         self.assertIn('uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1', workflow)
         self.assertIn('python3 -m pip install --require-hashes -r .github/requirements/repository-gates.txt', workflow)
         self.assertIn('python3 -m unittest discover -s tests', workflow)
