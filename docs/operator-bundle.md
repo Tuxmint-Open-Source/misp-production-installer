@@ -15,6 +15,7 @@ Verify before extraction:
 
 ```bash
 sha256sum --check misp-docker-lifecycle-manager-vX.Y.Z.tar.gz.sha256
+tar -tzf misp-docker-lifecycle-manager-vX.Y.Z.tar.gz | sed -n '1,20p'
 sudo mkdir -p /opt/misp-docker-lifecycle-manager/releases
 sudo tar -xzf misp-docker-lifecycle-manager-vX.Y.Z.tar.gz \
   -C /opt/misp-docker-lifecycle-manager/releases
@@ -22,6 +23,8 @@ sudo ln -sfn \
   /opt/misp-docker-lifecycle-manager/releases/misp-docker-lifecycle-manager-vX.Y.Z \
   /opt/misp-docker-lifecycle-manager/current
 ```
+
+Download the archive and checksum from the same GitHub Release. Do **not** pipe downloaded release assets directly into a shell. See the [release integrity and provenance policy](release/integrity-and-provenance.md) for the current checksum, signing, SBOM, and provenance decisions.
 
 Run lifecycle commands from the stable path:
 
