@@ -6,8 +6,8 @@ MISP Docker Lifecycle Manager helps operate official `MISP/misp-docker` deployme
 
 | Version/ref | Security support |
 | --- | --- |
-| `v1.1.0` | Current stable release line. Security reports are accepted and confirmed manager vulnerabilities are considered for a fix release. Exact component compatibility remains pending until tag validation passes. |
-| `v1.0.0` | Previous stable release and latest validated-compatible artifact until `v1.1.0` exact-tag validation completes. |
+| `v1.1.0` | Current stable release line and latest validated-compatible artifact for the documented component tuple. Security reports are accepted and confirmed manager vulnerabilities are considered for a fix release. |
+| `v1.0.0` | Previous stable release with retained historical compatibility evidence. |
 | `main` | Development line. Security reports are accepted, but unreleased behavior is not part of a tagged compatibility claim. |
 | Release candidates and pre-`v1.0.0` tags | Historical and unsupported for routine fixes. Reports are still useful when the issue also affects a supported stable release or `main`. |
 

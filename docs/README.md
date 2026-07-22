@@ -50,7 +50,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release status
 
-`v1.1.0` is the current stable release line and includes the monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work accumulated after `v1.0.0`. Exact `v1.1.0` compatibility remains pending until the immutable tag passes validation; `v1.0.0` remains the latest validated-compatible release until then.
+`v1.1.0` is both the latest published and latest validated release and includes the monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work accumulated after `v1.0.0`.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

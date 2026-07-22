@@ -8,6 +8,11 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Add an always-running, read-only repository gate for unit/static tests, Bash syntax, Python compilation, tracked-YAML parsing, and complete-tree whitespace checks on every pull request and push to `main`.
 
+### Changed
+
+- Mark immutable `v1.1.0` as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag matrix passed.
+- Add explicit `latest_published` and `latest_validated` release channels without mutable Git aliases.
+
 ## [1.1.0] - 2026-07-21
 
 ### Added

@@ -119,6 +119,17 @@ The post-tag compatibility flow is:
 
 If validation fails, keep the public status as **validation failed** or **pending validation** and prepare a fix release instead of editing the result to look successful.
 
+## Release channels
+
+The repository publishes two convenience channels in `.release-channels.json`:
+
+- `latest_published`: the newest normal SemVer release;
+- `latest_validated`: the newest immutable release tag that passed the full compatibility matrix.
+
+These channels help operators choose a release. They do not replace immutable SemVer tags in installations, support requests, compatibility reports, or audit evidence. Mutable `stable` and `latest` Git tags are intentionally not created. GitHub's Latest Release marker describes publication, while `latest_validated` describes completed exact-tag compatibility evidence.
+
+At publication, update `latest_published`. Advance `latest_validated` only in the post-tag compatibility PR after every required scenario passes for the exact release/component tuple. If validation fails, leave `latest_validated` unchanged.
+
 ## What to read next
 
 - Return to the [documentation map](../README.md).
