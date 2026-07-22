@@ -1,6 +1,6 @@
 # Monitoring healthcheck validation — PR #61
 
-Date: 2026-07-17  
+Date: 2026-07-17
 Result: **passed**
 
 This report records monitoring-system-independent validation of the healthcheck command and output validator added around public PR [#61](https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/pull/61).

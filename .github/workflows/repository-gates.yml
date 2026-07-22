@@ -1,0 +1,72 @@
+name: Repository gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-gates-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository-gates:
+    name: Repository gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        # actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        # actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.12"
+
+      - name: Install hash-pinned gate dependency
+        run: python3 -m pip install --require-hashes -r .github/requirements/repository-gates.txt
+
+      - name: Run unit and static tests
+        run: python3 -m unittest discover -s tests
+
+      - name: Check Bash syntax
+        run: |
+          for script in installer/*.sh; do
+            bash -n "$script"
+          done
+
+      - name: Compile Python sources
+        run: python3 -m py_compile scripts/*.py tests/*.py
+
+      - name: Parse tracked YAML
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          import yaml
+
+          tracked = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "*.yml", "*.yaml"]
+          ).decode().split("\0")
+          for name in sorted(filter(None, tracked)):
+              path = Path(name)
+              yaml.safe_load(path.read_text())
+          PY
+
+      - name: Check repository tree for whitespace errors
+        env:
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          empty_tree=$(git hash-object -t tree /dev/null)
+          git diff --check "$empty_tree" "$CURRENT_SHA"

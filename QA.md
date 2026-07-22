@@ -22,8 +22,11 @@ Before a PR is ready for review:
 ```bash
 python3 -m unittest discover -s tests
 for f in installer/*.sh; do bash -n "$f"; done
+python3 -m py_compile scripts/*.py tests/*.py
 git diff --check
 ```
+
+The always-running `Repository gates` GitHub workflow applies these read-only checks to every pull request, including documentation-only changes, and to every push to `main`. It also parses every tracked YAML file and checks the complete current repository tree for whitespace errors, avoiding assumptions about event history or parent availability. Specialized CodeQL and ShellCheck workflows remain additional path-scoped checks.
 
 The repository must not contain:
 
