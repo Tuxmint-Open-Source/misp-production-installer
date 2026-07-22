@@ -4,10 +4,13 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-22
+
 ### Added
 
 - Add an always-running, read-only repository gate for unit/static tests, Bash syntax, Python compilation, tracked-YAML parsing, and complete-tree whitespace checks on every pull request and push to `main`.
 - Add deterministic, allowlisted operator-bundle generation with embedded file digests, a companion archive checksum, runtime-closure and exclusion tests, and offline install/rollback guidance.
+- Add a guarded operator-bundle release-asset workflow that builds and verifies bundle assets in a read-only job and publishes only from an official release event or explicit non-dry-run manual dispatch.
 
 ### Changed
 
@@ -181,7 +184,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0-rc.3...v1.0.0
 [1.0.0-rc.3]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0-rc.2...v1.0.0-rc.3
