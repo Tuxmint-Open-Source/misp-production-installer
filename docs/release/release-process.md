@@ -29,7 +29,7 @@ git switch -c release/vX.Y.Z
 ```
 
 The release branch is only a review vehicle. Delete it after the release PR is merged.
-The permanent release record is the Git tag, GitHub Release, `CHANGELOG.md`, and commit history.
+The permanent release record is the Git tag, GitHub Release, `CHANGELOG.md`, and commit history. Release integrity and deferred provenance controls are documented in [Release integrity and provenance policy](integrity-and-provenance.md).
 
 ## Release PR contents
 
@@ -162,4 +162,5 @@ At publication, update `latest_published`. Advance `latest_validated` only in th
 
 - Return to the [documentation map](../README.md).
 - Review versioning rules in [Versioning](../versioning.md).
+- Review release integrity and deferred provenance controls in [Release integrity and provenance policy](integrity-and-provenance.md).
 - Review compatibility publication rules in [Compatibility](../compatibility.md).

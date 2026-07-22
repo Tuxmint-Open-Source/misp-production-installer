@@ -187,6 +187,18 @@ A release is ready when:
 - compatibility claims are based on the immutable release tag, not only `main` or a release branch
 - release/component pairs are marked **validated compatible** only after the documented compatibility scenarios pass
 
+## Release integrity acceptance criteria
+
+Release-integrity policy changes should keep these guarantees explicit:
+
+- immutable SemVer tags are the installation and support identity;
+- generated release assets include companion SHA-256 files when published;
+- operator-bundle archives are deterministic and record source commit plus per-file digests;
+- checksums are documented as corruption/mismatch detection, not as cryptographic authenticity;
+- signing, SBOM, provenance, and attestations are either implemented with user verification steps or explicitly deferred;
+- user instructions verify before extraction and avoid unsafe download-and-execute patterns;
+- compatibility claims remain separate from artifact-integrity claims.
+
 ## Definition of done
 
 A PR is done when:
