@@ -258,6 +258,8 @@ def validate_nested_schema(candidate: dict[str, object], watcher) -> None:
         for relative, record in records.items():
             require_safe_path(relative, f"watched_trees.{root} path", allow_dot=True)
             validate_file_record(record, f"watched_trees.{root}.{relative}")
+            if relative != "." and record["exists"] is not True:
+                fail(f"candidate lock watched-tree child is not an existing file: {root}/{relative}")
 
     readme_hashes = require_exact_keys(
         candidate["readme_operator_section_sha256"], set(watcher.README_SECTIONS),

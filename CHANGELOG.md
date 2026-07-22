@@ -14,6 +14,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - Add explicit `latest_published` and `latest_validated` release channels without mutable Git aliases.
 - Separate read-only upstream collection/testing from narrowly scoped review-PR publication, with a validated short-lived artifact boundary between the jobs.
 - Keep the primary README focused on current stable release evidence while retaining pre-`v1.0.0` history in the detailed compatibility and changelog records.
+- Reject collector-impossible missing child records inside watched-tree publication data.
 
 ## [1.1.0] - 2026-07-21
 

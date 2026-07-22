@@ -263,6 +263,12 @@ class UpstreamPublicationTests(unittest.TestCase):
             ),
         )
         mutate(
+            "non-dot missing tree child",
+            lambda value: next(iter(value["watched_trees"].values())).__setitem__(
+                "invented.json", {"exists": False, "sha256": ""}
+            ),
+        )
+        mutate(
             "malformed README digest",
             lambda value: value["readme_operator_section_sha256"].__setitem__("Production", "not-a-digest"),
         )
