@@ -66,6 +66,27 @@ Use `.github/RELEASE_TEMPLATE.md` for every GitHub Release. Keep the structure c
 
 Use Keep a Changelog categories in the "What's changed" section and omit empty categories.
 
+## Operator bundle assets
+
+For a release that publishes the operator bundle, build only from the checked-out
+immutable release tag:
+
+```bash
+python3 scripts/build-operator-bundle.py \
+  --source-ref vX.Y.Z \
+  --output-dir dist
+sha256sum --check dist/misp-docker-lifecycle-manager-vX.Y.Z.tar.gz.sha256
+```
+
+Upload both the archive and its `.sha256` companion to the same GitHub Release.
+The builder refuses non-SemVer references unless the explicit test-only
+`--allow-non-tag` option is used. Bundle contents come from the reviewed
+`operator-bundle-files.txt` allowlist and are read from the selected Git commit,
+not from uncommitted working-tree files.
+
+Do not make the bundle the recommended production path until the exact tagged
+artifact passes the complete lifecycle validation matrix.
+
 Release notes should be short enough to scan, but complete enough for an operator to answer:
 
 - Should I upgrade?

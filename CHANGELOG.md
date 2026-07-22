@@ -7,6 +7,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 ### Added
 
 - Add an always-running, read-only repository gate for unit/static tests, Bash syntax, Python compilation, tracked-YAML parsing, and complete-tree whitespace checks on every pull request and push to `main`.
+- Add deterministic, allowlisted operator-bundle generation with embedded file digests, a companion archive checksum, runtime-closure and exclusion tests, and offline install/rollback guidance.
 
 ### Changed
 

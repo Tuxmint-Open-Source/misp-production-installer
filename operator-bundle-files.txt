@@ -1,0 +1,30 @@
+# Files shipped in the operator release bundle.
+# Keep this explicit: additions require review and manifest-closure tests.
+LICENSE
+VERSION
+docs/operator-bundle.md
+installer/admin-credentials.sh
+installer/backup.sh
+installer/bootstrap-tls.sh
+installer/doctor.sh
+installer/down.sh
+installer/fetch-upstream.sh
+installer/generate-env.sh
+installer/get-current-misp-versions.sh
+installer/healthcheck.sh
+installer/install.sh
+installer/lib.sh
+installer/login-check.sh
+installer/logs.sh
+installer/prepare-host-rocky.sh
+installer/pull.sh
+installer/render-compose.sh
+installer/reset-installation.sh
+installer/restore.sh
+installer/sos-report.sh
+installer/status.sh
+installer/up.sh
+installer/update.sh
+installer/validate.sh
+scripts/generate_sos_report.py
+scripts/validate-backup.py
