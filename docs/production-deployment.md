@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-`v1.2.0` is the latest published release and is pending exact-tag validation. Use `v1.1.0` when you require the latest validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
+`v1.2.0` is both the latest published and latest validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 ## Supported production shape
 
@@ -70,7 +70,7 @@ sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
 
 ## Updates
 
-Use the update helper from a known manager release. For conservative production operations, prefer the latest validated tag until the latest published tag completes validation:
+Use the update helper from a known validated manager release:
 
 ```bash
 sudo ./installer/update.sh --install-dir /opt/misp-docker
@@ -106,11 +106,11 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-No-lock-in behavior passed exact-tag validation for `v1.1.0` with the documented component tuple. It remains a required scenario for `v1.2.0`, including validation from the packaged operator bundle before the bundle becomes the recommended installation path.
+No-lock-in behavior passed exact-tag and packaged-artifact validation for `v1.2.0` with the documented component tuple.
 
 ## Compatibility scope
 
-The immutable `v1.1.0` tag passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. `v1.2.0` is pending exact-tag and packaged-artifact validation. Future manager releases, upstream component sets, or expanded deployment scopes require separate validation before compatibility is claimed.
+The immutable `v1.2.0` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Future manager releases, upstream component sets, or expanded deployment scopes require separate validation before compatibility is claimed.
 
 ## What to read next
 

@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.2.0` is the latest published release and is pending exact-tag validation. `v1.1.0` remains the latest validated release for the documented single-server Docker lifecycle-manager scope and component tuple.
+`v1.2.0` is both the latest published and latest validated release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -10,19 +10,19 @@ Production readiness here applies only to the public support matrix and explicit
 | --- | --- |
 | Latest manager release | `v1.2.0` |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
-| Compatibility status | 🟡 `v1.2.0` pending exact-tag validation; ✅ `v1.1.0` validated compatible for the listed component tuple |
+| Compatibility status | ✅ `v1.2.0` validated compatible for the listed component tuple |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
 | Security model | ✅ [`security.md`](security.md) |
-| Backup, restore, and rollback | 🟡 `v1.2.0` pending; ✅ `v1.1.0` exact-tag evidence |
-| Browser-facing login | 🟡 `v1.2.0` pending; ✅ `v1.1.0` exact-tag browser evidence |
-| No-lock-in Compose operation | 🟡 `v1.2.0` pending; ✅ `v1.1.0` exact-tag evidence |
-| Monitoring contract | 🟡 `v1.2.0` pending; ✅ `v1.1.0` contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
+| Backup, restore, and rollback | ✅ `v1.2.0` exact-tag and packaged-artifact evidence |
+| Browser-facing login | ✅ `v1.2.0` exact-tag browser evidence |
+| No-lock-in Compose operation | ✅ `v1.2.0` exact-tag and packaged-artifact evidence |
+| Monitoring contract | ✅ `v1.2.0` contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
 
 ## `v1.2.0` release-validation state
 
-`v1.2.0` packages work added after the `v1.1.0` tag, including the required repository gate, upstream-publication token boundary, verified ShellCheck acquisition, and operator-bundle generation/release-asset automation. Its exact tag and packaged operator bundle are pending the complete lifecycle validation matrix. Until that passes, `v1.1.0` remains the latest validated-compatible release.
+`v1.2.0` packages work added after the `v1.1.0` tag, including the required repository gate, upstream-publication token boundary, verified ShellCheck acquisition, and operator-bundle generation/release-asset automation. Its immutable tag and published operator-bundle artifact passed the complete lifecycle validation matrix for the documented component tuple. It is now the latest validated-compatible release.
 
 ## `v1.1.0` release-validation state
 

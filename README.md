@@ -5,14 +5,14 @@
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
-> | Latest published | `v1.2.0` | Newest normal SemVer release; pending exact-tag validation |
-> | Latest validated | `v1.1.0` | Newest immutable release tag that passed the full compatibility matrix |
+> | Latest published | `v1.2.0` | Newest normal SemVer release |
+> | Latest validated | `v1.2.0` | Newest immutable release tag that passed the full compatibility matrix |
 >
 > Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.2.0`. The `v1.2.0` release is pending exact-tag validation; the immutable `v1.1.0` tag remains validated compatible with the component set listed below.
+Current `VERSION` value on `main`: `1.2.0`. The immutable `v1.2.0` tag is validated compatible with the component set listed below.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -30,7 +30,7 @@ It adds:
 - backup, restore, update, and restore-based rollback workflows;
 - reset/removal helpers with safety checks;
 - compatibility and validation documentation;
-- optional operator-bundle packaging for release assets, gated by artifact-level validation before production recommendation.
+- optional operator-bundle packaging for release assets, validated for the documented scope.
 
 It does **not** fork, vendor, or copy MISP. It does **not** replace upstream `MISP/misp-docker`. It is not a Kubernetes, high-availability, or multi-node orchestration layer.
 
@@ -92,7 +92,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v1.2.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | 🟡 Pending exact-tag validation |
+| `v1.2.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.43` | `v3.0.8` | `v1.2` | ✅ Validated compatible |
@@ -134,7 +134,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.2.0` is the latest published release and is pending exact-tag validation. `v1.1.0` remains the latest validated release for the listed component set until the `v1.2.0` immutable tag and operator-bundle artifact pass the required lifecycle matrix.
+`v1.2.0` is both the latest published and latest validated release for the listed component set. The immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 

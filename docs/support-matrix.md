@@ -1,6 +1,6 @@
 # Support matrix
 
-This page defines the public support scope of the stable release line. `v1.2.0` is the latest published release; `v1.1.0` remains the latest validated-compatible release until `v1.2.0` validation completes.
+This page defines the public support scope of the stable release line. `v1.2.0` is both the latest published and latest validated-compatible release.
 
 Anything outside this matrix may still work, but it is not part of the validated support contract unless a later compatibility report says so explicitly.
 
@@ -15,7 +15,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
 | Direct-QA mode | validation and controlled QA only | Direct-QA is not the recommended long-term public exposure mode. |
 | MISP component selection | official component tags from upstream or explicit official tags | Custom images/forks are not covered. |
-| Lifecycle helpers | install, doctor, login check, healthcheck, anonymous SOS report, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | `v1.2.0` compatibility is pending; exact `v1.1.0` compatibility is validated only for the component tuple listed in the compatibility matrix. |
+| Lifecycle helpers | install, doctor, login check, healthcheck, anonymous SOS report, backup, restore, update, reset dry-run, restore-based rollback, no-lock-in Compose usage | Exact `v1.2.0` compatibility is validated only for the component tuple listed in the compatibility matrix. |
 
 ## Explicit non-goals
 
