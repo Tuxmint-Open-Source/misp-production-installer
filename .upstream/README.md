@@ -74,7 +74,9 @@ The workflow runs daily and can also be started manually:
 .github/workflows/upstream-misp-docker-watch.yml
 ```
 
-It uses a single concurrency group, has a bounded job timeout, and executes the focused watcher parser/contract tests before collecting upstream state.
+It uses a single concurrency group and bounded job timeouts. A read-only collector job executes the focused watcher/publication tests and collects anonymous public upstream state into a short-lived artifact. Only a guarded second job on the canonical `main` branch receives the narrowly scoped permissions needed to publish a review PR.
+
+The publisher does not trust the transferred files merely because the collector created them. It requires exactly the fixed lock/report pair, validates their size and schema, recomputes lifecycle-sensitive drift against the committed baseline, and requires the report to match the locally rendered result before writing the two allowlisted repository paths.
 
 If no relevant upstream drift is detected, no PR is opened.
 
@@ -117,8 +119,8 @@ Fail when lifecycle-sensitive drift is detected:
 python3 scripts/check-upstream-misp-docker.py --check
 ```
 
-Run the focused parser contract tests:
+Run the focused parser and publication-boundary contract tests:
 
 ```bash
-python3 -m unittest tests.test_upstream_watcher
+python3 -m unittest tests.test_upstream_watcher tests.test_upstream_publication
 ```

@@ -6,43 +6,106 @@ on:
     - cron: "17 5 * * *"
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: upstream-misp-docker-review
   cancel-in-progress: false
 
 jobs:
-  check-upstream:
-    name: Check official MISP Docker upstream
+  collect-upstream:
+    name: Collect official MISP Docker upstream
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      drift: ${{ steps.upstream.outputs.drift }}
+      upstream_commit: ${{ steps.upstream.outputs.upstream_commit }}
 
     steps:
-      - name: Check out repository
+      - name: Check out exact workflow revision
         # actions/checkout@v7
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
 
       - name: Validate watcher parser and contract
         run: |
-          python3 -m unittest tests.test_upstream_watcher
-          python3 -m py_compile scripts/check-upstream-misp-docker.py tests/test_upstream_watcher.py
+          python3 -m unittest tests.test_upstream_watcher tests.test_upstream_publication
+          python3 -m py_compile \
+            scripts/check-upstream-misp-docker.py \
+            scripts/validate-upstream-misp-docker-publication.py \
+            tests/test_upstream_watcher.py \
+            tests/test_upstream_publication.py
 
-      - name: Check upstream drift
+      - name: Collect upstream drift into staging
         id: upstream
         run: |
-          python3 scripts/check-upstream-misp-docker.py --write
+          mkdir publication
+          cp .upstream/misp-docker.lock.json publication/misp-docker.lock.json
+          python3 scripts/check-upstream-misp-docker.py \
+            --lock publication/misp-docker.lock.json \
+            --report publication/misp-docker-upstream-review.md \
+            --write
+
+      - name: Upload validated collector output
+        if: steps.upstream.outputs.drift == 'true'
+        # actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: upstream-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            publication/misp-docker.lock.json
+            publication/misp-docker-upstream-review.md
+          if-no-files-found: error
+          retention-days: 1
+
+  publish-upstream-review:
+    name: Publish upstream review
+    needs: collect-upstream
+    if: >-
+      needs.collect-upstream.result == 'success' &&
+      needs.collect-upstream.outputs.drift == 'true' &&
+      github.repository == 'Tuxmint-Open-Source/misp-docker-lifecycle-manager' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Check out exact workflow revision
+        # actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download exact collector artifact
+        # actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
+        with:
+          name: upstream-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: publication
+
+      - name: Validate publication boundary
+        run: |
+          python3 scripts/validate-upstream-misp-docker-publication.py \
+            --artifact-dir publication \
+            --expected-commit '${{ needs.collect-upstream.outputs.upstream_commit }}'
 
       - name: Create upstream review PR
         id: create-pr
         continue-on-error: true
-        if: steps.upstream.outputs.drift == 'true'
         # peter-evans/create-pull-request@v8
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1
         with:
           branch: automation/upstream-misp-docker-review
+          base: main
           delete-branch: true
           commit-message: "Review upstream MISP Docker changes"
           title: "Review upstream MISP Docker changes"
@@ -52,13 +115,13 @@ jobs:
             .upstream/reports/misp-docker-upstream-review.md
 
       - name: Report manual PR fallback
-        if: steps.upstream.outputs.drift == 'true' && steps.create-pr.outputs.pull-request-number == ''
+        if: steps.create-pr.outputs.pull-request-number == ''
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Upstream drift review PR missing
 
-          Upstream MISP Docker drift was detected, but this workflow did not
-          create an open pull request automatically.
+          Upstream MISP Docker drift was detected and the publication bundle was
+          validated, but this workflow did not create an open pull request.
 
           Check whether the review branch exists:
 

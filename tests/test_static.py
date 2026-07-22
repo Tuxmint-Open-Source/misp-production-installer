@@ -272,6 +272,7 @@ class StaticRepoTests(unittest.TestCase):
 
     def test_upstream_monitoring_artifacts_exist(self):
         self.assertTrue((ROOT / 'scripts' / 'check-upstream-misp-docker.py').exists())
+        self.assertTrue((ROOT / 'scripts' / 'validate-upstream-misp-docker-publication.py').exists())
         self.assertTrue((ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').exists())
         self.assertTrue((ROOT / '.upstream' / 'misp-docker.lock.json').exists())
         monitor = (ROOT / 'scripts' / 'check-upstream-misp-docker.py').read_text()
@@ -296,8 +297,12 @@ class StaticRepoTests(unittest.TestCase):
     def test_upstream_monitoring_workflow_actions_are_sha_pinned(self):
         text = (ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').read_text()
         self.assertIn('uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0', text)
+        self.assertIn('uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f', text)
+        self.assertIn('uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131', text)
         self.assertIn('uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1', text)
         self.assertNotIn('uses: actions/checkout@v', text)
+        self.assertNotIn('uses: actions/upload-artifact@v', text)
+        self.assertNotIn('uses: actions/download-artifact@v', text)
         self.assertNotIn('uses: peter-evans/create-pull-request@v', text)
 
     def test_upstream_watch_handles_blocked_pr_creation_and_prompts_compatibility_validation(self):
@@ -305,7 +310,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('continue-on-error: true', workflow)
         self.assertIn('timeout-minutes: 10', workflow)
         self.assertIn('group: upstream-misp-docker-review', workflow)
-        self.assertIn('python3 -m unittest tests.test_upstream_watcher', workflow)
+        self.assertIn('python3 -m unittest tests.test_upstream_watcher tests.test_upstream_publication', workflow)
         self.assertIn('Report manual PR fallback', workflow)
         self.assertIn("steps.create-pr.outputs.pull-request-number == ''", workflow)
         self.assertIn('Upstream drift detected but no pull request number was returned', workflow)
@@ -316,6 +321,33 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Run compatibility validation for the affected manager release/ref', script)
         self.assertIn('validated compatible', script)
         self.assertIn('A pushed review branch without an open PR still means upstream drift exists', maintainer)
+
+    def test_upstream_watch_separates_read_only_collection_from_write_publication(self):
+        workflow = (ROOT / '.github' / 'workflows' / 'upstream-misp-docker-watch.yml').read_text()
+        validator = (ROOT / 'scripts' / 'validate-upstream-misp-docker-publication.py').read_text()
+
+        self.assertIn('permissions: {}', workflow)
+        self.assertRegex(workflow, r'(?s)collect-upstream:.*?permissions:\n      contents: read')
+        self.assertRegex(workflow, r'(?s)publish-upstream-review:.*?permissions:\n      contents: write\n      pull-requests: write')
+        collector = workflow.split('  publish-upstream-review:', 1)[0]
+        publisher = workflow.split('  publish-upstream-review:', 1)[1]
+        self.assertNotIn('create-pull-request', collector)
+        self.assertNotIn('contents: write', collector)
+        self.assertIn('needs: collect-upstream', publisher)
+        self.assertIn("github.repository == 'Tuxmint-Open-Source/misp-docker-lifecycle-manager'", publisher)
+        self.assertIn("github.ref == 'refs/heads/main'", publisher)
+        self.assertIn("github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'", publisher)
+        self.assertNotIn('pull_request_target', workflow)
+        self.assertEqual(workflow.count('persist-credentials: false'), 2)
+        self.assertEqual(workflow.count('ref: ${{ github.sha }}'), 2)
+        self.assertIn('upstream-publication-${{ github.run_id }}-${{ github.run_attempt }}', workflow)
+        self.assertIn('retention-days: 1', workflow)
+        self.assertIn('if-no-files-found: error', workflow)
+        self.assertIn('base: main', workflow)
+        self.assertLess(workflow.index('Validate publication boundary'), workflow.index('Create upstream review PR'))
+        self.assertIn('EXPECTED_KEYS', validator)
+        self.assertIn('candidate report does not match recomputed public report', validator)
+        self.assertIn('Only the two fixed destination paths are written', validator)
 
     def test_release_docs_require_exact_tag_compatibility_validation(self):
         release = (ROOT / 'docs' / 'release' / 'release-process.md').read_text()

@@ -12,6 +12,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 - Mark immutable `v1.1.0` as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag matrix passed.
 - Add explicit `latest_published` and `latest_validated` release channels without mutable Git aliases.
+- Separate read-only upstream collection/testing from narrowly scoped review-PR publication, with a validated short-lived artifact boundary between the jobs.
 
 ## [1.1.0] - 2026-07-21
 
