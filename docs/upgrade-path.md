@@ -51,6 +51,8 @@ MODULES_TAG=...
 GUARD_TAG=...
 ```
 
+`--upstream-ref` may point at a branch for discovery/update convenience, but public compatibility evidence is tied to immutable manager refs and official component tags. See [Upstream input policy](upstream-inputs.md) for the distinction between discovery, development, release, and validated-compatibility references.
+
 Upstream publishes images with several tag styles:
 
 - short build commit tags, for example `misp-core:<commit7>`

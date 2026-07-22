@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Document the immutable upstream Git and container input policy, distinguishing discovery/development refs from validated compatibility identities and deferring OCI digest guarantees until operator verification and metadata rules are designed.
 - Document the release integrity and provenance policy, including the current checksum/tag controls, operator verification steps, and explicit defer decisions for signing, SBOMs, provenance, and attestations.
 - Mark immutable `v1.2.0` and its published operator-bundle artifact as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag and packaged-artifact lifecycle matrix passed.
 

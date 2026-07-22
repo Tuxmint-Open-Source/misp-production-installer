@@ -187,6 +187,17 @@ A release is ready when:
 - compatibility claims are based on the immutable release tag, not only `main` or a release branch
 - release/component pairs are marked **validated compatible** only after the documented compatibility scenarios pass
 
+## Upstream input acceptance criteria
+
+Upstream input policy changes should preserve these guarantees:
+
+- discovery/development references are separated from release and validated-compatibility identities;
+- mutable upstream branches are review inputs, not immutable compatibility evidence;
+- public compatibility claims name the exact manager release/ref and official component tags;
+- runtime `latest` image tracking is documented as intentional mutability, not the production default;
+- upstream watcher PRs are review prompts and never compatibility proof by themselves;
+- future OCI digest support requires operator verification, metadata, rollback, and validation rules before it is claimed.
+
 ## Release integrity acceptance criteria
 
 Release-integrity policy changes should keep these guarantees explicit:

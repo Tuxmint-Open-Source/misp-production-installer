@@ -121,7 +121,7 @@ Compare a local install against upstream:
 ./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
-For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade-path.md) and [`docs/versioning.md`](docs/versioning.md).
+For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade-path.md), [`docs/versioning.md`](docs/versioning.md), and [`docs/upstream-inputs.md`](docs/upstream-inputs.md).
 
 ## Design principles
 
