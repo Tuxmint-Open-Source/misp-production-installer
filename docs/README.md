@@ -50,7 +50,7 @@ The docs intentionally separate different kinds of information:
 
 ## Current release status
 
-`v1.1.0` is both the latest published and latest validated release and includes the monitoring, lifecycle-security, diagnostics, and upstream-release monitoring work accumulated after `v1.0.0`.
+`v1.2.0` is the latest published release and is pending exact-tag validation. `v1.1.0` remains the latest validated release for the documented component tuple. The `v1.2.0` release adds repository-gate, upstream-publication, ShellCheck acquisition, and operator-bundle distribution work after `v1.1.0`.
 
 See [production readiness](production-readiness.md) for the current release-readiness state.
 

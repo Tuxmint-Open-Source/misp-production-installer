@@ -83,7 +83,7 @@ Copy this template into a GitHub bug issue and fill in only public-safe values.
 I reviewed this report before posting and removed secrets, credentials, private hostnames/IPs, internal topology, raw logs, database dumps, backup contents, generated configuration, and deployment-specific data.
 
 ## Summary
-- Manager version/ref: v1.1.0 or commit SHA
+- Manager version/ref: v1.2.0, v1.1.0, or commit SHA
 - Report format: manual-sos-v1
 - Affected workflow: install | update | backup | restore | rollback | reset | doctor | status | login-check | documentation | other
 - Reproducible on a fresh install: yes | no | unknown
