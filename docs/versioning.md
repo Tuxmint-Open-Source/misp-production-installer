@@ -66,7 +66,7 @@ misp-docker-lifecycle-manager release/ref × official MISP Docker component set 
 
 A release should be called **validated compatible** only after the documented scenarios pass for the exact manager release/ref and component set. For release claims, validate the immutable Git tag, not just `main` or a release branch.
 
-See [`docs/compatibility.md`](compatibility.md) and [`docs/validation/matrix.md`](validation/matrix.md).
+See [`docs/compatibility.md`](compatibility.md), [`docs/validation/matrix.md`](validation/matrix.md), and [Upstream input policy](upstream-inputs.md).
 
 ## Recommended release workflow
 
@@ -94,4 +94,5 @@ For the current stable line:
 - Return to the [documentation map](README.md).
 - Review update behavior in [Upgrade path](upgrade-path.md).
 - Review compatibility status definitions in [Compatibility](compatibility.md).
+- Review upstream input identity rules in [Upstream input policy](upstream-inputs.md).
 - Review release mechanics in [Release process](release/release-process.md).

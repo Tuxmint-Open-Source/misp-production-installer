@@ -34,6 +34,7 @@ This documentation is organized around the operator journey: understand the mode
 | debug a failure | [Troubleshooting](troubleshooting.md) |
 | report a reproducible bug safely | [Anonymous SOS reports](sos-report.md) |
 | contribute code, docs, or integration testing | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
+| understand release and upstream input identity | [Versioning](versioning.md), [Release integrity](release/integrity-and-provenance.md), and [Upstream input policy](upstream-inputs.md) |
 | maintain the repository or cut a release | [Maintainer workflow](maintainer-workflow.md), then [release process](release/release-process.md) and [release integrity policy](release/integrity-and-provenance.md) |
 
 ## Documentation types
