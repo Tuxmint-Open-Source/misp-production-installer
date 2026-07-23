@@ -240,6 +240,7 @@ Do not mark a release **validated compatible** until the exact immutable release
 
 ## What to read next
 
+- Return to the [documentation map](README.md) and choose the contributor/maintainer path.
 - Contributing a change: [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 - Reporting a vulnerability: [`SECURITY.md`](../SECURITY.md).
 - Running quality gates: [`QA.md`](../QA.md).

@@ -247,7 +247,7 @@ tested the rollback path.
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Review backup and rollback details in [Backup, restore, and rollback](backup-restore-and-rollback.md).
 - Check validated release/component pairs in [Compatibility](compatibility.md).
 - Follow day-2 flow in [Operator guide](operator-guide.md).

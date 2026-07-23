@@ -44,3 +44,9 @@ Manager rollback does not roll back MISP data, configuration, images, or the off
 The manager is installed separately from the official `MISP/misp-docker` checkout. Removing the manager bundle removes its supported lifecycle commands but does not stop or rewrite the deployed Compose application. The deployment remains operable through official upstream Docker Compose workflows.
 
 The full source checkout remains the contributor and development path. For supported operator installs, use the immutable release tag or the checksummed operator bundle from the same GitHub Release. Pull requests and workflow dry runs only build and verify bundle assets without uploading them.
+
+## What to read next
+
+- Return to the [documentation map](README.md) and choose the user/operator path.
+- Review release artifact controls in [Release integrity and provenance policy](release/integrity-and-provenance.md).
+- Follow the normal lifecycle in [Operator guide](operator-guide.md).

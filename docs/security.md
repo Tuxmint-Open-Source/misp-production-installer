@@ -139,7 +139,7 @@ The `v1.0.0` line was released with:
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
-- Review supported scope in [Support matrix](support-matrix.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Review backup sensitivity in [Backup, restore, and rollback](backup-restore-and-rollback.md).
+- Review vulnerability reporting in [`SECURITY.md`](../SECURITY.md).
 - Review operator commands in [Shell scripts reference](shell-scripts.md).

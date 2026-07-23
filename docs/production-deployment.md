@@ -114,7 +114,6 @@ The immutable `v1.2.0` tag and published operator-bundle artifact passed restore
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
-- Use [Getting started](getting-started.md) for the first install path.
+- Return to the [documentation map](README.md) and choose the user/operator path.
+- Plan recovery with [Backup, restore, and rollback](backup-restore-and-rollback.md).
 - Use [Operator guide](operator-guide.md) for day-2 lifecycle flow.
-- Review recovery in [Backup, restore, and rollback](backup-restore-and-rollback.md).

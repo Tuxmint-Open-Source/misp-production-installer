@@ -87,7 +87,7 @@ Public evidence must not include private hostnames, private IP addresses, VM ide
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Review the public support scope in [Support matrix](support-matrix.md).
 - Plan deployment with [Production deployment guide](production-deployment.md).
 - Review compatibility evidence in [Compatibility](compatibility.md).

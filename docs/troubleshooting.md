@@ -128,7 +128,7 @@ Do not paste raw logs, `.env`, generated config, backups, or private deployment 
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Re-check the normal lifecycle in [Operator guide](operator-guide.md).
 - Review command details in [Shell scripts reference](shell-scripts.md).
 - Review validation status in [Compatibility](compatibility.md).

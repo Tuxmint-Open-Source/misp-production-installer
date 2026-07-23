@@ -580,6 +580,7 @@ class StaticRepoTests(unittest.TestCase):
             'backup-restore-and-rollback.md',
             'compatibility.md',
             'monitoring.md',
+            'operator-bundle.md',
             'production-deployment.md',
             'production-readiness.md',
             'security.md',
@@ -593,6 +594,24 @@ class StaticRepoTests(unittest.TestCase):
             text = (ROOT / 'docs' / rel).read_text()
             self.assertIn('README.md', text, rel)
             self.assertRegex(text, r'## What to read next\n', rel)
+
+        for rel in [
+            'architecture.md',
+            'backup-restore-and-rollback.md',
+            'monitoring.md',
+            'operator-bundle.md',
+            'production-deployment.md',
+            'production-readiness.md',
+            'security.md',
+            'support-matrix.md',
+            'troubleshooting.md',
+            'upgrade-path.md',
+        ]:
+            text = (ROOT / 'docs' / rel).read_text()
+            self.assertIn('choose the user/operator', text, rel)
+
+        maintainer = (ROOT / 'docs' / 'maintainer-workflow.md').read_text()
+        self.assertIn('choose the contributor/maintainer path', maintainer)
 
         matrix = (ROOT / 'docs' / 'validation' / 'matrix.md').read_text()
         self.assertIn('## What to read next', matrix)

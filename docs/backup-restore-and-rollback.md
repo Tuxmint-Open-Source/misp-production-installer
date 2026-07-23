@@ -159,7 +159,7 @@ If backup, restore, update, or rollback fails:
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Follow the end-to-end lifecycle in [Operator guide](operator-guide.md).
 - Review update behavior in [Upgrade path](upgrade-path.md).
 - Review sensitive artifact handling in [Security](security.md).

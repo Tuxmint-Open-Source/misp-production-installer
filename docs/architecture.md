@@ -23,6 +23,6 @@ Rule: keep upstream clean. Use `.env`, `docker-compose.override.yml`, scripts, a
 
 ## What to read next
 
-- Start at the [documentation map](README.md) if you need the full reader path.
+- Return to the [documentation map](README.md) and choose the user/operator or contributor/maintainer path.
 - Check the supported deployment shape in [Support matrix](support-matrix.md).
 - Follow the normal lifecycle in [Operator guide](operator-guide.md).

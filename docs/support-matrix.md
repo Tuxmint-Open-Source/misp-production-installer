@@ -65,7 +65,7 @@ Examples:
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Try the first install path in [Getting started](getting-started.md).
 - Plan a real deployment with [Production deployment guide](production-deployment.md).
 - Check validated component sets in [Compatibility](compatibility.md).

@@ -307,9 +307,8 @@ sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readabl
 
 ## What to read next
 
-- [Documentation](README.md)
-- [Shell scripts reference](shell-scripts.md)
-- [Operator guide](operator-guide.md)
-- [Troubleshooting](troubleshooting.md)
-- [Anonymous SOS reports](sos-report.md)
-- [Production readiness](production-readiness.md)
+- Return to the [documentation map](README.md) and choose the user/operator path.
+- Review command details in [Shell scripts reference](shell-scripts.md).
+- Follow the normal lifecycle in [Operator guide](operator-guide.md).
+- Troubleshoot failures with [Troubleshooting](troubleshooting.md) and [Anonymous SOS reports](sos-report.md).
+- Review current evidence in [Production readiness](production-readiness.md).
