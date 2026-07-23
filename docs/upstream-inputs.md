@@ -41,7 +41,7 @@ Useful read-only records before changing a deployment:
 ```bash
 git -C /opt/misp-docker rev-parse HEAD
 grep -E '^(CORE|MODULES|GUARD)(_RUNNING)?_TAG=' /opt/misp-docker/.env
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 ## Upstream watcher responsibilities

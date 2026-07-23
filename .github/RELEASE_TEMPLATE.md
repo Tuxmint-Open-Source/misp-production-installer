@@ -53,8 +53,8 @@ Use the Keep a Changelog categories below. Omit categories that do not apply.
 Use public-safe generic wording only.
 
 - Unit tests passed.
-- Shell syntax checks passed for all installer scripts.
-- Installer version reports `<version>`.
+- Shell syntax checks passed for all lifecycle commands and installer compatibility wrappers.
+- Lifecycle command version reports `<version>`.
 - Public marker scan passed.
 
 ## Links

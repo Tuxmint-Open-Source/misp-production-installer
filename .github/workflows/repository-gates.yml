@@ -42,7 +42,7 @@ jobs:
 
       - name: Check Bash syntax
         run: |
-          for script in installer/*.sh; do
+          for script in lifecycle/*.sh installer/*.sh; do
             bash -n "$script"
           done
 

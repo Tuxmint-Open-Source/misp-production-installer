@@ -32,8 +32,8 @@ CHANGELOG.md
 The operational scripts expose the manager version:
 
 ```bash
-./installer/install.sh --version
-./installer/update.sh --version
+./lifecycle/install.sh --version
+./lifecycle/update.sh --version
 ```
 
 ## 2. MISP/misp-docker upstream version
@@ -47,8 +47,8 @@ https://github.com/MISP/misp-docker.git
 Choose the upstream branch, tag, or commit with:
 
 ```bash
-./installer/install.sh --upstream-ref <branch-tag-or-commit>
-./installer/update.sh --upstream-ref <branch-tag-or-commit>
+./lifecycle/install.sh --upstream-ref <branch-tag-or-commit>
+./lifecycle/update.sh --upstream-ref <branch-tag-or-commit>
 ```
 
 That means:

@@ -12,15 +12,35 @@ class StaticRepoTests(unittest.TestCase):
         self.assertFalse((ROOT / '.env').exists())
         self.assertFalse((ROOT / '.installer-state.json').exists())
 
+    def test_lifecycle_directory_is_canonical_and_installer_wrappers_remain_compatible(self):
+        lifecycle_scripts = {p.name for p in (ROOT / 'lifecycle').glob('*.sh')}
+        installer_wrappers = {p.name for p in (ROOT / 'installer').glob('*.sh')}
+        self.assertEqual(lifecycle_scripts, installer_wrappers)
+        self.assertIn('install.sh', lifecycle_scripts)
+        for name in lifecycle_scripts:
+            wrapper = (ROOT / 'installer' / name).read_text()
+            self.assertIn(f'exec "$PROJECT_ROOT/lifecycle/{name}" "$@"', wrapper)
+        manifest = (ROOT / 'operator-bundle-files.txt').read_text()
+        self.assertIn('lifecycle/install.sh', manifest)
+        self.assertIn('installer/install.sh', manifest)
+        readme = (ROOT / 'README.md').read_text()
+        self.assertIn('./lifecycle/install.sh', readme)
+        self.assertNotIn('./installer/install.sh', readme)
+        shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
+        self.assertIn('`lifecycle/` directory contains Bash helpers', shell_docs)
+        self.assertIn('./lifecycle/install.sh', shell_docs)
+        changelog = (ROOT / 'CHANGELOG.md').read_text()
+        self.assertIn('Rename the canonical operator command directory from `installer/` to `lifecycle/`', changelog)
+
     def test_scripts_are_bash_strict(self):
-        for p in (ROOT / 'installer').glob('*.sh'):
+        for p in (ROOT / 'lifecycle').glob('*.sh'):
             text = p.read_text()
             self.assertTrue(text.startswith('#!/usr/bin/env bash'), p)
             self.assertIn('set -euo pipefail', text, p)
 
     def test_main_scripts_have_help_and_version(self):
         for name in ['install.sh', 'update.sh', 'backup.sh', 'restore.sh', 'doctor.sh', 'status.sh', 'healthcheck.sh', 'admin-credentials.sh', 'login-check.sh', 'sos-report.sh', 'get-current-misp-versions.sh', 'reset-installation.sh']:
-            script = ROOT / 'installer' / name
+            script = ROOT / 'lifecycle' / name
             help_text = subprocess.check_output([str(script), '--help'], text=True, cwd=ROOT)
             self.assertIn('Usage:', help_text, name)
             version_text = subprocess.check_output([str(script), '--version'], text=True, cwd=ROOT).strip()
@@ -33,7 +53,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn(f'## [{version}]', (ROOT / 'CHANGELOG.md').read_text())
 
     def test_redis_password_url_safe_generation(self):
-        text = (ROOT / 'installer' / 'generate-env.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'generate-env.sh').read_text()
         self.assertIn('MYSQL_PASSWORD_VALUE="$(random_hex 32)"', text)
         self.assertIn('MYSQL_ROOT_PASSWORD_VALUE="$(random_hex 32)"', text)
         self.assertIn('alphanumeric-only', text)
@@ -41,9 +61,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('session.save_path', text)
 
     def test_direct_qa_rejects_loopback_base_url(self):
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
-        install = (ROOT / 'installer' / 'install.sh').read_text()
-        generate = (ROOT / 'installer' / 'generate-env.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
+        install = (ROOT / 'lifecycle' / 'install.sh').read_text()
+        generate = (ROOT / 'lifecycle' / 'generate-env.sh').read_text()
         self.assertIn('validate_public_base_url()', lib)
         self.assertIn('localhost would redirect browsers back to their own machine', lib)
         self.assertIn('ip.is_loopback', lib)
@@ -71,16 +91,16 @@ class StaticRepoTests(unittest.TestCase):
                 self.assertNotIn(marker, text, f'{marker} leaked in {p}')
 
     def test_install_runs_db_updates_before_doctor(self):
-        text = (ROOT / 'installer' / 'install.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'install.sh').read_text()
         self.assertLess(text.index('wait_for_misp_core'), text.index('run_misp_db_updates'))
         self.assertLess(text.index('run_misp_db_updates'), text.index('wait_for_misp_live_marker'))
         self.assertLess(text.index('wait_for_misp_live_marker'), text.index('doctor.sh'))
-        self.assertIn('Credentials helper: sudo ./installer/admin-credentials.sh --install-dir $INSTALL_DIR', text)
+        self.assertIn('Credentials helper: sudo ./lifecycle/admin-credentials.sh --install-dir $INSTALL_DIR', text)
         self.assertLess(text.index('Admin password: stored'), text.index('Credentials helper:'))
-        update = (ROOT / 'installer' / 'update.sh').read_text()
+        update = (ROOT / 'lifecycle' / 'update.sh').read_text()
         self.assertLess(update.index('run_misp_db_updates'), update.index('wait_for_misp_live_marker'))
         self.assertLess(update.index('wait_for_misp_live_marker'), update.index('doctor.sh'))
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
         self.assertIn('./Console/cake Admin runUpdates', lib)
         self.assertIn('MISP database update attempt', lib)
         self.assertIn('attempts="${2:-90}"', lib)
@@ -90,7 +110,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('MISP is now live. Users can now log in.', lib)
 
     def test_compose_wrapper_suppresses_optional_variable_noise(self):
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
         self.assertIn('braced_pattern', lib)
         self.assertIn('plain_pattern', lib)
         self.assertIn('vars_seen - env_keys', lib)
@@ -98,10 +118,10 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('env "${env_args[@]}" docker compose', lib)
 
     def test_misp_image_tags_are_deterministic_by_default(self):
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
-        update = (ROOT / 'installer' / 'update.sh').read_text()
-        generate = (ROOT / 'installer' / 'generate-env.sh').read_text()
-        versions = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
+        update = (ROOT / 'lifecycle' / 'update.sh').read_text()
+        generate = (ROOT / 'lifecycle' / 'generate-env.sh').read_text()
+        versions = (ROOT / 'lifecycle' / 'get-current-misp-versions.sh').read_text()
         self.assertIn('sync_misp_image_tags()', lib)
         self.assertIn('CORE_RUNNING_TAG', lib)
         self.assertIn('MODULES_RUNNING_TAG', lib)
@@ -111,19 +131,19 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('--core-tag', update)
         self.assertIn('--modules-tag', update)
         self.assertIn('--guard-tag', update)
-        self.assertIn('--core-tag', (ROOT / 'installer' / 'install.sh').read_text())
+        self.assertIn('--core-tag', (ROOT / 'lifecycle' / 'install.sh').read_text())
         self.assertIn('sync_misp_image_tags "$INSTALL_DIR" version-tags', generate)
         self.assertIn('MISP Docker component versions', versions)
         self.assertIn('Install dir:     not provided; local columns are omitted', versions)
 
     def test_prepare_host_retries_package_manager_operations(self):
-        text = (ROOT / 'installer' / 'prepare-host-rocky.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'prepare-host-rocky.sh').read_text()
         self.assertIn('retry_cmd 3 15', text)
         self.assertIn('download.docker.com', text)
         self.assertIn('docker-ce', text)
 
     def test_prepare_host_docker_group_is_explicit_opt_in(self):
-        text = (ROOT / 'installer' / 'prepare-host-rocky.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'prepare-host-rocky.sh').read_text()
         self.assertIn('ADD_CURRENT_USER_TO_DOCKER_GROUP="false"', text)
         self.assertIn('--add-current-user-to-docker-group', text)
         self.assertIn('Docker group membership is root-equivalent', text)
@@ -131,13 +151,13 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('usermod -aG docker', text)
 
     def test_admin_credentials_helper_is_safe_by_default(self):
-        text = (ROOT / 'installer' / 'admin-credentials.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'admin-credentials.sh').read_text()
         self.assertIn('--show-password', text)
         self.assertIn('ADMIN_PASSWORD=(hidden', text)
         self.assertIn('Use --show-password only on a trusted', text)
 
     def test_login_check_does_not_print_password(self):
-        text = (ROOT / 'installer' / 'login-check.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'login-check.sh').read_text()
         self.assertIn('HTTPCookieProcessor', text)
         self.assertIn('csrf_marker', text)
         self.assertIn('invalid_credentials_marker', text)
@@ -158,13 +178,13 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn("tls-verification-failed", text)
         self.assertIn("cross-origin-redirect", text)
         self.assertNotIn("ctx = ssl.create_default_context() if strict_tls else", text)
-        healthcheck = (ROOT / 'installer' / 'healthcheck.sh').read_text()
+        healthcheck = (ROOT / 'lifecycle' / 'healthcheck.sh').read_text()
         self.assertIn("values = {}", healthcheck)
         self.assertIn("explicit insecure transport", healthcheck)
         self.assertIn("failed without recognized machine-readable output", healthcheck)
 
     def test_reset_installation_has_safety_guards(self):
-        text = (ROOT / 'installer' / 'reset-installation.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'reset-installation.sh').read_text()
         self.assertIn('Dry-run only', text)
         self.assertIn('Are you sure you want to delete everything', text)
         self.assertIn('Type DELETE to continue', text)
@@ -179,7 +199,7 @@ class StaticRepoTests(unittest.TestCase):
             target = Path(tmp) / 'not-a-misp-install'
             target.mkdir()
             result = subprocess.run(
-                [str(ROOT / 'installer' / 'reset-installation.sh'), '--install-dir', str(target), '--yes', '--force'],
+                [str(ROOT / 'lifecycle' / 'reset-installation.sh'), '--install-dir', str(target), '--yes', '--force'],
                 cwd=ROOT,
                 text=True,
                 stdout=subprocess.PIPE,
@@ -191,9 +211,9 @@ class StaticRepoTests(unittest.TestCase):
             self.assertIn('expected MISP lifecycle manager markers', result.stderr)
 
     def test_base_url_is_not_embedded_in_python_source(self):
-        install = (ROOT / 'installer' / 'install.sh').read_text()
-        doctor = (ROOT / 'installer' / 'doctor.sh').read_text()
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        install = (ROOT / 'lifecycle' / 'install.sh').read_text()
+        doctor = (ROOT / 'lifecycle' / 'doctor.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
         self.assertNotIn("urlparse('$BASE_URL')", install)
         self.assertNotIn("urlparse('$BASE_URL')", doctor)
         self.assertIn('url_hostname "$BASE_URL"', install)
@@ -203,7 +223,7 @@ class StaticRepoTests(unittest.TestCase):
     def test_malicious_base_url_is_rejected(self):
         payload = "https://example.com').hostname);print('INJECTED');#"
         result = subprocess.run(
-            ['bash', '-lc', f'source installer/lib.sh; validate_public_base_url {payload!r} reverse-proxy'],
+            ['bash', '-lc', f'source lifecycle/lib.sh; validate_public_base_url {payload!r} reverse-proxy'],
             cwd=ROOT,
             text=True,
             stdout=subprocess.PIPE,
@@ -214,20 +234,20 @@ class StaticRepoTests(unittest.TestCase):
         self.assertNotIn('INJECTED', result.stdout)
 
     def test_doctor_does_not_use_predictable_tmp_heartbeat_file(self):
-        text = (ROOT / 'installer' / 'doctor.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'doctor.sh').read_text()
         self.assertNotIn('/tmp/misp-heartbeat.json', text)
         self.assertIn('heartbeat_body=', text)
 
     def test_backup_and_schema_checks_avoid_password_argv(self):
-        backup = (ROOT / 'installer' / 'backup.sh').read_text()
-        lib = (ROOT / 'installer' / 'lib.sh').read_text()
+        backup = (ROOT / 'lifecycle' / 'backup.sh').read_text()
+        lib = (ROOT / 'lifecycle' / 'lib.sh').read_text()
         for text in [backup, lib]:
             self.assertIn('--defaults-extra-file="$cfg"', text)
             self.assertNotIn('-p"$MYSQL_PASSWORD"', text)
             self.assertNotIn('-p$MYSQL_PASSWORD', text)
 
     def test_backup_uses_restrictive_permissions(self):
-        text = (ROOT / 'installer' / 'backup.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'backup.sh').read_text()
         self.assertIn('umask 077', text)
         self.assertIn('chmod 700 "$out"', text)
         self.assertIn('misp-config.tar.gz', text)
@@ -235,7 +255,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('sha256sum misp.sql misp-host-data.tar.gz misp-config.tar.gz > SHA256SUMS', text)
 
     def test_restore_has_destructive_safety_and_imports_backup(self):
-        text = (ROOT / 'installer' / 'restore.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'restore.sh').read_text()
         self.assertIn('--backup-dir', text)
         self.assertIn('Dry-run only', text)
         self.assertIn('Type RESTORE to continue', text)
@@ -252,7 +272,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('wait_for_misp_live_marker', text)
 
     def test_update_allows_external_backup_root_for_restore_based_rollback(self):
-        text = (ROOT / 'installer' / 'update.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'update.sh').read_text()
         self.assertIn('--backup-root', text)
         self.assertIn('backup_args=(--install-dir "$INSTALL_DIR")', text)
         self.assertIn('backup_args+=(--backup-root "$BACKUP_ROOT")', text)
@@ -261,7 +281,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('new_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"', text)
 
     def test_temp_checkout_cleanup_trap_expands_tmpdir(self):
-        text = (ROOT / 'installer' / 'get-current-misp-versions.sh').read_text()
+        text = (ROOT / 'lifecycle' / 'get-current-misp-versions.sh').read_text()
         self.assertIn("trap 'rm -rf \"$TMPDIR\"' EXIT", text)
         self.assertNotIn("trap 'rm -rf \\\"$TMPDIR\\\"' EXIT", text)
 
@@ -628,9 +648,9 @@ class StaticRepoTests(unittest.TestCase):
         shell_docs = (ROOT / 'docs' / 'shell-scripts.md').read_text()
         readiness = (ROOT / 'docs' / 'production-readiness.md').read_text()
         changelog = (ROOT / 'CHANGELOG.md').read_text()
-        healthcheck = (ROOT / 'installer' / 'healthcheck.sh').read_text()
+        healthcheck = (ROOT / 'lifecycle' / 'healthcheck.sh').read_text()
 
-        self.assertIn('installer/healthcheck.sh', monitoring)
+        self.assertIn('lifecycle/healthcheck.sh', monitoring)
         self.assertIn('--format text|json|nagios|checkmk|prometheus', monitoring)
         for code, status in [('0', 'OK'), ('1', 'WARNING'), ('2', 'CRITICAL'), ('3', 'UNKNOWN')]:
             self.assertIn(f'`{code}` | {status}', monitoring)
@@ -674,7 +694,7 @@ class StaticRepoTests(unittest.TestCase):
             result = subprocess.run(
                 [
                     'python3', str(validator),
-                    '--healthcheck', str(ROOT / 'installer' / 'healthcheck.sh'),
+                    '--healthcheck', str(ROOT / 'lifecycle' / 'healthcheck.sh'),
                     '--install-dir', tmp,
                     '--expect-status', 'unknown',
                     '--timeout', '1',
@@ -692,7 +712,7 @@ class StaticRepoTests(unittest.TestCase):
         invalid = subprocess.run(
             [
                 'python3', str(validator),
-                '--healthcheck', str(ROOT / 'installer' / 'healthcheck.sh'),
+                '--healthcheck', str(ROOT / 'lifecycle' / 'healthcheck.sh'),
                 '--install-dir', '/tmp/not-a-misp-install',
                 '--expect-status', 'unknown',
                 '--insecure',
@@ -706,7 +726,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('--insecure requires --include-login', invalid.stderr)
 
     def test_healthcheck_outputs_stable_machine_formats_without_deployment(self):
-        script = ROOT / 'installer' / 'healthcheck.sh'
+        script = ROOT / 'lifecycle' / 'healthcheck.sh'
         with tempfile.TemporaryDirectory() as tmp:
             json_proc = subprocess.run(
                 [str(script), '--install-dir', tmp, '--format', 'json', '--timeout', '1'],
@@ -813,7 +833,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('command reference and the boundary between operator-facing commands and helper/wrapper scripts', agents)
         self.assertIn('release artifact integrity and deferred provenance controls', agents)
         self.assertIn('upstream Git/component/container input identity policy', agents)
-        self.assertNotIn('production-oriented installer/overlay', agents)
+        self.assertNotIn('production-oriented lifecycle/overlay', agents)
 
     def test_community_health_files_exist_and_are_public_safe(self):
         files = [
@@ -848,6 +868,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Public-safety checklist', pr_template)
         self.assertIn('Runtime impact', pr_template)
         self.assertIn('Compatibility impact', pr_template)
+        self.assertIn('for f in lifecycle/*.sh installer/*.sh', pr_template)
 
         bug_template = (ROOT / '.github' / 'ISSUE_TEMPLATE' / 'bug_report.yml').read_text()
         self.assertIn('If this may be a security vulnerability', bug_template)
@@ -855,6 +876,9 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('Anonymous SOS report', bug_template)
         self.assertIn('v1.2.0, v1.1.0, or commit SHA', bug_template)
         self.assertIn('docs/sos-report.md', bug_template)
+        self.assertIn('./lifecycle/install.sh --version', bug_template)
+        self.assertIn('sudo ./lifecycle/install.sh', bug_template)
+        self.assertNotIn('./installer/install.sh', bug_template)
 
         config = (ROOT / '.github' / 'ISSUE_TEMPLATE' / 'config.yml').read_text()
         self.assertIn('blank_issues_enabled: false', config)
@@ -921,7 +945,10 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('sha256sum --check --strict', runner)
         self.assertLess(runner.index('sha256sum --check --strict'), runner.index('tar --extract'))
         self.assertIn('actual_version=', runner)
-        self.assertIn('if ! find installer', runner)
+        self.assertIn('- "lifecycle/**/*.sh"', shellcheck)
+        self.assertNotIn('- "installer/**/*.sh"', shellcheck)
+        self.assertIn('ShellCheck lifecycle scripts', shellcheck)
+        self.assertIn('if ! find lifecycle', runner)
         self.assertIn('sort -z >"$scripts_inventory"', runner)
         self.assertIn('done <"$scripts_inventory"', runner)
         self.assertNotIn('done < <(find', runner)
@@ -944,6 +971,7 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1', workflow)
         self.assertIn('python3 -m pip install --require-hashes -r .github/requirements/repository-gates.txt', workflow)
         self.assertIn('python3 -m unittest discover -s tests', workflow)
+        self.assertIn('for script in lifecycle/*.sh installer/*.sh', workflow)
         self.assertIn('bash -n "$script"', workflow)
         self.assertIn('python3 -m py_compile scripts/*.py tests/*.py', workflow)
         self.assertIn('["git", "ls-files", "-z", "--", "*.yml", "*.yaml"]', workflow)
@@ -1042,7 +1070,7 @@ class StaticRepoTests(unittest.TestCase):
             (install_dir / '.installer-state.json').write_text('{"base_url":"https://private.example.net"}\n')
             output = Path(td) / 'sos.md'
             result = subprocess.check_output([
-                str(ROOT / 'installer' / 'sos-report.sh'),
+                str(ROOT / 'lifecycle' / 'sos-report.sh'),
                 '--no-docker',
                 '--workflow', 'fresh-install',
                 '--install-dir', str(install_dir),
@@ -1078,7 +1106,7 @@ class StaticRepoTests(unittest.TestCase):
             (install_dir / 'docker-compose.yml').write_text('services: {}\n')
             output = Path(td) / 'sos-no-health.md'
             subprocess.check_call([
-                str(ROOT / 'installer' / 'sos-report.sh'),
+                str(ROOT / 'lifecycle' / 'sos-report.sh'),
                 '--workflow', 'backup',
                 '--install-dir', str(install_dir),
                 '--output', str(output),

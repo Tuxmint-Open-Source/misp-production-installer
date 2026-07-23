@@ -24,7 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Validate healthcheck machine formats and privacy without Zabbix, Checkmk, Nagios/Icinga, or Prometheus servers."
     )
-    parser.add_argument("--healthcheck", type=Path, default=Path("installer/healthcheck.sh"))
+    parser.add_argument("--healthcheck", type=Path, default=Path("lifecycle/healthcheck.sh"))
     parser.add_argument("--install-dir", type=Path, required=True)
     parser.add_argument("--expect-status", choices=tuple(STATUSES), required=True)
     parser.add_argument("--timeout", type=int, default=20)

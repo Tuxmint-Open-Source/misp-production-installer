@@ -52,7 +52,7 @@ The repository provides a consumer-side validator for the stable output contract
 
 ```bash
 python3 scripts/validate-healthcheck-output.py \
-  --healthcheck installer/healthcheck.sh \
+  --healthcheck lifecycle/healthcheck.sh \
   --install-dir /tmp/not-a-misp-install \
   --expect-status unknown
 ```
@@ -61,7 +61,7 @@ Against a real healthy deployment:
 
 ```bash
 sudo python3 scripts/validate-healthcheck-output.py \
-  --healthcheck installer/healthcheck.sh \
+  --healthcheck lifecycle/healthcheck.sh \
   --install-dir /opt/misp-docker \
   --expect-status ok \
   --include-login
@@ -78,7 +78,7 @@ This validation proves contract conformance. It does not prove that a real monit
 The monitoring command is:
 
 ```bash
-sudo ./installer/healthcheck.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/healthcheck.sh --install-dir /opt/misp-docker
 ```
 
 Options:
@@ -212,7 +212,7 @@ Do not expose hostnames, email addresses, install paths, backup names, URLs, or 
 A Zabbix agent can call the healthcheck through a `UserParameter`:
 
 ```text
-UserParameter=misp.lifecycle.health,sudo /path/to/misp-docker-lifecycle-manager/installer/healthcheck.sh --install-dir /opt/misp-docker --format json --timeout 20
+UserParameter=misp.lifecycle.health,sudo /path/to/misp-docker-lifecycle-manager/lifecycle/healthcheck.sh --install-dir /opt/misp-docker --format json --timeout 20
 ```
 
 Recommended approach:
@@ -228,7 +228,7 @@ A Checkmk local check can call the Checkmk format:
 
 ```bash
 #!/usr/bin/env bash
-sudo /path/to/misp-docker-lifecycle-manager/installer/healthcheck.sh \
+sudo /path/to/misp-docker-lifecycle-manager/lifecycle/healthcheck.sh \
   --install-dir /opt/misp-docker \
   --format checkmk \
   --timeout 20
@@ -245,7 +245,7 @@ The output should be a single local-check line such as:
 Nagios/Icinga-compatible usage should rely on the process exit code:
 
 ```bash
-sudo /path/to/misp-docker-lifecycle-manager/installer/healthcheck.sh \
+sudo /path/to/misp-docker-lifecycle-manager/lifecycle/healthcheck.sh \
   --install-dir /opt/misp-docker \
   --format nagios \
   --timeout 20
@@ -258,7 +258,7 @@ The first output line should contain the status, summary, and optional performan
 For lightweight local monitoring, run the command on a timer and alert on non-zero exit codes:
 
 ```bash
-sudo ./installer/healthcheck.sh --install-dir /opt/misp-docker --format text --timeout 20
+sudo ./lifecycle/healthcheck.sh --install-dir /opt/misp-docker --format text --timeout 20
 ```
 
 Use the JSON format if another local tool ingests the result.
@@ -300,9 +300,9 @@ Monitoring checks should be bounded and cheap:
 Useful follow-up commands:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/status.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
 ## What to read next

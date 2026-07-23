@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-HEALTHCHECK = ROOT / "installer" / "healthcheck.sh"
+HEALTHCHECK = ROOT / "lifecycle" / "healthcheck.sh"
 
 
 FAKE_DOCKER = r'''#!/usr/bin/env bash

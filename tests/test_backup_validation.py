@@ -190,7 +190,7 @@ class BackupValidationTests(unittest.TestCase):
             root = Path(td)
             marker = root / "must-not-exist"
             result = subprocess.run([
-                str(ROOT / "installer" / "fetch-upstream.sh"),
+                str(ROOT / "lifecycle" / "fetch-upstream.sh"),
                 "--upstream-repo", f"--upload-pack=touch {marker}",
                 "--upstream-ref", "master",
                 "--install-dir", str(root / "checkout"),
@@ -217,7 +217,7 @@ class BackupValidationTests(unittest.TestCase):
             env = os.environ.copy()
             env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
             result = subprocess.run([
-                str(ROOT / "installer" / "fetch-upstream.sh"),
+                str(ROOT / "lifecycle" / "fetch-upstream.sh"),
                 "--upstream-repo", "https://github.com/MISP/misp-docker.git",
                 "--upstream-ref", "master",
                 "--install-dir", str(checkout),
@@ -243,7 +243,7 @@ class BackupValidationTests(unittest.TestCase):
             env = os.environ.copy()
             env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
             result = subprocess.run([
-                str(ROOT / "installer" / "restore.sh"),
+                str(ROOT / "lifecycle" / "restore.sh"),
                 "--backup-dir", str(backup),
                 "--install-dir", str(target),
                 "--yes", "--force",
@@ -256,7 +256,7 @@ class BackupValidationTests(unittest.TestCase):
     def test_rejects_authenticated_upstream_url(self):
         result = subprocess.run([
             "bash", "-c",
-            "source installer/lib.sh; validate_upstream_source 'https://user:credential@example.invalid/repo.git' master",
+            "source lifecycle/lib.sh; validate_upstream_source 'https://user:credential@example.invalid/repo.git' master",
         ], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("must not contain credentials", result.stderr)
@@ -273,7 +273,7 @@ class BackupValidationTests(unittest.TestCase):
             linked = root / "linked-root"
             linked.symlink_to(destination, target_is_directory=True)
             result = subprocess.run([
-                str(ROOT / "installer" / "backup.sh"),
+                str(ROOT / "lifecycle" / "backup.sh"),
                 "--install-dir", str(install),
                 "--backup-root", str(linked),
             ], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
@@ -291,7 +291,7 @@ class BackupValidationTests(unittest.TestCase):
             backup_root.mkdir()
             backup_root.chmod(0o777)
             result = subprocess.run([
-                str(ROOT / "installer" / "backup.sh"),
+                str(ROOT / "lifecycle" / "backup.sh"),
                 "--install-dir", str(install),
                 "--backup-root", str(backup_root),
             ], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
@@ -307,7 +307,7 @@ class BackupValidationTests(unittest.TestCase):
             })
             target = Path(td) / "new-target"
             result = subprocess.run([
-                str(ROOT / "installer" / "restore.sh"),
+                str(ROOT / "lifecycle" / "restore.sh"),
                 "--backup-dir", str(backup),
                 "--install-dir", str(target),
                 "--yes", "--force",
@@ -332,7 +332,7 @@ class BackupValidationTests(unittest.TestCase):
             env = os.environ.copy()
             env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
             result = subprocess.run([
-                str(ROOT / "installer" / "restore.sh"),
+                str(ROOT / "lifecycle" / "restore.sh"),
                 "--backup-dir", str(backup),
                 "--install-dir", str(target),
                 "--yes", "--force",
@@ -367,7 +367,7 @@ class BackupValidationTests(unittest.TestCase):
             env = os.environ.copy()
             env["PATH"] = str(fake_bin) + os.pathsep + env["PATH"]
             result = subprocess.run([
-                str(ROOT / "installer" / "restore.sh"),
+                str(ROOT / "lifecycle" / "restore.sh"),
                 "--backup-dir", str(backup),
                 "--install-dir", str(target),
                 "--yes", "--force",
@@ -381,7 +381,7 @@ class BackupValidationTests(unittest.TestCase):
             state = Path(td) / ".installer-state.json"
             subprocess.run([
                 "bash", "-c",
-                "source installer/lib.sh; write_state \"$1\" repo ref /opt/misp-docker reverse-proxy https://misp.example.com",
+                "source lifecycle/lib.sh; write_state \"$1\" repo ref /opt/misp-docker reverse-proxy https://misp.example.com",
                 "_", str(state),
             ], cwd=ROOT, check=True)
             self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o600)

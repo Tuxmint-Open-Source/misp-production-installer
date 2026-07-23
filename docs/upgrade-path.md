@@ -25,7 +25,7 @@ The install directory is an official upstream `MISP/misp-docker` Git checkout.
 `--upstream-ref` selects which branch or commit of that repository to use:
 
 ```bash
-./installer/update.sh \
+./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master
 ```
@@ -82,7 +82,7 @@ time.
 To see the latest official component versions declared by upstream:
 
 ```bash
-./installer/get-current-misp-versions.sh
+./lifecycle/get-current-misp-versions.sh
 ```
 
 This prints upstream versions only. It does not inspect a local install unless
@@ -91,13 +91,13 @@ you provide `--install-dir`.
 To inspect another upstream ref:
 
 ```bash
-./installer/get-current-misp-versions.sh --upstream-ref <branch-or-commit>
+./lifecycle/get-current-misp-versions.sh --upstream-ref <branch-or-commit>
 ```
 
 To compare upstream values with a local install:
 
 ```bash
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 ## Common workflows
@@ -107,7 +107,7 @@ To compare upstream values with a local install:
 Use the default `master` upstream ref and default `version-tags` behavior:
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
@@ -123,7 +123,7 @@ The installer reads the current upstream `CORE_TAG`, `MODULES_TAG`, and
 Use explicit component tag overrides:
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
@@ -142,13 +142,13 @@ registry. The installer does not build custom images.
 ### 3. Update to latest official component versions
 
 ```bash
-sudo ./installer/update.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/update.sh --install-dir /opt/misp-docker
 ```
 
 This is equivalent to:
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --image-track version-tags
@@ -157,7 +157,7 @@ sudo ./installer/update.sh \
 ### 4. Update to specific component versions
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --core-tag v2.5.40 \
   --modules-tag v3.0.7 \
@@ -172,7 +172,7 @@ containers, runs MISP DB updates, and runs `doctor.sh`.
 Default production update:
 
 ```bash
-./installer/update.sh --install-dir /opt/misp-docker
+./lifecycle/update.sh --install-dir /opt/misp-docker
 ```
 
 What happens:
@@ -197,7 +197,7 @@ What happens:
 ### `version-tags` default
 
 ```bash
-./installer/update.sh --install-dir /opt/misp-docker --image-track version-tags
+./lifecycle/update.sh --install-dir /opt/misp-docker --image-track version-tags
 ```
 
 Best production default. Pins runtime image tags to the selected component tags.
@@ -207,7 +207,7 @@ component tag flags override them.
 ### `latest`
 
 ```bash
-./installer/update.sh --install-dir /opt/misp-docker --image-track latest
+./lifecycle/update.sh --install-dir /opt/misp-docker --image-track latest
 ```
 
 Tracks the newest published upstream images. This is convenient, but less
@@ -217,7 +217,7 @@ Use this only when that behavior is intentional.
 ### `keep`
 
 ```bash
-./installer/update.sh --install-dir /opt/misp-docker --image-track keep
+./lifecycle/update.sh --install-dir /opt/misp-docker --image-track keep
 ```
 
 Refreshes component metadata from upstream but does not change existing

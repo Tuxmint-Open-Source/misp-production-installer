@@ -17,7 +17,7 @@ body:
     id: version
     attributes:
       label: Manager version or commit
-      description: Output of `./installer/install.sh --version`, a release tag, or a commit SHA.
+      description: Output of `./lifecycle/install.sh --version`, a release tag, or a commit SHA.
       placeholder: "v1.2.0, v1.1.0, or commit SHA"
     validations:
       required: true
@@ -77,8 +77,8 @@ body:
       label: Reproduction steps
       description: Provide the sanitized command shape and steps needed to reproduce.
       placeholder: |
-        1. Run `sudo ./installer/install.sh --install-dir /opt/misp-docker --base-url https://misp.example.com ...`
-        2. Run `sudo ./installer/doctor.sh --install-dir /opt/misp-docker`
+        1. Run `sudo ./lifecycle/install.sh --install-dir /opt/misp-docker --base-url https://misp.example.com ...`
+        2. Run `sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker`
         3. Observe ...
     validations:
       required: true

@@ -32,7 +32,7 @@ Before installation, prepare:
 For production-like use, prefer reverse-proxy mode:
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --base-url https://misp.example.com \
@@ -51,7 +51,7 @@ Direct-QA mode is useful for validation and controlled QA. It is not the recomme
 Run host preparation on a supported fresh host:
 
 ```bash
-sudo ./installer/prepare-host-rocky.sh
+sudo ./lifecycle/prepare-host-rocky.sh
 ```
 
 By default, host preparation does not add the current user to the Docker group. This is intentional because Docker group membership is root-equivalent on the host.
@@ -61,9 +61,9 @@ By default, host preparation does not add the current user to the Docker group. 
 After installation, run:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 `admin-credentials.sh` hides the generated password by default. Use password-revealing options only on a trusted terminal.
@@ -73,7 +73,7 @@ sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
 Use the update helper from a known validated manager release:
 
 ```bash
-sudo ./installer/update.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/update.sh --install-dir /opt/misp-docker
 ```
 
 The update workflow creates a backup before changing the running stack, synchronizes official component tags, pulls images, restarts services, runs MISP database updates, waits for readiness, and runs `doctor.sh`.
@@ -81,7 +81,7 @@ The update workflow creates a backup before changing the running stack, synchron
 For explicit component versions:
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --core-tag v2.5.44 \
   --modules-tag v3.0.9 \
@@ -95,7 +95,7 @@ Use only official upstream component tags.
 Create a backup before planned maintenance and on a regular schedule:
 
 ```bash
-sudo ./installer/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
 ```
 
 Backups are sensitive. Treat database dumps and host-data archives as confidential because they can contain operational data, MISP event data, user data, and generated secrets.

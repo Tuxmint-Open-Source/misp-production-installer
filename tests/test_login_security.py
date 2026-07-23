@@ -11,7 +11,7 @@ from urllib.parse import parse_qs
 
 
 ROOT = Path(__file__).resolve().parents[1]
-LOGIN_CHECK = ROOT / "installer" / "login-check.sh"
+LOGIN_CHECK = ROOT / "lifecycle" / "login-check.sh"
 
 
 class LoginFixtureHandler(BaseHTTPRequestHandler):

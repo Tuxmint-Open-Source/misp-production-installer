@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "installer" / "sos-report.sh"
+SCRIPT = ROOT / "lifecycle" / "sos-report.sh"
 MODULE_PATH = ROOT / "scripts" / "generate_sos_report.py"
 SPEC = importlib.util.spec_from_file_location("generate_sos_report", MODULE_PATH)
 assert SPEC is not None and SPEC.loader is not None

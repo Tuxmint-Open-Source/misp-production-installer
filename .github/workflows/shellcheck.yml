@@ -5,14 +5,14 @@ on:
     paths:
       - ".github/workflows/shellcheck.yml"
       - ".github/scripts/run-shellcheck.sh"
-      - "installer/**/*.sh"
+      - "lifecycle/**/*.sh"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/shellcheck.yml"
       - ".github/scripts/run-shellcheck.sh"
-      - "installer/**/*.sh"
+      - "lifecycle/**/*.sh"
   schedule:
     # Weekly, offset from other scheduled checks.
     - cron: "29 4 * * 3"
@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   shellcheck:
-    name: ShellCheck installer scripts
+    name: ShellCheck lifecycle scripts
     runs-on: ubuntu-latest
     timeout-minutes: 10
 

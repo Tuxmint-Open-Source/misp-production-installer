@@ -8,7 +8,7 @@ Do **not** use a public SOS report for suspected security vulnerabilities. Use [
 
 ## Current status
 
-The project includes `installer/sos-report.sh`, which generates a bounded Markdown report from allowlisted structured facts. It never copies raw helper, Docker, Compose, application, or system command output into the report. You should still review every line before sharing it.
+The project includes `lifecycle/sos-report.sh`, which generates a bounded Markdown report from allowlisted structured facts. It never copies raw helper, Docker, Compose, application, or system command output into the report. You should still review every line before sharing it.
 
 ## Before posting publicly
 
@@ -50,20 +50,20 @@ A useful public bug report answers these questions:
 ## Generate a report
 
 ```bash
-sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+sudo ./lifecycle/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
 less ./misp-sos-report.md
 ```
 
 Use `--no-docker` if you want to avoid Docker/Compose checks:
 
 ```bash
-./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
+./lifecycle/sos-report.sh --no-docker --output ./misp-sos-report.md
 ```
 
 Use `--no-health-commands` if version detection is acceptable but you do not want the report to run the bounded structured `healthcheck.sh` probe:
 
 ```bash
-sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --no-health-commands --output ./misp-sos-report.md
+sudo ./lifecycle/sos-report.sh --install-dir /opt/misp-docker --no-health-commands --output ./misp-sos-report.md
 ```
 
 The generated v2 report contains only fixed enums, booleans, numeric counts, validated public component tags, restricted version fields, file-presence/mode facts, and allowlisted health statuses. It does not include raw command summaries or backup metadata. The health probe does not include the credential-bearing login check.
@@ -110,7 +110,7 @@ Describe what happened instead. Do not paste raw logs. Include only short saniti
 ## Sanitized command shape
 Example:
 
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
@@ -136,18 +136,18 @@ sudo ./installer/install.sh \
 These commands usually produce useful public-safe version/status facts when you copy only the sanitized summary, not raw logs:
 
 ```bash
-./installer/install.sh --version
-./installer/doctor.sh --help
-./installer/login-check.sh --help
-./installer/get-current-misp-versions.sh --help
+./lifecycle/install.sh --version
+./lifecycle/doctor.sh --help
+./lifecycle/login-check.sh --help
+./lifecycle/get-current-misp-versions.sh --help
 ```
 
 For an installed deployment, summarize the result of these commands instead of pasting full raw output if it contains deployment-specific values:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
-sudo ./installer/status.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readable
+sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
 ```
 
 If output includes real URLs, hostnames, IPs, paths, usernames, tokens, or internal details, replace them with placeholders before posting.

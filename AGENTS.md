@@ -41,7 +41,7 @@ Run these before opening or updating a PR:
 
 ```bash
 python3 -m unittest discover -s tests
-for f in installer/*.sh; do bash -n "$f"; done
+for f in lifecycle/*.sh; do bash -n "$f"; done
 python3 -m py_compile scripts/*.py tests/*.py
 git diff --check
 ```

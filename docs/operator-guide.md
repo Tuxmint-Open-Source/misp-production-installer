@@ -46,7 +46,7 @@ Read more: [Support matrix](support-matrix.md).
 For Rocky Linux hosts, use:
 
 ```bash
-sudo ./installer/prepare-host-rocky.sh
+sudo ./lifecycle/prepare-host-rocky.sh
 ```
 
 The helper is intentionally conservative about Docker group membership because Docker group access is effectively root-equivalent. Use `sudo` unless you intentionally accept that trade-off.
@@ -58,7 +58,7 @@ Read more: [Getting started](getting-started.md), [Security](security.md).
 The normal production-oriented path is reverse-proxy mode:
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --base-url https://misp.example.com \
@@ -77,9 +77,9 @@ Read more: [Getting started](getting-started.md), [Production deployment guide](
 After install or update, verify the deployment before handing it to users:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 The login check is designed not to print the password. The credential helper hides the password unless `--show-password` is explicitly requested.
@@ -91,8 +91,8 @@ Read more: [Troubleshooting](troubleshooting.md), [Security](security.md).
 Useful checks:
 
 ```bash
-sudo ./installer/status.sh --install-dir /opt/misp-docker
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 The status and version checks help you understand what is running locally and what official upstream currently declares. For integration with Zabbix, Checkmk, Nagios/Icinga, Prometheus-style text output, or automation, use the monitoring contract.
@@ -104,13 +104,13 @@ Read more: [Monitoring](monitoring.md), [Upgrade path](upgrade-path.md), [Compat
 The update helper is backup-first:
 
 ```bash
-sudo ./installer/update.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/update.sh --install-dir /opt/misp-docker
 ```
 
 For rollback drills, keep the pre-update backup outside the deployment directory:
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --backup-root /var/backups/misp
 ```
@@ -122,7 +122,7 @@ Read more: [Upgrade path](upgrade-path.md), [Backup, restore, and rollback](back
 ## 8. Back up before risky changes
 
 ```bash
-sudo ./installer/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
 ```
 
 Backups include:
@@ -141,7 +141,7 @@ Read more: [Backup, restore, and rollback](backup-restore-and-rollback.md), [Sec
 Restore from a backup directory:
 
 ```bash
-sudo ./installer/restore.sh \
+sudo ./lifecycle/restore.sh \
   --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
   --install-dir /opt/misp-docker \
   --yes
@@ -158,7 +158,7 @@ Read more: [Backup, restore, and rollback](backup-restore-and-rollback.md).
 Start with a dry run:
 
 ```bash
-sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/reset-installation.sh --install-dir /opt/misp-docker
 ```
 
 Destructive reset requires explicit confirmation and checks for lifecycle-manager markers. Docker Engine itself is not removed.
@@ -182,9 +182,9 @@ Read more: [Compatibility](compatibility.md), [Validation matrix](validation/mat
 If something fails, start with:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
-sudo ./installer/status.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
 ```
 
 Then follow [Troubleshooting](troubleshooting.md). Common categories are invalid URLs, reverse-proxy mismatch, not-yet-ready login, component tag problems, Docker/host issues, and credential handling mistakes.

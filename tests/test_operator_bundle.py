@@ -106,10 +106,11 @@ class OperatorBundleTests(unittest.TestCase):
 
     def test_manifest_contains_runtime_closure_and_excludes_contributor_material(self):
         paths = set(self.manifest_paths())
-        self.assertEqual(
-            {f"installer/{path.name}" for path in (ROOT / "installer").glob("*.sh")},
-            {path for path in paths if path.startswith("installer/")},
-        )
+        lifecycle_scripts = {f"lifecycle/{path.name}" for path in (ROOT / "lifecycle").glob("*.sh")}
+        installer_wrappers = {f"installer/{path.name}" for path in (ROOT / "installer").glob("*.sh")}
+        self.assertEqual(lifecycle_scripts, {path for path in paths if path.startswith("lifecycle/")})
+        self.assertEqual(installer_wrappers, {path for path in paths if path.startswith("installer/")})
+        self.assertEqual({p.removeprefix('lifecycle/') for p in lifecycle_scripts}, {p.removeprefix('installer/') for p in installer_wrappers})
         self.assertIn("scripts/generate_sos_report.py", paths)
         self.assertIn("scripts/validate-backup.py", paths)
         forbidden_roots = {".github", "tests", ".upstream"}

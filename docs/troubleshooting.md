@@ -5,19 +5,19 @@
 First verify which administrator account the installer generated:
 
 ```bash
-./installer/admin-credentials.sh --install-dir /opt/misp-docker
+./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 The password is hidden by default. To print it on a trusted terminal:
 
 ```bash
-./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-password
+./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker --show-password
 ```
 
 Then run the normal deployment checks:
 
 ```bash
-./installer/doctor.sh --install-dir /opt/misp-docker
+./lifecycle/doctor.sh --install-dir /opt/misp-docker
 ```
 
 You can also test the Web UI login flow from the server without printing the
@@ -25,13 +25,13 @@ password. On successful login, the script also performs a best-effort logout.
 The default output is written for human operators:
 
 ```bash
-./installer/login-check.sh --install-dir /opt/misp-docker
+./lifecycle/login-check.sh --install-dir /opt/misp-docker
 ```
 
 For automation, monitoring, or AI-agent diagnostics, use stable key/value output:
 
 ```bash
-./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
 The login check verifies TLS certificates by default and refuses plain HTTP before submitting credentials. Success requires a same-origin MISP logout link as positive evidence of an authenticated session. For isolated testing only, `--insecure` explicitly allows HTTP or unverified HTTPS and prints a warning; do not use that mode across an untrusted network.
@@ -42,7 +42,7 @@ If the credentials are correct but login still fails:
 2. Wait until install/update prints `MISP reports interactive login is ready.`;
    MISP may show the login form before the generated admin account can be used.
 3. Confirm the generated login details without printing the password:
-   `./installer/admin-credentials.sh --install-dir /opt/misp-docker`.
+   `./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker`.
 4. Check that the login page is not cached from a previous failed deployment.
 5. Rotate the admin password inside MISP after the first successful login.
 
@@ -61,8 +61,8 @@ package-install failure. Re-run the installer from a clean reset with the curren
 scripts, or run:
 
 ```bash
-./installer/doctor.sh --install-dir /opt/misp-docker
-./installer/login-check.sh --install-dir /opt/misp-docker
+./lifecycle/doctor.sh --install-dir /opt/misp-docker
+./lifecycle/login-check.sh --install-dir /opt/misp-docker
 ```
 
 If the stack becomes usable after several minutes, the first start was simply
@@ -118,9 +118,9 @@ The backup script uses `sudo tar` because MISP containers can create root-owned 
 If a monitoring tool reports `WARNING`, `CRITICAL`, or `UNKNOWN`, start with the monitoring contract in [Monitoring](monitoring.md), then run:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/status.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/status.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
 Do not paste raw logs, `.env`, generated config, backups, or private deployment details into public issues. Use [anonymous SOS reports](sos-report.md) for public-safe diagnostics.

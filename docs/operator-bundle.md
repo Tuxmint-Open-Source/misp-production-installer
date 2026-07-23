@@ -29,7 +29,7 @@ Download the archive and checksum from the same GitHub Release. Do **not** pipe 
 Run lifecycle commands from the stable path:
 
 ```bash
-sudo /opt/misp-docker-lifecycle-manager/current/installer/doctor.sh \
+sudo /opt/misp-docker-lifecycle-manager/current/lifecycle/doctor.sh \
   --install-dir /opt/misp-docker
 ```
 

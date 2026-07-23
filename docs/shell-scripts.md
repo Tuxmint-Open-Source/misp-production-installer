@@ -1,10 +1,12 @@
 # Shell scripts reference
 
-The `installer/` directory contains Bash helpers for operating an official `MISP/misp-docker` deployment.
+The `lifecycle/` directory contains Bash helpers for operating an official `MISP/misp-docker` deployment.
 
 This page is the command reference. For the recommended human path, start with the [documentation map](README.md), then use [Getting started](getting-started.md) or the [Operator guide](operator-guide.md).
 
 Most operators should use the main commands below. Internal helpers and thin Docker Compose wrappers exist so the main commands can stay small and reviewable; they are not a second supported user journey.
+
+The legacy `installer/` path remains as compatibility wrappers that forward to `lifecycle/`. New examples use `lifecycle/`.
 
 ## Main commands
 
@@ -55,7 +57,7 @@ Most main commands accept:
 ## First install
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --base-url https://misp.example.com \
@@ -108,7 +110,7 @@ Treat backups as confidential. Do not paste backup contents, `.env`, database du
 Restore requires an explicit backup directory:
 
 ```bash
-sudo ./installer/restore.sh \
+sudo ./lifecycle/restore.sh \
   --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
   --install-dir /opt/misp-docker
 ```
@@ -125,7 +127,7 @@ By default, restore is conservative:
 For restore-based rollback drills, keep the pre-update backup outside the deployment directory:
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --backup-root /var/backups/misp
 ```
@@ -139,13 +141,13 @@ See [Backup, restore, and rollback](backup-restore-and-rollback.md) for the full
 Dry-run first:
 
 ```bash
-sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/reset-installation.sh --install-dir /opt/misp-docker
 ```
 
 Destructive reset:
 
 ```bash
-sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker --yes
+sudo ./lifecycle/reset-installation.sh --install-dir /opt/misp-docker --yes
 ```
 
 The script asks for confirmation and requires typing `DELETE` unless `--force` is used. It removes only the selected deployment scope and Docker Compose resources. Docker Engine itself is not removed.
@@ -159,25 +161,25 @@ Restore is destructive for the selected install directory and Compose project be
 Check login readiness without printing the password:
 
 ```bash
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
 ```
 
 Machine-readable diagnostics for automation:
 
 ```bash
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker --machine-readable
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker --machine-readable
 ```
 
 Show configured admin account without printing the password:
 
 ```bash
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 Print the initial password only on a trusted terminal:
 
 ```bash
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-password
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker --show-password
 ```
 
 ## Monitoring contract
@@ -185,7 +187,7 @@ sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker --show-pass
 Use the monitoring healthcheck for bounded probes with stable exit codes and machine-readable output:
 
 ```bash
-sudo ./installer/healthcheck.sh --install-dir /opt/misp-docker --format json --timeout 20
+sudo ./lifecycle/healthcheck.sh --install-dir /opt/misp-docker --format json --timeout 20
 ```
 
 See [Monitoring](monitoring.md) for formats, exit codes, JSON schema, and integration examples.
@@ -195,13 +197,13 @@ See [Monitoring](monitoring.md) for formats, exit codes, JSON schema, and integr
 Show upstream-declared component versions:
 
 ```bash
-./installer/get-current-misp-versions.sh
+./lifecycle/get-current-misp-versions.sh
 ```
 
 Compare local `.env` metadata and runtime image pins:
 
 ```bash
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 ## Anonymous SOS reports
@@ -209,13 +211,13 @@ Compare local `.env` metadata and runtime image pins:
 Generate a public-safe bug-report summary without raw logs, `.env` contents, backups, database dumps, or generated configuration:
 
 ```bash
-sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+sudo ./lifecycle/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
 ```
 
 By default, the report runs the bounded non-login healthcheck and retains only allowlisted status enums and counts. It never copies raw helper, Docker, Compose, application, or system command output. Use `--no-health-commands` to skip the structured health probe, or `--no-docker` to avoid Docker/Compose/version checks entirely:
 
 ```bash
-./installer/sos-report.sh --no-docker --output ./misp-sos-report.md
+./lifecycle/sos-report.sh --no-docker --output ./misp-sos-report.md
 ```
 
 The report may also include backup presence/count metadata, but never backup names, backup paths, backup contents, database dumps, generated configuration archives, or checksums.

@@ -51,7 +51,7 @@ cd misp-docker-lifecycle-manager
 git fetch --tags origin
 git checkout vX.Y.Z
 git rev-parse HEAD
-./installer/install.sh --version
+./lifecycle/install.sh --version
 ```
 
 Compare the checked-out tag and reported version with the selected release and compatibility report.

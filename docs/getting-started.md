@@ -35,7 +35,7 @@ git checkout v1.2.0
 ## 2. Prepare a Rocky Linux host
 
 ```bash
-sudo ./installer/prepare-host-rocky.sh
+sudo ./lifecycle/prepare-host-rocky.sh
 ```
 
 By default, this does **not** add your user to the Docker group. Docker group membership is root-equivalent on the host. Use `sudo` unless you intentionally accept that trade-off.
@@ -47,7 +47,7 @@ If your host is already prepared, you can skip this step.
 The default deployment mode expects a reverse proxy in front of MISP.
 
 ```bash
-sudo ./installer/install.sh \
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --base-url https://misp.example.com \
@@ -73,13 +73,13 @@ For production planning details, read [Production deployment guide](production-d
 Run the doctor check:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
 ```
 
 Run the login check (TLS certificates are verified by default, and success requires a positive authenticated-session marker):
 
 ```bash
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
 ```
 
 If a disposable local deployment still uses HTTP or a bootstrap self-signed certificate, replace that transport before production use. The explicit `--insecure` escape hatch sends administrator credentials without authenticated transport and is intended only for isolated, trusted validation environments.
@@ -87,13 +87,13 @@ If a disposable local deployment still uses HTTP or a bootstrap self-signed cert
 Show the generated admin account without printing the password:
 
 ```bash
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 Show the password only when you are on a trusted console:
 
 ```bash
-sudo ./installer/admin-credentials.sh \
+sudo ./lifecycle/admin-credentials.sh \
   --install-dir /opt/misp-docker \
   --show-password
 ```
@@ -103,13 +103,13 @@ sudo ./installer/admin-credentials.sh \
 Check the upstream-declared MISP component tags:
 
 ```bash
-./installer/get-current-misp-versions.sh
+./lifecycle/get-current-misp-versions.sh
 ```
 
 Compare a local deployment against upstream:
 
 ```bash
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 Compatibility is tracked as a pair: manager release/ref plus official MISP Docker component tags. See [Compatibility](compatibility.md).
@@ -117,7 +117,7 @@ Compatibility is tracked as a pair: manager release/ref plus official MISP Docke
 ## 6. Take a backup before changing things
 
 ```bash
-sudo ./installer/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
 ```
 
 Backups include database dump, host data, generated deployment configuration, and checksums. Read [Backup, restore, and rollback](backup-restore-and-rollback.md) before depending on backups operationally.

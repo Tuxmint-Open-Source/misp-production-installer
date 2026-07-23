@@ -108,7 +108,7 @@ Use a short request such as:
 ```text
 Could you generate and review an anonymous SOS report, then paste only the public-safe content here?
 
-sudo ./installer/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
+sudo ./lifecycle/sos-report.sh --install-dir /opt/misp-docker --output ./misp-sos-report.md
 less ./misp-sos-report.md
 
 If the report cannot be made public-safe, please use SECURITY.md instead.

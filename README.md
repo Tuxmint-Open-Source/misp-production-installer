@@ -56,8 +56,8 @@ For a first test install using the stable release, read [`docs/getting-started.m
 git clone https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager.git
 cd misp-docker-lifecycle-manager
 git checkout v1.2.0
-sudo ./installer/prepare-host-rocky.sh
-sudo ./installer/install.sh \
+sudo ./lifecycle/prepare-host-rocky.sh
+sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --upstream-ref master \
   --base-url https://misp.example.com \
@@ -70,9 +70,9 @@ sudo ./installer/install.sh \
 After installation:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
-sudo ./installer/admin-credentials.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/admin-credentials.sh --install-dir /opt/misp-docker
 ```
 
 For production planning, reverse-proxy details, recovery, updates, and limitations, use the documentation map instead of treating this quick path as the full guide.
@@ -107,13 +107,13 @@ There are three separate version concepts:
 Check current upstream component versions:
 
 ```bash
-./installer/get-current-misp-versions.sh
+./lifecycle/get-current-misp-versions.sh
 ```
 
 Compare a local install against upstream:
 
 ```bash
-./installer/get-current-misp-versions.sh --install-dir /opt/misp-docker
+./lifecycle/get-current-misp-versions.sh --install-dir /opt/misp-docker
 ```
 
 For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade-path.md), [`docs/versioning.md`](docs/versioning.md), and [`docs/upstream-inputs.md`](docs/upstream-inputs.md).

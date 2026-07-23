@@ -182,7 +182,7 @@ def collect_health(
     if runner is None:
         runner = subprocess.run
     command = [
-        str(ROOT / "installer" / "healthcheck.sh"), "--install-dir", str(install_dir),
+        str(ROOT / "lifecycle" / "healthcheck.sh"), "--install-dir", str(install_dir),
         "--format", "json", "--checks",
         "compose-config,compose-services,misp-heartbeat,schema-ready", "--timeout", str(health_timeout),
     ]

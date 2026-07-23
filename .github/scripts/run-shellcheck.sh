@@ -43,9 +43,9 @@ if [[ "$actual_version" != "$SHELLCHECK_VERSION" ]]; then
   exit 1
 fi
 
-scripts_inventory="${workdir}/installer-scripts.nul"
-if ! find installer -type f -name '*.sh' -print0 | sort -z >"$scripts_inventory"; then
-  printf 'Failed to build the complete installer shell-script inventory.\n' >&2
+scripts_inventory="${workdir}/lifecycle-scripts.nul"
+if ! find lifecycle -type f -name '*.sh' -print0 | sort -z >"$scripts_inventory"; then
+  printf 'Failed to build the complete lifecycle shell-script inventory.\n' >&2
   exit 1
 fi
 
@@ -55,7 +55,7 @@ while IFS= read -r -d '' script; do
 done <"$scripts_inventory"
 
 if (( ${#scripts[@]} == 0 )); then
-  printf 'No installer shell scripts found.\n' >&2
+  printf 'No lifecycle shell scripts found.\n' >&2
   exit 1
 fi
 

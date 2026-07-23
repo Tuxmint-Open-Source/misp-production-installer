@@ -9,7 +9,7 @@ The restore workflow is intentionally restore-based rather than automatic rollba
 Create a backup with:
 
 ```bash
-sudo ./installer/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
 ```
 
 A backup includes:
@@ -39,7 +39,7 @@ Do not paste backup contents, `.env`, database dumps, or full raw logs into publ
 Restore from a backup created by `backup.sh`:
 
 ```bash
-sudo ./installer/restore.sh \
+sudo ./lifecycle/restore.sh \
   --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
   --install-dir /opt/misp-docker
 ```
@@ -67,7 +67,7 @@ By default, restore is conservative:
 Example non-interactive automation form after reviewing the target:
 
 ```bash
-sudo ./installer/restore.sh \
+sudo ./lifecycle/restore.sh \
   --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
   --install-dir /opt/misp-docker \
   --yes \
@@ -85,8 +85,8 @@ Then it starts the stack, waits for readiness, runs database updates/schema chec
 After restore, run:
 
 ```bash
-sudo ./installer/doctor.sh --install-dir /opt/misp-docker
-sudo ./installer/login-check.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/doctor.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/login-check.sh --install-dir /opt/misp-docker
 ```
 
 ## Restore validation evidence
@@ -109,7 +109,7 @@ Public production-readiness claims for final releases still require exact releas
 `update.sh` creates a backup before applying changes. For rollback drills and production recovery planning, store the pre-update backup outside the deployment directory:
 
 ```bash
-sudo ./installer/update.sh \
+sudo ./lifecycle/update.sh \
   --install-dir /opt/misp-docker \
   --backup-root /var/backups/misp
 ```
@@ -139,7 +139,7 @@ Reset is intentionally conservative:
 Example dry run:
 
 ```bash
-sudo ./installer/reset-installation.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/reset-installation.sh --install-dir /opt/misp-docker
 ```
 
 Use destructive reset only after reading the command output and confirming it targets the intended deployment.
