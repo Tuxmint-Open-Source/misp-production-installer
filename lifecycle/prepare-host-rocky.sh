@@ -3,6 +3,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 ADD_CURRENT_USER_TO_DOCKER_GROUP="false"
+ALLOW_UNSUPPORTED_HOST="false"
 
 usage() {
   cat <<'EOF'
@@ -16,6 +17,8 @@ Options:
       Add the sudo-invoking user to the docker group after installation.
       Docker group membership is effectively root-equivalent on the host; use
       this only on trusted single-operator systems.
+  --allow-unsupported-host
+      Continue on a non-Rocky or non-x86_64 host for expert testing only.
   -h, --help   Show this help
   --version    Show manager version
 EOF
@@ -24,6 +27,7 @@ EOF
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --add-current-user-to-docker-group) ADD_CURRENT_USER_TO_DOCKER_GROUP="true"; shift;;
+    --allow-unsupported-host) ALLOW_UNSUPPORTED_HOST="true"; shift;;
     -h|--help) usage; exit 0;;
     --version) print_version; exit 0;;
     *) fatal "Unknown argument: $1";;
@@ -31,7 +35,20 @@ while [[ $# -gt 0 ]]; do
 done
 
 SUDO=""; [[ $(id -u) -ne 0 ]] && SUDO=sudo
-[[ -r /etc/os-release ]] && . /etc/os-release && log "Detected OS: ${PRETTY_NAME:-unknown}"
+[[ -r /etc/os-release ]] || fatal "/etc/os-release is required to validate host support"
+. /etc/os-release
+architecture="$(uname -m)"
+log "Detected OS: ${PRETTY_NAME:-unknown}; architecture: $architecture"
+supported_host=true
+case "${ID:-}" in rocky|almalinux|rhel|centos) ;; *) supported_host=false;; esac
+[[ "$architecture" == x86_64 ]] || supported_host=false
+if [[ "$supported_host" != true ]]; then
+  if [[ "$ALLOW_UNSUPPORTED_HOST" == true ]]; then
+    warn "Continuing on an unsupported host because --allow-unsupported-host was provided."
+  else
+    fatal "Host preparation supports Rocky-compatible Linux on x86_64; use --allow-unsupported-host only for expert testing."
+  fi
+fi
 
 # External package repositories can occasionally time out while downloading
 # metadata or GPG keys. Retry package-manager operations before failing.

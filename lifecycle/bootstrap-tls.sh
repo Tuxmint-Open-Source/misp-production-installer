@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib.sh"
 INSTALL_DIR="/opt/misp-docker"; FQDN="misp.example.com"
 while [[ $# -gt 0 ]]; do case "$1" in --install-dir) INSTALL_DIR="$2"; shift 2;; --fqdn) FQDN="$2"; shift 2;; *) fatal "Unknown argument: $1";; esac; done
+acquire_operation_lock "$INSTALL_DIR"
 require_cmd openssl; mkdir -p "$INSTALL_DIR/ssl"
 python3 - "$FQDN" <<'PY'
 import re

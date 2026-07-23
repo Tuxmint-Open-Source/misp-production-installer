@@ -4,9 +4,24 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+### Added
+
+- Add exclusive lifecycle operation locking and behavioral regression coverage for concurrent mutation, restore destination links, moving upstream branches, generated environment injection, heartbeat failures, quiesced backups, and `--no-start` reporting.
+
 ### Changed
 
+- Require explicit base URL, administrator email, and organization values for install; reject unsafe dotenv values and malformed public URLs before writing configuration.
+- Resolve every selected upstream ref from a fresh fetch, check out its immutable commit, and preserve requested and resolved refs separately in lifecycle state.
+- Quiesce running application services while capturing database, host data, and configuration; validate each completed backup before restarting those services.
+- Enforce Rocky-compatible Linux on x86_64 in host preparation unless an expert explicitly selects `--allow-unsupported-host`.
 - Mark immutable `v1.3.0` and its published operator-bundle artifact as validated compatible with MISP core `v2.5.44`, modules `v3.0.9`, and guard `v1.2` after the complete exact-tag and packaged-artifact lifecycle matrix passed.
+
+### Fixed
+
+- Prevent privileged restore extraction from following pre-existing links in managed destination roots, and reject inconsistent or malformed archived deployment URLs and commit metadata before teardown.
+- Reject HTTP error and malformed JSON heartbeat responses, scope login-readiness log checks to the current startup, and avoid requiring a new startup marker when update leaves the healthy core container unchanged.
+- Report skipped stack startup accurately when install uses `--no-start`, and propagate final doctor failures instead of declaring installation success.
+- Correct immutable GitHub Action version annotations and permit repository-gate dependency installation from all official PyYAML wheel platforms while retaining hash checking.
 
 ## [1.3.0] - 2026-07-23
 

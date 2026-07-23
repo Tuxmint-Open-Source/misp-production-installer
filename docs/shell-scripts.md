@@ -81,7 +81,9 @@ sudo ./lifecycle/install.sh \
 10. waits for the upstream interactive-login readiness marker;
 11. runs `doctor.sh`.
 
-Use `--prepare-host` if you also want `install.sh` to run host preparation on Rocky Linux.
+Use `--prepare-host` if you also want `install.sh` to run host preparation on Rocky Linux. Host preparation rejects unsupported OS families and architectures before package changes; run `prepare-host-rocky.sh --allow-unsupported-host` separately only for expert testing outside the support matrix.
+
+`--base-url`, `--admin-email`, and `--admin-org` are required. Generated environment values are validated before `.env` is written.
 
 ## Exposure modes
 
@@ -94,7 +96,9 @@ Do not use `direct-qa` as the long-term public exposure model.
 
 ## Backup artifacts
 
-`backup.sh` creates a timestamped backup directory containing:
+`backup.sh` creates a fresh unpredictable backup directory under the selected backup root. It briefly quiesces only application services that were already running, validates the finished backup, and restarts those services before success. Prefer `--backup-root /var/backups/misp` or another protected path outside the deployment directory.
+
+The directory contains:
 
 | Artifact | Meaning | Sensitivity |
 | --- | --- | --- |
@@ -111,7 +115,7 @@ Restore requires an explicit backup directory:
 
 ```bash
 sudo ./lifecycle/restore.sh \
-  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --backup-dir /path/to/misp-backup-RANDOM_SUFFIX \
   --install-dir /opt/misp-docker
 ```
 

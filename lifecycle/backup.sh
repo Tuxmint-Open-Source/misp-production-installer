@@ -42,7 +42,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -f "$INSTALL_DIR/.env" ]] || fatal "$INSTALL_DIR/.env missing"
-BACKUP_ROOT="${BACKUP_ROOT:-$INSTALL_DIR/backups}"
+acquire_operation_lock "$INSTALL_DIR"
+if [[ -z "$BACKUP_ROOT" ]]; then
+  BACKUP_ROOT="$INSTALL_DIR/backups"
+  warn "Backup root is inside the install directory and will be removed by destructive reset; use --backup-root outside $INSTALL_DIR for production recovery."
+fi
 umask 077
 mkdir -p "$BACKUP_ROOT"
 python3 - "$BACKUP_ROOT" "$(id -u)" "${SUDO_UID:-}" <<'PY'
@@ -63,10 +67,34 @@ PY
 out="$(mktemp -d --tmpdir="$BACKUP_ROOT" 'misp-backup-XXXXXXXX')"
 chmod 700 "$out"
 complete=false
-trap 'if [[ "$complete" != true ]]; then rm -rf -- "$out"; fi' EXIT
+quiesced_services=()
+
+cleanup_backup() {
+  local exit_status=$?
+  set +e
+  if (( ${#quiesced_services[@]} )); then
+    compose_cmd "$INSTALL_DIR" up -d "${quiesced_services[@]}" >/dev/null 2>&1 || warn "Could not restart every quiesced service; inspect deployment status immediately."
+  fi
+  if [[ "$complete" != true ]]; then
+    rm -rf -- "$out"
+  fi
+  return "$exit_status"
+}
+trap cleanup_backup EXIT
+
+running_output="$(compose_cmd "$INSTALL_DIR" ps --status running --services)" || fatal "Could not determine running Compose services before backup"
+while IFS= read -r service; do
+  [[ -z "$service" || "$service" == db || "$service" == redis ]] && continue
+  quiesced_services+=("$service")
+done <<< "$running_output"
+if (( ${#quiesced_services[@]} )); then
+  log "Quiescing running application services for a consistent backup."
+  compose_cmd "$INSTALL_DIR" stop "${quiesced_services[@]}"
+fi
 
 # Database backup: single-transaction keeps the dump consistent without a long
-# global lock for typical InnoDB tables.
+# global lock for typical InnoDB tables. Application writers remain quiesced
+# until the database, host data, and generated configuration are captured.
 compose_cmd "$INSTALL_DIR" exec -T db sh -lc '
   umask 077
   cfg="$(mktemp)"
@@ -86,6 +114,17 @@ sudo chown "$(id -u):$(id -g)" "$out/misp-host-data.tar.gz"
 (cd "$INSTALL_DIR" && tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml .installer-state.json 2>/dev/null || tar -czf "$out/misp-config.tar.gz" .env docker-compose.override.yml)
 (cd "$out" && sha256sum misp.sql misp-host-data.tar.gz misp-config.tar.gz > SHA256SUMS)
 chmod 600 "$out/misp.sql" "$out/misp-host-data.tar.gz" "$out/misp-config.tar.gz" "$out/SHA256SUMS"
+python3 "$PROJECT_ROOT/scripts/validate-backup.py" "$out"
+
+if (( ${#quiesced_services[@]} )); then
+  log "Restarting services that were running before backup."
+  compose_cmd "$INSTALL_DIR" up -d "${quiesced_services[@]}"
+  quiesced_services=()
+fi
+owner_uid="${SUDO_UID:-$(id -u)}"
+owner_gid="${SUDO_GID:-$(id -g)}"
+[[ "$owner_uid" =~ ^[0-9]+$ && "$owner_gid" =~ ^[0-9]+$ ]] || fatal "Could not determine safe backup ownership"
+sudo chown -R "$owner_uid:$owner_gid" "$out"
 complete=true
 trap - EXIT
-log "Backup written to $out"
+log "Backup written and validated: $out"

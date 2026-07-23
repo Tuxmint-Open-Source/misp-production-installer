@@ -31,7 +31,7 @@ The install directory is an official upstream `MISP/misp-docker` Git checkout.
 ```
 
 MISP upstream currently does not use Git repository tags as the main release
-unit for this Docker packaging.
+unit for this Docker packaging. Install and update fetch the requested ref freshly, check out the resolved immutable commit, and store both values in `.installer-state.json`. A later update without `--upstream-ref` follows the stored requested branch or tag rather than treating the previous commit as the requested ref.
 
 ### 3. Runtime image tags
 
@@ -111,6 +111,7 @@ sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
+  --admin-org ExampleOrg \
   --exposure reverse-proxy
 ```
 
@@ -127,6 +128,7 @@ sudo ./lifecycle/install.sh \
   --install-dir /opt/misp-docker \
   --base-url https://misp.example.com \
   --admin-email admin@example.com \
+  --admin-org ExampleOrg \
   --exposure reverse-proxy \
   --core-tag v2.5.40 \
   --modules-tag v3.0.7 \

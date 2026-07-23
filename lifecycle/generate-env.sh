@@ -8,9 +8,11 @@ while [[ $# -gt 0 ]]; do
     --install-dir) INSTALL_DIR="$2"; shift 2;; --base-url) BASE_URL="$2"; shift 2;; --admin-email) ADMIN_EMAIL="$2"; shift 2;; --admin-org) ADMIN_ORG="$2"; shift 2;; --timezone) TIMEZONE="$2"; shift 2;; --exposure) EXPOSURE="$2"; shift 2;; --core-tag) CORE_TAG_OVERRIDE="$2"; shift 2;; --modules-tag) MODULES_TAG_OVERRIDE="$2"; shift 2;; --guard-tag) GUARD_TAG_OVERRIDE="$2"; shift 2;; --force) FORCE="true"; shift;; *) fatal "Unknown argument: $1";;
   esac
 done
+acquire_operation_lock "$INSTALL_DIR"
 [[ -f "$INSTALL_DIR/template.env" ]] || fatal "Official upstream template.env missing in $INSTALL_DIR"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
 validate_public_base_url "$BASE_URL" "$EXPOSURE"
+validate_env_inputs "$ADMIN_EMAIL" "$ADMIN_ORG" "$TIMEZONE" "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE"
 [[ -e "$INSTALL_DIR/.env" && "$FORCE" != true ]] && fatal "$INSTALL_DIR/.env already exists. Use --force only if intentionally rotating generated secrets."
 cp "$INSTALL_DIR/template.env" "$INSTALL_DIR/.env"; chmod 600 "$INSTALL_DIR/.env"
 export BASE_URL ADMIN_EMAIL ADMIN_ORG TIMEZONE EXPOSURE

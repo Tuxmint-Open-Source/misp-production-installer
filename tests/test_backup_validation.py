@@ -35,6 +35,7 @@ def make_backup(
     extra_config: str | None = None,
     unsafe_host_link: bool = False,
     state_overrides: dict[str, object] | None = None,
+    env_text: bytes = b"BASE_URL=https://misp.example.com\n",
 ) -> Path:
     backup = root / "backup"
     backup.mkdir()
@@ -42,7 +43,7 @@ def make_backup(
     state.update(state_overrides or {})
     (backup / "misp.sql").write_text("-- test dump\n")
     with tarfile.open(backup / "misp-config.tar.gz", "w:gz") as archive:
-        add_bytes(archive, ".env", b"BASE_URL=https://misp.example.com\n")
+        add_bytes(archive, ".env", env_text)
         add_bytes(archive, "docker-compose.override.yml", b"services: {}\n")
         add_bytes(archive, ".installer-state.json", json.dumps(state).encode())
         if extra_config:
@@ -148,6 +149,17 @@ class BackupValidationTests(unittest.TestCase):
             self.assertIn("unsafe upstream repository", result.stderr)
             self.assertNotIn("credential@example", result.stderr)
 
+    def test_rejects_malformed_repository_without_traceback(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(Path(td), state_overrides={
+                "upstream_repo": "https://[invalid/repo.git",
+                "upstream_ref": "master",
+            })
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unsafe upstream repository", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
     def test_rejects_symlinked_backup_artifact(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -184,6 +196,43 @@ class BackupValidationTests(unittest.TestCase):
                 result = self.run_validator(backup)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("source and deployment fields must be strings", result.stderr)
+
+    def test_rejects_malformed_base_url_before_restore(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=b"BASE_URL=https://misp.example.com/?unsafe=true\n",
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("BASE_URL must not contain a query or fragment", result.stderr)
+
+    def test_rejects_state_and_environment_base_url_mismatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(Path(td), state_overrides={
+                "exposure": "reverse-proxy",
+                "base_url": "https://other.example.com",
+            })
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("does not match .installer-state.json", result.stderr)
+
+    def test_rejects_invalid_resolved_commit_in_backup_state(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(Path(td), state_overrides={"upstream_commit": "master"})
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("invalid upstream commit", result.stderr)
+
+    def test_rejects_oversized_configuration_member(self):
+        with tempfile.TemporaryDirectory() as td:
+            backup = make_backup(
+                Path(td),
+                env_text=b"BASE_URL=https://misp.example.com\n" + b"X" * (1024 * 1024),
+            )
+            result = self.run_validator(backup)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("configuration archive member is too large", result.stderr)
 
     def test_fetch_upstream_rejects_option_like_repository_before_git(self):
         with tempfile.TemporaryDirectory() as td:
@@ -381,10 +430,13 @@ class BackupValidationTests(unittest.TestCase):
             state = Path(td) / ".installer-state.json"
             subprocess.run([
                 "bash", "-c",
-                "source lifecycle/lib.sh; write_state \"$1\" repo ref /opt/misp-docker reverse-proxy https://misp.example.com",
+                "source lifecycle/lib.sh; write_state \"$1\" repo master 0123456789abcdef0123456789abcdef01234567 /opt/misp-docker reverse-proxy https://misp.example.com",
                 "_", str(state),
             ], cwd=ROOT, check=True)
             self.assertEqual(stat.S_IMODE(state.stat().st_mode), 0o600)
+            data = json.loads(state.read_text())
+            self.assertEqual(data["upstream_ref"], "master")
+            self.assertEqual(data["upstream_commit"], "0123456789abcdef0123456789abcdef01234567")
 
 
 if __name__ == "__main__":

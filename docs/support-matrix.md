@@ -11,7 +11,7 @@ Anything outside this matrix may still work, but it is not part of the validated
 | Deployment model | single-server Docker | This project is not a clustered or high-availability orchestrator. |
 | Upstream MISP source | official [`MISP/misp-docker`](https://github.com/MISP/misp-docker) | The manager does not fork, vendor, or rewrite MISP. |
 | Installer host OS | Rocky Linux family | Broader OS support requires separate validation. |
-| CPU architecture | x86_64 | Other architectures require separate validation. |
+| CPU architecture | x86_64 | Host preparation enforces this with the OS family unless an expert testing override is supplied; other architectures require separate validation. |
 | Reverse proxy model | external reverse proxy in front of the local HTTPS endpoint | Caddy is the first validated fixture. |
 | Direct-QA mode | validation and controlled QA only | Direct-QA is not the recommended long-term public exposure mode. |
 | MISP component selection | official component tags from upstream or explicit official tags | Custom images/forks are not covered. |

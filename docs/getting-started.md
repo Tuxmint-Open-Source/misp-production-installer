@@ -40,6 +40,8 @@ sudo ./lifecycle/prepare-host-rocky.sh
 
 By default, this does **not** add your user to the Docker group. Docker group membership is root-equivalent on the host. Use `sudo` unless you intentionally accept that trade-off.
 
+The helper stops before package changes unless it detects a Rocky-compatible Linux distribution on x86_64. The `--allow-unsupported-host` option is for expert testing outside the supported matrix, not a support guarantee.
+
 If your host is already prepared, you can skip this step.
 
 ## 3. Install MISP behind a reverse proxy

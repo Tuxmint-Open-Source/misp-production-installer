@@ -233,10 +233,11 @@ class StaticRepoTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('INJECTED', result.stdout)
 
-    def test_doctor_does_not_use_predictable_tmp_heartbeat_file(self):
+    def test_doctor_uses_structured_healthcheck_without_predictable_tmp_file(self):
         text = (ROOT / 'lifecycle' / 'doctor.sh').read_text()
         self.assertNotIn('/tmp/misp-heartbeat.json', text)
-        self.assertIn('heartbeat_body=', text)
+        self.assertIn('"$SCRIPT_DIR/healthcheck.sh"', text)
+        self.assertNotIn('curl -ks https://localhost/users/heartbeat', text)
 
     def test_backup_and_schema_checks_avoid_password_argv(self):
         backup = (ROOT / 'lifecycle' / 'backup.sh').read_text()

@@ -9,8 +9,12 @@ The restore workflow is intentionally restore-based rather than automatic rollba
 Create a backup with:
 
 ```bash
-sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp
 ```
+
+Keep the backup root outside the deployment directory. The helper briefly stops only application services that are running, captures the database and host data, validates the completed backup, and restarts those services before reporting success.
 
 A backup includes:
 
@@ -26,7 +30,7 @@ Backups are sensitive. `misp-config.tar.gz` contains generated deployment secret
 Verify checksums from inside the backup directory:
 
 ```bash
-cd /path/to/misp-backup-YYYYMMDDTHHMMSSZ
+cd /path/to/misp-backup-RANDOM_SUFFIX
 sha256sum -c SHA256SUMS
 ```
 
@@ -40,7 +44,7 @@ Restore from a backup created by `backup.sh`:
 
 ```bash
 sudo ./lifecycle/restore.sh \
-  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --backup-dir /path/to/misp-backup-RANDOM_SUFFIX \
   --install-dir /opt/misp-docker
 ```
 
@@ -57,18 +61,20 @@ By default, restore is conservative:
 - an existing checkout's Git origin must exactly match the selected upstream repository before any Compose teardown;
 - lifecycle state is regenerated atomically for the actual restore target and resolved upstream commit, including for older backups without state metadata;
 - generated configuration is extracted without archive ownership/modes, while validated host data preserves its archived runtime ownership and permissions;
+- existing managed host-data roots are removed and recreated before privileged extraction so pre-existing destination links cannot redirect restored files;
 - host-data members must stay under the documented `configs`, `logs`, `files`, `ssl`, `gnupg`, `custom`, and `guard` roots
 - unsafe links, special files, duplicate members, unexpected files, and invalid lifecycle-manager state are rejected before destructive operations
 - the install directory is safety-checked
 - destructive mode requires `--yes`
 - interactive confirmation requires typing `RESTORE`
 - use `--force` only for tested automation on disposable or clearly scoped hosts
+- mutating lifecycle commands hold an exclusive per-installation lock to prevent concurrent backup, restore, update, reset, or configuration changes
 
 Example non-interactive automation form after reviewing the target:
 
 ```bash
 sudo ./lifecycle/restore.sh \
-  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --backup-dir /path/to/misp-backup-RANDOM_SUFFIX \
   --install-dir /opt/misp-docker \
   --yes \
   --force

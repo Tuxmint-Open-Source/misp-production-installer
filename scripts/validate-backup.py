@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import os
 import posixpath
@@ -39,6 +40,7 @@ HOST_ROOTS = {
     "guard",
 }
 CHECKSUM_RE = re.compile(r"^([0-9a-fA-F]{64}) [ *]([^\r\n]+)$")
+MAX_CONFIG_MEMBER_SIZE = 1024 * 1024
 
 
 class ValidationError(ValueError):
@@ -147,8 +149,46 @@ def validate_link(member: tarfile.TarInfo, normalized_name: str) -> None:
         raise ValidationError(f"unsafe link target in archive member: {normalized_name}")
 
 
+def validate_public_base_url(base_url: str, exposure: str) -> None:
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in base_url):
+        raise ValidationError("BASE_URL must not contain control characters")
+    if any(ch.isspace() or ch in "#$\\\"'" for ch in base_url):
+        raise ValidationError("BASE_URL contains dotenv-unsafe characters")
+    try:
+        parsed = urlparse(base_url)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as exc:
+        raise ValidationError("BASE_URL contains a malformed host or port") from exc
+    if parsed.scheme not in {"http", "https"} or not hostname:
+        raise ValidationError("BASE_URL must be an http(s) URL with a hostname")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValidationError("BASE_URL must not contain embedded credentials")
+    if parsed.query or parsed.fragment:
+        raise ValidationError("BASE_URL must not contain a query or fragment")
+    if port is not None and not 1 <= port <= 65535:
+        raise ValidationError("BASE_URL contains an invalid port")
+    host = hostname.lower().rstrip(".")
+    try:
+        parsed_ip = ipaddress.ip_address(host)
+    except ValueError:
+        parsed_ip = None
+        labels = host.split(".")
+        if any(
+            not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+            for label in labels
+        ):
+            raise ValidationError("BASE_URL hostname contains an invalid DNS label")
+    if exposure == "direct-qa" and (
+        host in {"localhost", "localhost.localdomain"}
+        or (parsed_ip is not None and parsed_ip.is_loopback)
+    ):
+        raise ValidationError("direct-qa BASE_URL must not use a loopback host")
+
+
 def validate_config_archive(path: Path) -> None:
     seen: set[str] = set()
+    env_tar_member: tarfile.TarInfo | None = None
     state_tar_member: tarfile.TarInfo | None = None
     with tarfile.open(path, "r:gz") as archive:
         for member in archive.getmembers():
@@ -160,13 +200,33 @@ def validate_config_archive(path: Path) -> None:
                 raise ValidationError(f"unexpected configuration archive member: {name}")
             if not member.isfile():
                 raise ValidationError(f"configuration archive member must be a regular file: {name}")
-            if name == ".installer-state.json":
+            if member.size > MAX_CONFIG_MEMBER_SIZE:
+                raise ValidationError(f"configuration archive member is too large: {name}")
+            if name == ".env":
+                env_tar_member = member
+            elif name == ".installer-state.json":
                 state_tar_member = member
         missing = REQUIRED_CONFIG_MEMBERS - seen
         if missing:
             raise ValidationError(
                 "configuration archive is missing required members: " + ", ".join(sorted(missing))
             )
+        if env_tar_member is None:
+            raise ValidationError("could not locate .env")
+        env_member = archive.extractfile(env_tar_member)
+        if env_member is None:
+            raise ValidationError("could not read .env")
+        try:
+            env_text = env_member.read().decode("utf-8", errors="strict")
+        except UnicodeDecodeError as exc:
+            raise ValidationError(".env is not valid UTF-8") from exc
+        env: dict[str, str] = {}
+        for line in env_text.splitlines():
+            stripped = line.strip()
+            if stripped and not stripped.startswith("#") and "=" in stripped:
+                key, value = stripped.split("=", 1)
+                env[key.strip()] = value.strip().strip('"').strip("'")
+        state: dict[str, object] = {}
         if state_tar_member is not None:
             state_member = archive.extractfile(state_tar_member)
             if state_member is None:
@@ -179,10 +239,16 @@ def validate_config_archive(path: Path) -> None:
                 raise ValidationError(".installer-state.json has an unexpected installer identity")
             raw_repo = state.get("upstream_repo", "")
             raw_ref = state.get("upstream_ref", "")
+            raw_commit = state.get("upstream_commit", "")
             raw_exposure = state.get("exposure", "")
             raw_base_url = state.get("base_url", "")
-            if not all(isinstance(value, str) for value in (raw_repo, raw_ref, raw_exposure, raw_base_url)):
+            if not all(
+                isinstance(value, str)
+                for value in (raw_repo, raw_ref, raw_commit, raw_exposure, raw_base_url)
+            ):
                 raise ValidationError(".installer-state.json source and deployment fields must be strings")
+            if raw_commit and not re.fullmatch(r"[0-9a-f]{40}", raw_commit):
+                raise ValidationError(".installer-state.json contains an invalid upstream commit")
             if raw_exposure and raw_exposure not in {"reverse-proxy", "direct-qa"}:
                 raise ValidationError(".installer-state.json contains an unsupported exposure mode")
             if any(any(ord(ch) < 32 or ord(ch) == 127 for ch in value) for value in (raw_exposure, raw_base_url)):
@@ -190,13 +256,18 @@ def validate_config_archive(path: Path) -> None:
             repo = raw_repo
             ref = raw_ref
             if repo:
-                parsed = urlparse(repo)
+                try:
+                    parsed = urlparse(repo)
+                    has_credentials = parsed.username is not None or parsed.password is not None
+                except ValueError as exc:
+                    raise ValidationError(
+                        ".installer-state.json contains an unsafe upstream repository"
+                    ) from exc
                 if (
                     repo.startswith("-")
                     or any(ord(ch) < 32 or ord(ch) == 127 for ch in repo)
                     or (parsed.scheme and parsed.scheme not in {"https", "ssh", "git"})
-                    or parsed.username
-                    or parsed.password
+                    or has_credentials
                     or parsed.query
                     or parsed.fragment
                 ):
@@ -208,6 +279,22 @@ def validate_config_archive(path: Path) -> None:
                 or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._/@{}+~-]*", ref)
             ):
                 raise ValidationError(".installer-state.json contains an unsafe upstream ref")
+
+        env_base_url = env.get("BASE_URL", "")
+        state_base_url = state.get("base_url", "")
+        state_exposure = state.get("exposure", "")
+        exposure = state_exposure or (
+            "reverse-proxy" if env.get("CORE_HTTPS_PORT", "").startswith("127.0.0.1:") else "direct-qa"
+        )
+        if not isinstance(state_base_url, str) or not isinstance(state_exposure, str):
+            raise ValidationError(".installer-state.json deployment fields must be strings")
+        if not env_base_url:
+            raise ValidationError(".env lacks BASE_URL")
+        validate_public_base_url(env_base_url, exposure)
+        if state_base_url:
+            validate_public_base_url(state_base_url, exposure)
+            if state_base_url != env_base_url:
+                raise ValidationError(".env BASE_URL does not match .installer-state.json")
 
 
 def validate_host_archive(path: Path) -> None:

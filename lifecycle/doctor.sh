@@ -53,8 +53,5 @@ else
 fi
 
 wait_for_misp_core "$INSTALL_DIR" 600
-check_misp_schema_ready "$INSTALL_DIR"
-compose_cmd "$INSTALL_DIR" ps
-heartbeat_body="$(compose_cmd "$INSTALL_DIR" exec -T misp-core curl -ks https://localhost/users/heartbeat)"
-log "Heartbeat OK: $(tr '\n' ' ' <<<"$heartbeat_body")"
+"$SCRIPT_DIR/healthcheck.sh" --install-dir "$INSTALL_DIR" --format text --timeout 60
 log "Doctor checks completed."

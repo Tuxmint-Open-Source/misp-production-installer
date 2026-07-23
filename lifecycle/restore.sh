@@ -19,8 +19,8 @@ Options:
   --backup-dir PATH    Backup directory containing misp.sql, misp-host-data.tar.gz,
                        misp-config.tar.gz, and SHA256SUMS (required)
   --install-dir PATH   Deployment directory to restore (default: /opt/misp-docker)
-  --upstream-repo URL  Upstream git repository override when backup state is absent
-  --upstream-ref REF   Upstream ref override when backup state is absent
+  --upstream-repo URL  Reviewed upstream git repository override
+  --upstream-ref REF   Reviewed upstream ref override
   --yes                Enable destructive restore mode. You will still be prompted.
   --force              Skip the interactive confirmation prompt. Use only for
                        automation after testing on a disposable host.
@@ -75,6 +75,8 @@ case "$INSTALL_DIR" in
   /|/opt|/srv|/home|/var|/usr|/tmp) fatal "Refusing unsafe --install-dir: $INSTALL_DIR";;
 esac
 [[ "$INSTALL_DIR" == */* ]] || fatal "Refusing unsafe --install-dir: $INSTALL_DIR"
+acquire_operation_lock "$INSTALL_DIR"
+REQUESTED_UPSTREAM_REF="$UPSTREAM_REF"
 
 BACKUP_SOURCE_DIR="$BACKUP_DIR"
 tmp="$(mktemp -d)"
@@ -91,20 +93,27 @@ p=sys.argv[1]
 data=json.load(open(p))
 print(data.get('upstream_repo') or '')
 print(data.get('upstream_ref') or '')
+print(data.get('upstream_commit') or '')
 print(data.get('exposure') or '')
 print(data.get('base_url') or '')
 PY
 )
   archived_repo="${state_vals[0]:-}"
   archived_ref="${state_vals[1]:-}"
-  archived_exposure="${state_vals[2]:-}"
-  archived_base_url="${state_vals[3]:-}"
+  archived_commit="${state_vals[2]:-}"
+  archived_exposure="${state_vals[3]:-}"
+  archived_base_url="${state_vals[4]:-}"
   if [[ "$UPSTREAM_REPO_EXPLICIT" != true && -n "$archived_repo" ]]; then
     [[ "$archived_repo" == "https://github.com/MISP/misp-docker.git" ]] || fatal "Backup uses a non-default upstream repository; pass the reviewed repository explicitly with --upstream-repo."
     UPSTREAM_REPO="$archived_repo"
   fi
-  if [[ "$UPSTREAM_REF_EXPLICIT" != true && -n "$archived_ref" ]]; then
-    UPSTREAM_REF="$archived_ref"
+  if [[ "$UPSTREAM_REF_EXPLICIT" != true ]]; then
+    [[ -n "$archived_ref" ]] && REQUESTED_UPSTREAM_REF="$archived_ref"
+    if [[ -n "$archived_commit" ]]; then
+      UPSTREAM_REF="$archived_commit"
+    elif [[ -n "$archived_ref" ]]; then
+      UPSTREAM_REF="$archived_ref"
+    fi
   fi
 else
   archived_exposure=""
@@ -191,8 +200,10 @@ restored_exposure="${restored_state_vals[0]:-}"
 restored_base_url="${restored_state_vals[1]:-}"
 validate_public_base_url "$restored_base_url" "$restored_exposure"
 resolved_upstream_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
-write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$resolved_upstream_commit" "$INSTALL_DIR" "$restored_exposure" "$restored_base_url"
+write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$REQUESTED_UPSTREAM_REF" "$resolved_upstream_commit" "$INSTALL_DIR" "$restored_exposure" "$restored_base_url"
 
+log "Clearing managed host-data roots before restore."
+prepare_restore_host_roots "$INSTALL_DIR"
 log "Restoring host-mounted data directories."
 sudo tar -C "$INSTALL_DIR" -xzf "$BACKUP_DIR/misp-host-data.tar.gz"
 
@@ -222,11 +233,12 @@ compose_cmd "$INSTALL_DIR" exec -T db sh -lc '
 ' < "$BACKUP_DIR/misp.sql"
 
 log "Starting restored stack."
+operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 compose_cmd "$INSTALL_DIR" up -d
 wait_for_misp_core "$INSTALL_DIR" 600
 run_misp_db_updates "$INSTALL_DIR"
 check_misp_schema_ready "$INSTALL_DIR"
-wait_for_misp_live_marker "$INSTALL_DIR" 900
+wait_for_misp_live_marker "$INSTALL_DIR" 900 "$operation_started_at"
 "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
 
 log "Restore completed for $INSTALL_DIR"

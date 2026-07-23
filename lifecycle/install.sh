@@ -27,9 +27,9 @@ Options:
   --core-tag TAG          Explicit misp-core image/component tag override
   --modules-tag TAG       Explicit misp-modules image/component tag override
   --guard-tag TAG         Explicit misp-guard image/component tag override
-  --base-url URL          Public MISP URL, e.g. https://misp.example.com
-  --admin-email EMAIL     Initial MISP admin email
-  --admin-org NAME        Initial MISP organization name
+  --base-url URL          Public MISP URL (required), e.g. https://misp.example.com
+  --admin-email EMAIL     Initial MISP admin email (required)
+  --admin-org NAME        Initial MISP organization name (required)
   --timezone TZ           Container timezone (default: Europe/Zurich)
   --exposure MODE         reverse-proxy or direct-qa (default: reverse-proxy)
   --prepare-host          Install Docker packages on Rocky Linux first
@@ -50,9 +50,9 @@ CORE_TAG_OVERRIDE=""
 MODULES_TAG_OVERRIDE=""
 GUARD_TAG_OVERRIDE=""
 INSTALL_DIR="/opt/misp-docker"
-BASE_URL="https://misp.example.com"
-ADMIN_EMAIL="admin@example.com"
-ADMIN_ORG="ExampleOrg"
+BASE_URL=""
+ADMIN_EMAIL=""
+ADMIN_ORG=""
 TIMEZONE="Europe/Zurich"
 EXPOSURE="reverse-proxy"
 PREPARE_HOST="false"
@@ -81,8 +81,15 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+[[ -n "$BASE_URL" ]] || fatal "--base-url is required"
+[[ -n "$ADMIN_EMAIL" ]] || fatal "--admin-email is required"
+[[ -n "$ADMIN_ORG" ]] || fatal "--admin-org is required"
 [[ "$EXPOSURE" =~ ^(reverse-proxy|direct-qa)$ ]] || fatal "--exposure must be reverse-proxy or direct-qa"
 validate_public_base_url "$BASE_URL" "$EXPOSURE"
+validate_env_inputs "$ADMIN_EMAIL" "$ADMIN_ORG" "$TIMEZONE" "$CORE_TAG_OVERRIDE" "$MODULES_TAG_OVERRIDE" "$GUARD_TAG_OVERRIDE"
+validate_upstream_source "$UPSTREAM_REPO" "$UPSTREAM_REF"
+acquire_operation_lock "$INSTALL_DIR"
+[[ ! -e "$INSTALL_DIR/.env" && ! -e "$INSTALL_DIR/.installer-state.json" ]] || fatal "$INSTALL_DIR already contains a managed deployment; use update.sh instead of install.sh"
 
 # Host preparation is optional so operators can manage Docker themselves.
 [[ "$PREPARE_HOST" == true ]] && "$SCRIPT_DIR/prepare-host-rocky.sh"
@@ -101,15 +108,22 @@ fi
 
 if [[ "$START" == true ]]; then
   compose_cmd "$INSTALL_DIR" pull
+  operation_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   compose_cmd "$INSTALL_DIR" up -d
   wait_for_misp_core "$INSTALL_DIR" 600
   run_misp_db_updates "$INSTALL_DIR"
   check_misp_schema_ready "$INSTALL_DIR"
-  wait_for_misp_live_marker "$INSTALL_DIR" 900
-  "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR" || warn "Doctor reported a problem; inspect logs with lifecycle/logs.sh"
+  wait_for_misp_live_marker "$INSTALL_DIR" 900 "$operation_started_at"
+  "$SCRIPT_DIR/doctor.sh" --install-dir "$INSTALL_DIR"
+  stack_status="started"
+  login_status="ready (MISP live marker observed during this startup)"
+else
+  stack_status="skipped (--no-start)"
+  login_status="not checked"
 fi
 
-write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$UPSTREAM_REF" "$INSTALL_DIR" "$EXPOSURE" "$BASE_URL"
+resolved_commit="$(git -C "$INSTALL_DIR" rev-parse HEAD)"
+write_state "$INSTALL_DIR/.installer-state.json" "$UPSTREAM_REPO" "$UPSTREAM_REF" "$resolved_commit" "$INSTALL_DIR" "$EXPOSURE" "$BASE_URL"
 cat <<EOF
 
 Installation complete.
@@ -119,6 +133,7 @@ Admin password: stored in $INSTALL_DIR/.env
 Credentials helper: sudo ./lifecycle/admin-credentials.sh --install-dir $INSTALL_DIR
 Install dir: $INSTALL_DIR
 Exposure mode: $EXPOSURE
-Interactive login: ready (MISP live marker observed)
+Stack start: $stack_status
+Interactive login: $login_status
 Manager version: $(installer_version)
 EOF

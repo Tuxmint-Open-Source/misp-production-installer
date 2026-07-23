@@ -2,7 +2,7 @@
 services:
   misp-core:
     healthcheck:
-      test: curl -ks https://localhost/users/heartbeat > /dev/null || exit 1
+      test: curl -ksSf --max-time 2 https://localhost/users/heartbeat > /dev/null || exit 1
       interval: 10s
       timeout: 3s
       retries: 12

@@ -11,6 +11,37 @@ warn() { printf '\033[1;33m[WARN]\033[0m %s\n' "$*" >&2; }
 fatal() { printf '\033[1;31m[ERROR]\033[0m %s\n' "$*" >&2; exit 1; }
 require_cmd() { command -v "$1" >/dev/null 2>&1 || fatal "Required command not found: $1"; }
 
+acquire_operation_lock() {
+  local install_dir="$1" canonical parent lock_id lock_file old_umask
+  local -a lock_values=()
+  if [[ -n "${LIFECYCLE_LOCK_FD:-}" && -e "/proc/$$/fd/$LIFECYCLE_LOCK_FD" ]]; then
+    return 0
+  fi
+  require_cmd flock
+  mapfile -t lock_values < <(python3 - "$install_dir" <<'PY'
+import hashlib
+from pathlib import Path
+import sys
+canonical = str(Path(sys.argv[1]).expanduser().resolve())
+print(canonical)
+print(Path(canonical).parent)
+print(hashlib.sha256(canonical.encode()).hexdigest()[:24])
+PY
+)
+  canonical="${lock_values[0]}"
+  parent="${lock_values[1]}"
+  lock_id="${lock_values[2]}"
+  mkdir -p "$parent"
+  lock_file="$parent/.misp-lifecycle-$lock_id.lock"
+  [[ ! -L "$lock_file" ]] || fatal "Refusing symlinked lifecycle lock: $lock_file"
+  old_umask="$(umask)"
+  umask 077
+  exec {LIFECYCLE_LOCK_FD}>>"$lock_file"
+  umask "$old_umask"
+  export LIFECYCLE_LOCK_FD
+  flock -n "$LIFECYCLE_LOCK_FD" || fatal "Another lifecycle operation is already active for $canonical"
+}
+
 retry_cmd() {
   local attempts="$1" delay="$2"; shift 2
   local attempt
@@ -57,25 +88,40 @@ import sys
 from urllib.parse import urlparse
 
 base_url, exposure = sys.argv[1:]
-if any(ord(ch) < 32 for ch in base_url):
+if any(ord(ch) < 32 or ord(ch) == 127 for ch in base_url):
     raise SystemExit('BASE_URL must not contain control characters')
-parsed = urlparse(base_url)
-if parsed.scheme not in {'http', 'https'} or not parsed.hostname:
+if any(ch.isspace() or ch in '#$\\"\'' for ch in base_url):
+    raise SystemExit('BASE_URL contains characters that are unsafe in dotenv')
+try:
+    parsed = urlparse(base_url)
+    hostname = parsed.hostname
+    port = parsed.port
+except ValueError:
+    raise SystemExit('BASE_URL contains a malformed host or port')
+if parsed.scheme not in {'http', 'https'} or not hostname:
     raise SystemExit('BASE_URL must be an http(s) URL with a hostname')
+if parsed.username is not None or parsed.password is not None:
+    raise SystemExit('BASE_URL must not contain embedded credentials')
+if parsed.query or parsed.fragment:
+    raise SystemExit('BASE_URL must not contain query parameters or fragments')
 
-host = parsed.hostname.lower().rstrip('.')
-# Keep the shell/Python boundary simple and safe: only DNS labels and IP
-# literals are supported. This rejects quotes, whitespace, userinfo, and other
-# surprising characters before any helper consumes the URL.
-if not re.fullmatch(r'[a-z0-9.-]+|[0-9a-f:.]+', host):
-    raise SystemExit('BASE_URL hostname contains unsupported characters')
+if port is not None and not 1 <= port <= 65535:
+    raise SystemExit('BASE_URL contains an invalid port')
+host = hostname.lower().rstrip('.')
+try:
+    parsed_ip = ipaddress.ip_address(host)
+except ValueError:
+    parsed_ip = None
+    labels = host.split('.')
+    if any(
+        not re.fullmatch(r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?', label)
+        for label in labels
+    ):
+        raise SystemExit('BASE_URL hostname contains an invalid DNS label')
 if exposure == 'direct-qa':
     if host in {'localhost', 'localhost.localdomain'}:
         raise SystemExit('direct-qa BASE_URL must be reachable by users; localhost would redirect browsers back to their own machine')
-    try:
-        ip = ipaddress.ip_address(host)
-    except ValueError:
-        ip = None
+    ip = parsed_ip
     if ip and ip.is_loopback:
         raise SystemExit('direct-qa BASE_URL must not use a loopback IP address')
 PY
@@ -89,6 +135,54 @@ from urllib.parse import urlparse
 
 base_url, fallback = sys.argv[1:]
 print(urlparse(base_url).hostname or fallback)
+PY
+}
+
+validate_env_inputs() {
+  python3 - "$@" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+email, organization, timezone, core_tag, modules_tag, guard_tag = sys.argv[1:]
+values = {
+    'admin email': email,
+    'admin organization': organization,
+    'timezone': timezone,
+    'core tag': core_tag,
+    'modules tag': modules_tag,
+    'guard tag': guard_tag,
+}
+for label, value in values.items():
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        raise SystemExit(f'{label} must not contain control characters')
+dotenv_unsafe = set('#$\\"\'')
+if (
+    len(email) > 254
+    or not re.fullmatch(r'[^\s@=]+@[^\s@=]+', email)
+    or any(ch in dotenv_unsafe for ch in email)
+):
+    raise SystemExit('admin email must be a dotenv-safe single-line email address')
+if (
+    not organization
+    or len(organization) > 255
+    or organization != organization.strip()
+    or any(ch in dotenv_unsafe for ch in organization)
+):
+    raise SystemExit('admin organization must be 1-255 dotenv-safe characters without surrounding whitespace')
+if (
+    len(timezone) > 128
+    or not re.fullmatch(r'[A-Za-z0-9._+-]+(?:/[A-Za-z0-9._+-]+)*', timezone)
+    or any(part in {'.', '..'} for part in timezone.split('/'))
+):
+    raise SystemExit('timezone contains unsupported characters')
+zone = Path('/usr/share/zoneinfo') / timezone
+if Path('/usr/share/zoneinfo').is_dir() and not zone.is_file():
+    raise SystemExit('timezone is not present in the system zoneinfo database')
+tag_pattern = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}')
+for label, value in [('core tag', core_tag), ('modules tag', modules_tag), ('guard tag', guard_tag)]:
+    if value and not tag_pattern.fullmatch(value):
+        raise SystemExit(f'{label} contains unsupported characters')
 PY
 }
 
@@ -188,6 +282,7 @@ sync_misp_image_tags() {
   [[ "$image_track" =~ ^(version-tags|latest|keep)$ ]] || fatal "image track must be version-tags, latest, or keep"
   python3 - "$install_dir/template.env" "$install_dir/.env" "$image_track" "$core_tag" "$modules_tag" "$guard_tag" <<'PY'
 from pathlib import Path
+import re
 import sys
 
 template_path = Path(sys.argv[1])
@@ -217,6 +312,10 @@ required = ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG']
 missing = [key for key in required if not template.get(key)]
 if missing:
     raise SystemExit('Missing upstream template values: ' + ', '.join(missing))
+tag_pattern = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}')
+invalid = [key for key in required if not tag_pattern.fullmatch(template[key])]
+if invalid:
+    raise SystemExit('Invalid upstream template values: ' + ', '.join(invalid))
 
 updates = {
     'CORE_TAG': template['CORE_TAG'],
@@ -258,13 +357,32 @@ for key in ['CORE_TAG', 'MODULES_TAG', 'GUARD_TAG', 'CORE_RUNNING_TAG', 'MODULES
 PY
 }
 
+check_misp_heartbeat() {
+  local install_dir="$1" output body status
+  output="$(compose_cmd "$install_dir" exec -T misp-core curl -ksS --fail --max-time 30 --write-out $'\n%{http_code}' https://localhost/users/heartbeat)" || return 1
+  body="${output%$'\n'*}"
+  status="${output##*$'\n'}"
+  [[ "$status" == 200 ]] || return 1
+  python3 - "$body" <<'PY'
+import json
+import sys
+
+try:
+    payload = json.loads(sys.argv[1])
+except json.JSONDecodeError:
+    raise SystemExit(1)
+message = payload.get('message') if isinstance(payload, dict) and set(payload) == {'message'} else None
+raise SystemExit(0 if isinstance(message, str) and 0 < len(message) <= 512 else 1)
+PY
+}
+
 wait_for_misp_core() {
   # MISP's public BASE_URL can point through DNS/reverse proxies. Readiness here
   # intentionally uses container-local HTTPS so DNS and proxy outages do not
   # make container health ambiguous.
   local install_dir="$1" timeout="${2:-600}" elapsed=0 interval=5
   log "Waiting for MISP core HTTPS heartbeat (timeout ${timeout}s)"
-  until compose_cmd "$install_dir" exec -T misp-core curl -ks https://localhost/users/heartbeat >/dev/null 2>&1; do
+  until check_misp_heartbeat "$install_dir" >/dev/null 2>&1; do
     if (( elapsed >= timeout )); then
       fatal "MISP core did not become ready within ${timeout}s"
     fi
@@ -313,14 +431,24 @@ check_misp_schema_ready() {
   '
 }
 
+prepare_restore_host_roots() {
+  local install_dir="$1" root
+  for root in configs logs files ssl gnupg custom guard; do
+    rm -rf -- "$install_dir/$root"
+  done
+}
+
 wait_for_misp_live_marker() {
   # The heartbeat and database schema can become ready before the upstream MISP
   # entrypoint has completed all first-start application/admin initialization.
   # Upstream emits this line when it considers interactive user login available.
-  local install_dir="$1" timeout="${2:-900}" elapsed=0 interval=10
+  local install_dir="$1" timeout="${2:-900}" since="${3:-}" elapsed=0 interval=10
   local marker="MISP is now live. Users can now log in."
+  local log_args=(logs --no-color --tail=2000)
+  [[ -n "$since" ]] && log_args+=(--since "$since")
+  log_args+=(misp-core)
   log "Waiting for MISP interactive login readiness marker (timeout ${timeout}s)"
-  until compose_cmd "$install_dir" logs --no-color --tail=2000 misp-core 2>/dev/null | grep -Fq "$marker"; do
+  until compose_cmd "$install_dir" "${log_args[@]}" 2>/dev/null | grep -Fq "$marker"; do
     if (( elapsed >= timeout )); then
       fatal "MISP did not report interactive login readiness within ${timeout}s. Inspect logs with lifecycle/logs.sh."
     fi
@@ -335,14 +463,17 @@ wait_for_misp_live_marker() {
 
 write_state() {
   # Store non-secret deployment metadata for operators and future update runs.
-  local state_file="$1" upstream_repo="$2" upstream_ref="$3" install_dir="$4" exposure="$5" base_url="$6"
-  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$install_dir" "$exposure" "$base_url" "$(installer_version)" <<'PY'
-import datetime, json, os, sys, tempfile
+  local state_file="$1" upstream_repo="$2" upstream_ref="$3" upstream_commit="$4" install_dir="$5" exposure="$6" base_url="$7"
+  python3 - "$state_file" "$upstream_repo" "$upstream_ref" "$upstream_commit" "$install_dir" "$exposure" "$base_url" "$(installer_version)" <<'PY'
+import datetime, json, os, re, sys, tempfile
 from pathlib import Path
-p, repo, ref, install_dir, exposure, base_url, installer_version = sys.argv[1:]
+p, repo, ref, commit, install_dir, exposure, base_url, installer_version = sys.argv[1:]
+if not re.fullmatch(r'[0-9a-f]{40}', commit):
+    raise SystemExit('upstream commit must be a full lowercase Git commit ID')
 data={
     'upstream_repo': repo,
     'upstream_ref': ref,
+    'upstream_commit': commit,
     'install_dir': install_dir,
     'exposure': exposure,
     'base_url': base_url,

@@ -49,7 +49,7 @@ For Rocky Linux hosts, use:
 sudo ./lifecycle/prepare-host-rocky.sh
 ```
 
-The helper is intentionally conservative about Docker group membership because Docker group access is effectively root-equivalent. Use `sudo` unless you intentionally accept that trade-off.
+The helper is intentionally conservative about Docker group membership because Docker group access is effectively root-equivalent. Use `sudo` unless you intentionally accept that trade-off. It rejects hosts outside the supported Rocky-compatible Linux and x86_64 matrix before package changes; `--allow-unsupported-host` is an expert testing override only.
 
 Read more: [Getting started](getting-started.md), [Security](security.md).
 
@@ -68,7 +68,7 @@ sudo ./lifecycle/install.sh \
   --exposure reverse-proxy
 ```
 
-The manager clones official upstream MISP Docker into the install directory, generates local configuration, pins component image tags, starts the stack, waits for readiness, runs database updates, and verifies the result.
+The manager clones official upstream MISP Docker into the install directory, generates local configuration, pins component image tags, starts the stack, waits for readiness, runs database updates, and verifies the result. The base URL, administrator email, and organization are required and validated before the install directory is changed. With `--no-start`, the manager prepares and validates configuration but reports that startup and runtime checks were skipped.
 
 Read more: [Getting started](getting-started.md), [Production deployment guide](production-deployment.md).
 
@@ -122,8 +122,12 @@ Read more: [Upgrade path](upgrade-path.md), [Backup, restore, and rollback](back
 ## 8. Back up before risky changes
 
 ```bash
-sudo ./lifecycle/backup.sh --install-dir /opt/misp-docker
+sudo ./lifecycle/backup.sh \
+  --install-dir /opt/misp-docker \
+  --backup-root /var/backups/misp
 ```
+
+Use a protected backup root outside the deployment directory so reset and failed-update recovery cannot remove the backup with the deployment. The backup helper briefly stops only running application services, captures the database and host data consistently, validates checksums and archive structure, then restarts those services.
 
 Backups include:
 
@@ -142,7 +146,7 @@ Restore from a backup directory:
 
 ```bash
 sudo ./lifecycle/restore.sh \
-  --backup-dir /path/to/misp-backup-YYYYMMDDTHHMMSSZ \
+  --backup-dir /path/to/misp-backup-RANDOM_SUFFIX \
   --install-dir /opt/misp-docker \
   --yes
 ```

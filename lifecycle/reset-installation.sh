@@ -95,6 +95,13 @@ is_known_installer_dir() {
 if [[ "$YES" == true && -e "$INSTALL_DIR" ]] && ! is_known_installer_dir "$INSTALL_DIR"; then
   fatal "Refusing destructive reset: $INSTALL_DIR does not contain expected MISP lifecycle manager markers (.installer-state.json or docker-compose.yml + template.env + .env)."
 fi
+reviewed_target_fd=""
+if [[ -e "$INSTALL_DIR" ]]; then
+  exec {reviewed_target_fd}<"$INSTALL_DIR"
+  reviewed_target_identity="$(stat -Lc '%d:%i' -- "/proc/$$/fd/$reviewed_target_fd")"
+else
+  reviewed_target_identity="absent"
+fi
 
 run_or_print() {
   if [[ "$YES" == true ]]; then
@@ -105,11 +112,6 @@ run_or_print() {
     printf '\n'
   fi
 }
-
-compose_files_present=false
-if [[ -f "$INSTALL_DIR/docker-compose.yml" || -f "$INSTALL_DIR/compose.yml" ]]; then
-  compose_files_present=true
-fi
 
 warn "This reset removes MISP containers, networks, named volumes, and generated files for: $INSTALL_DIR"
 warn "Docker Engine itself is not removed. Unrelated Docker resources are not targeted."
@@ -123,6 +125,24 @@ if [[ "$YES" == true && "$FORCE" != true ]]; then
   printf 'Type DELETE to continue: '
   read -r confirmation
   [[ "$confirmation" == "DELETE" ]] || fatal "Reset aborted by user."
+fi
+
+if [[ "$YES" == true ]]; then
+  acquire_operation_lock "$INSTALL_DIR"
+  if [[ -e "$INSTALL_DIR" ]]; then
+    current_target_identity="$(stat -Lc '%d:%i' -- "$INSTALL_DIR")"
+  else
+    current_target_identity="absent"
+  fi
+  [[ "$current_target_identity" == "$reviewed_target_identity" ]] || fatal "Reset target changed after review; run a new dry-run before retrying."
+  if [[ -e "$INSTALL_DIR" ]] && ! is_known_installer_dir "$INSTALL_DIR"; then
+    fatal "Reset target no longer contains expected MISP lifecycle manager markers."
+  fi
+fi
+
+compose_files_present=false
+if [[ -f "$INSTALL_DIR/docker-compose.yml" || -f "$INSTALL_DIR/compose.yml" ]]; then
+  compose_files_present=true
 fi
 
 if [[ "$compose_files_present" == true && -f "$INSTALL_DIR/.env" ]]; then
