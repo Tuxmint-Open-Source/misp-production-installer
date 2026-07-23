@@ -4,6 +4,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-07-23
+
 ### Added
 
 - Add exclusive lifecycle operation locking and behavioral regression coverage for concurrent mutation, restore destination links, moving upstream branches, generated environment injection, heartbeat failures, quiesced backups, and `--no-start` reporting.
@@ -215,7 +217,8 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 - MISP schema readiness handling via `Admin runUpdates` and `bookmarks` table check.
 - Public documentation for architecture, upgrade path, troubleshooting, shell scripts, and versioning.
 
-[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.1...HEAD
+[1.3.1]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Tuxmint-Open-Source/misp-docker-lifecycle-manager/compare/v1.0.0...v1.1.0
