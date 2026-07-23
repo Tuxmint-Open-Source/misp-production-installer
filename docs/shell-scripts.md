@@ -2,7 +2,9 @@
 
 The `installer/` directory contains Bash helpers for operating an official `MISP/misp-docker` deployment.
 
-This page is the command reference. For the recommended human path, start with [Getting started](getting-started.md) or the [Operator guide](operator-guide.md).
+This page is the command reference. For the recommended human path, start with the [documentation map](README.md), then use [Getting started](getting-started.md) or the [Operator guide](operator-guide.md).
+
+Most operators should use the main commands below. Internal helpers and thin Docker Compose wrappers exist so the main commands can stay small and reviewable; they are not a second supported user journey.
 
 ## Main commands
 
@@ -26,7 +28,7 @@ These operator-facing scripts support both `--help` and `--version`:
 
 ## Internal/helper scripts
 
-These scripts are used by the main commands or are thin Docker Compose wrappers. They may not have standalone `--help` output and should normally be called only when the operator guide or troubleshooting docs tell you to do so.
+These scripts are used by the main commands or are thin Docker Compose wrappers. They may not have standalone `--help`/`--version` output and should normally be called only when the operator guide or troubleshooting docs tell you to do so. In particular, wrapper scripts such as `up.sh`, `down.sh`, `pull.sh`, and `logs.sh` expect a prepared install directory instead of acting like self-contained CLI entry points.
 
 | Script | Role |
 | --- | --- |
@@ -231,7 +233,7 @@ Review the generated file before posting it publicly. Use [`docs/sos-report.md`]
 
 ## What to read next
 
-- Return to the [documentation map](README.md).
+- Return to the [documentation map](README.md) and choose the user/operator path.
 - Follow the normal lifecycle in [Operator guide](operator-guide.md).
 - Use [Getting started](getting-started.md) for a first install.
 - Use [Troubleshooting](troubleshooting.md) when a command fails.

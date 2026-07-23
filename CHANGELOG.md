@@ -6,6 +6,7 @@ This project follows [Semantic Versioning](https://semver.org/) for the installe
 
 ### Changed
 
+- Clarify contributor and command-reference entry points so `AGENTS.md` and the shell script reference align with the user/operator versus contributor/maintainer documentation split.
 - Align major documentation "What to read next" sections with the new reader-path map so user/operator and contributor/maintainer routes stay consistent.
 - Split the documentation entry path into clearer user/operator and contributor/maintainer sections, keeping the top-level README as a concise front door while preserving links to detailed operator, release, and validation docs.
 - Document the immutable upstream Git and container input policy, distinguishing discovery/development refs from validated compatibility identities and deferring OCI digest guarantees until operator verification and metadata rules are designed.

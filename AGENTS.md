@@ -79,9 +79,12 @@ Installer changes should preserve these expectations:
 
 ## Useful files
 
-- `README.md` — human quick start and overview.
-- `QA.md` — quality gates and acceptance criteria.
+- `README.md` — concise repository front door and current release status.
+- `docs/README.md` — documentation map split into user/operator and contributor/maintainer paths.
+- `docs/operator-guide.md` — normal operator lifecycle from install through day-2 operations.
+- `docs/shell-scripts.md` — command reference and the boundary between operator-facing commands and helper/wrapper scripts.
 - `docs/release/release-process.md` — release workflow.
-- `docs/versioning.md` — SemVer guidance.
-- `docs/troubleshooting.md` — operator troubleshooting.
+- `docs/release/integrity-and-provenance.md` — release artifact integrity and deferred provenance controls.
+- `docs/upstream-inputs.md` — upstream Git/component/container input identity policy.
+- `QA.md` — quality gates and acceptance criteria.
 - `tests/test_static.py` — static repository safety and workflow tests.

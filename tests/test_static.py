@@ -804,7 +804,15 @@ class StaticRepoTests(unittest.TestCase):
         self.assertIn('RESTORE', shell_docs)
         self.assertIn('--machine-readable', shell_docs)
         self.assertIn('--show-password', shell_docs)
+        self.assertIn('not a second supported user journey', shell_docs)
+        self.assertIn('standalone `--help`/`--version` output', shell_docs)
+        self.assertIn('expect a prepared install directory', shell_docs)
+        self.assertIn('choose the user/operator path', shell_docs)
         self.assertIn('production-oriented lifecycle manager', agents)
+        self.assertIn('documentation map split into user/operator and contributor/maintainer paths', agents)
+        self.assertIn('command reference and the boundary between operator-facing commands and helper/wrapper scripts', agents)
+        self.assertIn('release artifact integrity and deferred provenance controls', agents)
+        self.assertIn('upstream Git/component/container input identity policy', agents)
         self.assertNotIn('production-oriented installer/overlay', agents)
 
     def test_community_health_files_exist_and_are_public_safe(self):
