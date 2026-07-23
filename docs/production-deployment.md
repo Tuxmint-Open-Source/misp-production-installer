@@ -2,7 +2,7 @@
 
 This guide describes the supported production deployment workflow for `misp-docker-lifecycle-manager` within the documented stable release scope.
 
-`v1.3.0` is the latest published release and is pending exact-tag validation. `v1.2.0` remains the latest validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
+`v1.3.0` is both the latest published and latest validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 ## Supported production shape
 
@@ -106,11 +106,11 @@ See [`backup-restore-and-rollback.md`](backup-restore-and-rollback.md) for the v
 
 The generated deployment remains a normal official `MISP/misp-docker` checkout. If this installer repository is removed after installation, operators can still inspect and manage the generated deployment with normal Docker Compose commands from the install directory.
 
-`v1.3.0` no-lock-in validation is pending. No-lock-in behavior passed exact-tag and packaged-artifact validation for `v1.2.0` with the documented component tuple.
+No-lock-in behavior passed exact-tag and packaged-artifact validation for `v1.3.0` with the documented component tuple.
 
 ## Compatibility scope
 
-`v1.3.0` requires a new exact-tag and packaged-artifact validation pass before compatibility is claimed. The immutable `v1.2.0` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Future manager releases, upstream component sets, or expanded deployment scopes require separate validation before compatibility is claimed.
+The immutable `v1.3.0` tag and published operator-bundle artifact passed restore, browser-login, restore-based rollback, monitoring, and lifecycle validation for core `v2.5.44`, modules `v3.0.9`, and guard `v1.2`. Future manager releases, upstream component sets, or expanded deployment scopes require separate validation before compatibility is claimed.
 
 ## What to read next
 

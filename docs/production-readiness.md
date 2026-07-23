@@ -1,6 +1,6 @@
 # Production readiness
 
-`v1.3.0` is the latest published release being prepared for the lifecycle command-path rename. It is pending exact-tag and packaged-artifact validation; `v1.2.0` remains the latest validated-compatible release for the documented single-server Docker lifecycle-manager scope and component tuple.
+`v1.3.0` is both the latest published and latest validated release for the documented single-server Docker lifecycle-manager scope and component tuple.
 
 Production readiness here applies only to the public support matrix and explicitly validated manager release/component pairs. It is not a claim that every operating system, topology, proxy, customization, or future MISP component set is supported.
 
@@ -10,23 +10,23 @@ Production readiness here applies only to the public support matrix and explicit
 | --- | --- |
 | Latest manager release | `v1.3.0` |
 | Latest validated MISP component set | core `v2.5.44`, modules `v3.0.9`, guard `v1.2` |
-| Compatibility status | 🟡 `v1.3.0` pending exact-tag validation; ✅ `v1.2.0` remains validated compatible for the listed component tuple |
+| Compatibility status | ✅ `v1.3.0` validated compatible for the listed component tuple |
 | Public compatibility evidence | ✅ [`compatibility.md`](compatibility.md) and [`validation/matrix.md`](validation/matrix.md) |
 | Public support scope | ✅ [`support-matrix.md`](support-matrix.md) |
 | Production deployment guide | ✅ [`production-deployment.md`](production-deployment.md) |
 | Security model | ✅ [`security.md`](security.md) |
-| Backup, restore, and rollback | 🟡 `v1.3.0` pending; ✅ `v1.2.0` exact-tag and packaged-artifact evidence retained |
-| Browser-facing login | 🟡 `v1.3.0` pending; ✅ `v1.2.0` exact-tag browser evidence retained |
-| No-lock-in Compose operation | 🟡 `v1.3.0` pending; ✅ `v1.2.0` exact-tag and packaged-artifact evidence retained |
-| Monitoring contract | 🟡 `v1.3.0` pending; ✅ `v1.2.0` contract/parser and real-deployment producer validation retained; native platform ingestion remains unvalidated |
+| Backup, restore, and rollback | ✅ `v1.3.0` exact-tag and packaged-artifact evidence |
+| Browser-facing login | ✅ `v1.3.0` exact-tag browser evidence |
+| No-lock-in Compose operation | ✅ `v1.3.0` exact-tag and packaged-artifact evidence |
+| Monitoring contract | ✅ `v1.3.0` contract/parser and real-deployment producer validation; native platform ingestion remains unvalidated |
 
 ## `v1.3.0` release-validation state
 
-`v1.3.0` packages work added after the `v1.2.0` tag, including the lifecycle command-path rename from `installer/` to `lifecycle/` and retained `installer/` compatibility wrappers. Exact-tag and packaged-artifact validation is pending; it must cover both canonical `./lifecycle/*.sh` commands and compatibility `./installer/*.sh` wrappers before the release is marked validated-compatible.
+`v1.3.0` packages work added after the `v1.2.0` tag, including the lifecycle command-path rename from `installer/` to `lifecycle/` and retained `installer/` compatibility wrappers. The immutable tag and published operator-bundle artifact passed the complete lifecycle validation matrix for the documented component tuple, including canonical `./lifecycle/*.sh` commands and compatibility `./installer/*.sh` wrappers. It is now the latest validated-compatible release.
 
 ## `v1.2.0` release-validation state
 
-`v1.2.0` packages work added after the `v1.1.0` tag, including the required repository gate, upstream-publication token boundary, verified ShellCheck acquisition, and operator-bundle generation/release-asset automation. Its immutable tag and published operator-bundle artifact passed the complete lifecycle validation matrix for the documented component tuple. It remains the latest validated-compatible release until `v1.3.0` validation passes.
+`v1.2.0` packages work added after the `v1.1.0` tag, including the required repository gate, upstream-publication token boundary, verified ShellCheck acquisition, and operator-bundle generation/release-asset automation. Its immutable tag and published operator-bundle artifact passed the complete lifecycle validation matrix for the documented component tuple. It remains retained historical validated evidence.
 
 ## `v1.1.0` release-validation state
 

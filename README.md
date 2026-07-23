@@ -5,14 +5,14 @@
 >
 > | Channel | Version | Meaning |
 > | --- | --- | --- |
-> | Latest published | `v1.3.0` | Newest normal SemVer release; pending exact-tag validation |
-> | Latest validated | `v1.2.0` | Newest immutable release tag that passed the full compatibility matrix |
+> | Latest published | `v1.3.0` | Newest normal SemVer release |
+> | Latest validated | `v1.3.0` | Newest immutable release tag that passed the full compatibility matrix |
 >
 > Select through these channels, but install and report the immutable SemVer tag. The machine-readable source is [`.release-channels.json`](.release-channels.json); mutable `stable` and `latest` Git tags are intentionally not used.
 
 A non-invasive lifecycle manager for official `MISP/misp-docker` single-server Docker deployments.
 
-Current `VERSION` value on `main`: `1.3.0`. The `v1.3.0` release is pending exact-tag and packaged-artifact validation; `v1.2.0` remains the latest validated-compatible release.
+Current `VERSION` value on `main`: `1.3.0`. The immutable `v1.3.0` tag and published operator-bundle artifact are validated compatible with the component set listed below.
 
 MISP Docker Lifecycle Manager helps operators install, configure, validate, update, back up, restore, and safely remove MISP Docker deployments while keeping the generated deployment a normal official upstream checkout.
 
@@ -87,7 +87,7 @@ manager release/ref × official MISP Docker component set = status
 
 | Manager release/ref | MISP core | MISP modules | MISP guard | Status |
 | --- | ---: | ---: | ---: | --- |
-| `v1.3.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ⏳ Pending exact-tag validation |
+| `v1.3.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.2.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.1.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
 | `v1.0.0` release tag | `v2.5.44` | `v3.0.9` | `v1.2` | ✅ Validated compatible |
@@ -130,7 +130,7 @@ For update policy and version details, see [`docs/upgrade-path.md`](docs/upgrade
 
 ## Release readiness
 
-`v1.3.0` is the latest release being prepared and is pending exact-tag plus packaged-artifact validation. `v1.2.0` remains the latest validated-compatible release until the new release passes the required lifecycle matrix.
+`v1.3.0` is both the latest published and latest validated release for the listed component set. The immutable tag and published operator-bundle artifact passed the required lifecycle matrix for the documented scope.
 
 See [`docs/production-readiness.md`](docs/production-readiness.md).
 
