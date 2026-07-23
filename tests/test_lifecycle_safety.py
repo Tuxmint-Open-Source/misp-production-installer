@@ -231,12 +231,16 @@ class LifecycleSafetyTests(unittest.TestCase):
             log = root / "docker.log"
             docker = fake_bin / "docker"
             docker.write_text(
-                "#!/bin/sh\n"
-                "printf '%s\\n' \"$*\" >> \"$DOCKER_LOG\"\n"
-                "case \"$*\" in\n"
-                "  *\" ps --status running --services\") printf 'misp-core\\ndb\\nredis\\n';;\n"
-                "  *\" exec -T db \"*) printf '%s\\n' '-- fixture dump';;\n"
-                "esac\n"
+                """#!/bin/sh
+printf '%s\n' "$*" >> "$DOCKER_LOG"
+case "$*" in
+  *" ps --status running --services") printf 'misp-core\ndb\nredis\n';;
+  *" exec -T db sh -lc "*) printf 'bookmarks\n';;
+  *" exec -T db "*) printf '%s\n' '-- fixture dump';;
+  *" exec -T misp-core curl "*) printf '{"message":"ok"}\n200\n';;
+  *" logs --no-color "*) printf 'MISP is now live. Users can now log in.\n';;
+esac
+"""
             )
             docker.chmod(0o755)
             sudo = fake_bin / "sudo"
@@ -263,8 +267,14 @@ class LifecycleSafetyTests(unittest.TestCase):
             stop_index = next(i for i, call in enumerate(calls) if " stop misp-core" in call)
             dump_index = next(i for i, call in enumerate(calls) if " exec -T db " in call)
             restart_index = next(i for i, call in enumerate(calls) if " up -d misp-core" in call)
+            heartbeat_index = next(i for i, call in enumerate(calls) if " exec -T misp-core curl" in call)
+            schema_index = next(i for i, call in enumerate(calls[heartbeat_index + 1:], heartbeat_index + 1) if " exec -T db sh" in call)
+            logs_index = next(i for i, call in enumerate(calls) if " logs --no-color" in call)
             self.assertLess(stop_index, dump_index)
             self.assertLess(dump_index, restart_index)
+            self.assertLess(restart_index, heartbeat_index)
+            self.assertLess(heartbeat_index, schema_index)
+            self.assertLess(schema_index, logs_index)
             backups = [path for path in backup_root.iterdir() if path.is_dir()]
             self.assertEqual(len(backups), 1)
             self.assertTrue((backups[0] / "SHA256SUMS").is_file())

@@ -119,6 +119,11 @@ python3 "$PROJECT_ROOT/scripts/validate-backup.py" "$out"
 if (( ${#quiesced_services[@]} )); then
   log "Restarting services that were running before backup."
   compose_cmd "$INSTALL_DIR" up -d "${quiesced_services[@]}"
+  if [[ " ${quiesced_services[*]} " == *" misp-core "* ]]; then
+    wait_for_misp_core "$INSTALL_DIR" 600
+    check_misp_schema_ready "$INSTALL_DIR"
+    wait_for_misp_live_marker "$INSTALL_DIR" 900
+  fi
   quiesced_services=()
 fi
 owner_uid="${SUDO_UID:-$(id -u)}"
